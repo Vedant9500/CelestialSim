@@ -10,22 +10,62 @@ The N-body problem involves predicting the motion of a group of celestial object
 2. Visualization tools using Python with Matplotlib
 3. Support for both Solar System simulation and random body generation
 
-## Files
+## Quick Start
 
-- `nbody_simulation.cpp` - Main C++ simulation program
-- `visualize_simulation.py` - Python script for visualization
+### Automatic Setup (Recommended)
 
-## How to Run the Simulation
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/Vedant9500/N-Body-problem.git
+   cd N-Body-problem
+   ```
 
-### Step 1: Compile the C++ program
+2. Run the setup script:
+   ```bash
+   python setup.py
+   ```
+   This will:
+   - Check for required dependencies
+   - Install Python packages
+   - Compile the C++ code
+
+3. Run the simulation:
+   ```bash
+   # On Windows
+   .\nbody_simulation.exe
+   
+   # On Linux/macOS
+   ./nbody_simulation
+   ```
+
+4. Visualize the results:
+   ```bash
+   python visualize_simulation.py
+   ```
+
+### Manual Setup
+
+If the automatic setup doesn't work, follow these steps:
+
+#### Step 1: Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+#### Step 2: Compile the C++ program
 
 ```bash
 g++ -o nbody_simulation nbody_simulation.cpp -O3
 ```
 
-### Step 2: Run the simulation
+#### Step 3: Run the simulation
 
 ```bash
+# On Windows
+.\nbody_simulation.exe
+
+# On Linux/macOS
 ./nbody_simulation
 ```
 
@@ -35,12 +75,7 @@ The program will prompt you to choose between:
 
 The simulation results will be saved to `nbody_simulation_results.csv`.
 
-### Step 3: Visualize the results
-
-To visualize the simulation results, you need Python with the following packages:
-- matplotlib
-- numpy
-- pandas
+#### Step 4: Visualize the results
 
 Run the visualization script:
 
@@ -53,6 +88,15 @@ To save the animation to a file (requires FFmpeg):
 ```bash
 python visualize_simulation.py nbody_simulation_results.csv animation.mp4
 ```
+
+## Requirements
+
+- **Python**: 3.6 or higher
+- **C++ Compiler**: g++ (MinGW on Windows) or MSVC
+- **Python Libraries**:
+  - matplotlib
+  - numpy
+  - pandas
 
 ## How the Simulation Works
 
@@ -85,3 +129,23 @@ Potential improvements for this simulation:
 - Implement Barnes-Hut algorithm for O(n log n) performance
 - Add more realistic physics (relativistic effects, non-gravitational forces)
 - Support for interactive parameter adjustment
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Missing Python Dependencies**
+   - Error: `ModuleNotFoundError: No module named 'matplotlib'`
+   - Solution: Run `pip install -r requirements.txt`
+
+2. **C++ Compilation Errors**
+   - Error: `g++: command not found`
+   - Solution: Install g++ (MinGW on Windows) or run the setup with MSVC
+
+3. **Animation Not Displaying**
+   - Issue: Animation window doesn't appear
+   - Solution: Check for any Python error messages and ensure matplotlib is installed correctly
+
+### Getting Help
+
+If you encounter issues not covered here, please open an issue on the GitHub repository.

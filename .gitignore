@@ -398,3 +398,35 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Compiled files
+*.exe
+*.o
+*.obj
+*.out
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Simulation results
+# Uncomment if you don't want to track simulation results by default
+# *.csv
+
+# OS specific
+.DS_Store
+Thumbs.db
