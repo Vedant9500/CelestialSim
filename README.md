@@ -1,47 +1,45 @@
-# N-Body Simulation
+# Interactive N-Body Simulation
 
-This project simulates the N-body gravitational problem in C++ with a Python visualization tool.
+A simple, interactive 2D gravitational simulation where you can click to place bodies, set their properties, and watch them interact in real-time!
+
+## 🎮 What You Can Do
+
+- **Click to Place Bodies**: Left-click anywhere to add a new gravitational body
+- **Customize Properties**: Adjust mass, velocity, and trail length using sliders
+- **Real-time Simulation**: Watch bodies interact with realistic gravitational physics
+- **Interactive Controls**: Zoom, pan, and control the simulation flow
+- **Save/Load**: Save your configurations and load them later
 
 ## Overview
 
-The N-body problem involves predicting the motion of a group of celestial objects interacting with each other gravitationally. This implementation includes:
-
-1. A high-performance C++ simulation engine
-2. Visualization tools using Python with Matplotlib
-3. Support for both Solar System simulation and random body generation
+This is a user-friendly N-body gravitational simulation perfect for:
+- Learning about gravity and orbital mechanics
+- Exploring chaotic systems and three-body problems
+- Understanding conservation of energy and momentum
+- Visualizing celestial mechanics concepts
+- Having fun with physics!
 
 ## Quick Start
 
-### Automatic Setup (Recommended)
-
-1. Clone this repository:
+1. **Install pygame**:
    ```bash
-   git clone https://github.com/Vedant9500/N-Body-problem.git
-   cd N-Body-problem
+   pip install pygame
+   ```
+   Or run the automatic setup:
+   ```bash
+   python simple_setup.py
    ```
 
-2. Run the setup script:
+2. **Run the interactive simulation**:
    ```bash
-   python setup.py
-   ```
-   This will:
-   - Check for required dependencies
-   - Install Python packages
-   - Compile the C++ code
-
-3. Run the simulation:
-   ```bash
-   # On Windows
-   .\nbody_simulation.exe
-   
-   # On Linux/macOS
-   ./nbody_simulation
+   python interactive_2d_simulation.py
    ```
 
-4. Visualize the results:
-   ```bash
-   python visualize_simulation.py
-   ```
+3. **Start creating**:
+   - Left-click to place bodies
+   - Use the control panel to adjust properties
+   - Press Space to start the simulation
+   - Watch the gravitational dance!
 
 ### Manual Setup
 
@@ -89,46 +87,96 @@ To save the animation to a file (requires FFmpeg):
 python visualize_simulation.py nbody_simulation_results.csv animation.mp4
 ```
 
+## 🎯 Controls
+
+### Mouse Controls
+- **Left Click**: Place a new body at cursor position
+- **Right Click**: Select an existing body to modify its properties
+- **Mouse Wheel**: Zoom in/out
+
+### Keyboard Controls
+- **Space**: Start/Pause the simulation
+- **R**: Reset all velocities and clear trails
+- **C**: Clear all bodies
+- **T**: Toggle trail visibility
+- **ESC**: Quit
+
+### Control Panel
+- **Mass Slider**: Adjust the mass of new bodies (or selected body)
+- **Velocity Sliders**: Set initial velocity for new bodies
+- **Trail Length**: Control how long the orbital trails are
+- **Time Scale**: Speed up or slow down the simulation
+- **Buttons**: Start/Pause, Reset, Clear, Save/Load configurations
+
+## 🔬 Physics Features
+
+- **Realistic Gravity**: Uses Newton's law of universal gravitation
+- **Real-time Integration**: Smooth physics calculations at 60 FPS
+- **Collision Avoidance**: Prevents numerical instabilities
+- **Trail Visualization**: See the orbital paths of bodies
+- **Velocity Vectors**: Visualize velocity when bodies are selected
+
 ## Requirements
 
-- **Python**: 3.6 or higher
-- **C++ Compiler**: g++ (MinGW on Windows) or MSVC
-- **Python Libraries**:
-  - matplotlib
-  - numpy
-  - pandas
+- Python 3.6 or higher
+- pygame 2.0.0 or higher
 
-## How the Simulation Works
+## 🎨 Tips for Cool Simulations
 
-The simulation implements these key components:
+### Create a Binary Star System
+1. Place one large body (high mass) in the center
+2. Place a smaller body nearby
+3. Give the smaller body perpendicular velocity
+4. Watch them orbit each other!
 
-1. **Physical Model**: Uses Newton's law of universal gravitation to calculate forces between bodies.
-2. **Numerical Integration**: Uses a simple Euler integration method to update positions and velocities.
-3. **Data Collection**: Records position and velocity data at regular intervals.
+### Build a Solar System
+1. Place a massive central "sun"
+2. Add smaller "planets" at different distances
+3. Give each planet appropriate orbital velocity
+4. Adjust time scale to see long-term evolution
 
-## Performance Considerations
+### Experiment with Chaos
+1. Place three bodies of similar mass in a triangle
+2. Give them small, random velocities
+3. Watch the unpredictable three-body dance!
 
-The C++ implementation is optimized for performance:
-- Uses efficient data structures
-- Employs distance smoothing to prevent numerical instability
-- Includes progress reporting for long simulations
+## 🚧 3D Version Coming Soon!
 
-## Visualization Features
+We're working on an amazing 3D interactive version with:
+- Full 3D body placement and visualization
+- Beautiful OpenGL graphics
+- VR support
+- Advanced physics options
 
-The Python visualization tool offers:
-- 3D animation of body movements
-- Trailing paths showing orbital trajectories
-- Body size scaled by mass
-- Color-coded bodies for easy identification
+Stay tuned!
 
-## Future Improvements
+## 🐛 Troubleshooting
 
-Potential improvements for this simulation:
-- Implement more accurate integration methods (Verlet, Runge-Kutta)
-- Add collision detection and handling
-- Implement Barnes-Hut algorithm for O(n log n) performance
-- Add more realistic physics (relativistic effects, non-gravitational forces)
-- Support for interactive parameter adjustment
+**pygame not installing?**
+- Try: `pip install --user pygame`
+- On Linux: `sudo apt-get install python3-pygame`
+- On Mac: `brew install pygame`
+
+**Simulation running slowly?**
+- Reduce the number of bodies
+- Increase time scale for faster motion
+- Close other applications
+
+**Bodies flying away?**
+- Use smaller initial velocities
+- Increase masses for stronger gravity
+- Reset and try different configurations
+
+## 🎓 Educational Use
+
+This simulation is perfect for:
+- Learning about gravity and orbital mechanics
+- Exploring chaotic systems and three-body problems
+- Understanding conservation of energy and momentum
+- Visualizing celestial mechanics concepts
+- Having fun with physics!
+
+Enjoy exploring the universe of gravitational interactions! 🌟
 
 ## Troubleshooting
 
