@@ -1,2 +1,2 @@
 # Requirements for Interactive N-Body Simulation
-pygame>=2.0.0
+dearpygui>=1.6.2

@@ -1,2 +1,0 @@
-# Requirements for Interactive N-Body Simulation
-pygame>=2.0.0
