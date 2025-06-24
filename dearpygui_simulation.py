@@ -13,11 +13,13 @@ import json
 import time
 
 # --- Constants ---
-SIM_WIDTH = 1200
-SIM_HEIGHT = 800
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 800
 PANEL_WIDTH = 300
-VIEWPORT_WIDTH = SIM_WIDTH + PANEL_WIDTH
-VIEWPORT_HEIGHT = SIM_HEIGHT
+SIM_WIDTH = SCREEN_WIDTH - PANEL_WIDTH  # This should be 900, not 1200!
+SIM_HEIGHT = SCREEN_HEIGHT
+VIEWPORT_WIDTH = SCREEN_WIDTH
+VIEWPORT_HEIGHT = SCREEN_HEIGHT
 
 # --- Data Classes (same as before) ---
 @dataclass
@@ -72,6 +74,11 @@ class NBodySimulatorDearPyGui:
         self.dragging_body = False
         self.drag_offset_x = 0
         self.drag_offset_y = 0
+        
+        # Debug state
+        self.last_click_canvas_x = 0
+        self.last_click_canvas_y = 0
+        self.show_crosshair = False
 
         self.setup_dpg()
 
@@ -177,17 +184,20 @@ class NBodySimulatorDearPyGui:
         self.selected_body = None
 
     def center_view(self):
+        print(f"CENTER_VIEW called! Before: camera=({self.camera_x:.2f}, {self.camera_y:.2f})")
         if self.bodies:
             # Center on center of mass
             total_mass = sum(body.mass for body in self.bodies)
             center_x = sum(body.x * body.mass for body in self.bodies) / total_mass
             center_y = sum(body.y * body.mass for body in self.bodies) / total_mass
+            print(f"Centering on center of mass: ({center_x:.2f}, {center_y:.2f})")
             self.camera_x = center_x
             self.camera_y = center_y
         else:
             self.camera_x = 0
             self.camera_y = 0
         self.zoom = 1.0
+        print(f"CENTER_VIEW finished! After: camera=({self.camera_x:.2f}, {self.camera_y:.2f})")
 
     # Slider callbacks
     def update_mass(self, sender, app_data):
@@ -216,29 +226,45 @@ class NBodySimulatorDearPyGui:
 
     # Mouse handlers
     def mouse_click_handler(self, sender, app_data):
-        mouse_x, mouse_y = dpg.get_mouse_pos()
+        mouse_pos = dpg.get_mouse_pos()
+        mouse_x, mouse_y = mouse_pos
+        
+        # Debug: print mouse position
+        print(f"\n=== MOUSE CLICK DEBUG ===")
+        print(f"Mouse click at viewport: ({mouse_x:.1f}, {mouse_y:.1f}), button: {app_data}")
+        print(f"BEFORE: Camera: ({self.camera_x:.2f}, {self.camera_y:.2f}), Zoom: {self.zoom:.3f}")
         
         # Check if click is in simulation area
-        if not (PANEL_WIDTH < mouse_x < VIEWPORT_WIDTH and 0 < mouse_y < VIEWPORT_HEIGHT):
+        if mouse_x <= PANEL_WIDTH or mouse_x >= VIEWPORT_WIDTH or mouse_y < 0 or mouse_y >= VIEWPORT_HEIGHT:
+            print("Click outside simulation area")
             return
             
-        # Convert to simulation coordinates
-        sim_x = mouse_x - PANEL_WIDTH
-        sim_y = mouse_y
-        world_x, world_y = self.screen_to_world(sim_x, sim_y)
+        # Convert to canvas coordinates
+        canvas_x, canvas_y = self.mouse_to_canvas_coords(mouse_x, mouse_y)
+        print(f"Canvas coordinates: ({canvas_x:.1f}, {canvas_y:.1f})")
+        
+        # Convert to world coordinates
+        world_x, world_y = self.screen_to_world(canvas_x, canvas_y)
+        print(f"Final world coordinates: ({world_x:.2f}, {world_y:.2f})")
         
         if app_data == 0:  # Left click
             clicked_body = self.find_body_at_position(world_x, world_y)
             
             if clicked_body:
-                # Select the body and start dragging
+                print(f"Clicked on existing body at ({clicked_body.x:.2f}, {clicked_body.y:.2f})")
+                # Select and start dragging
                 self.selected_body = clicked_body
                 self.dragging_body = True
                 self.drag_offset_x = world_x - clicked_body.x
                 self.drag_offset_y = world_y - clicked_body.y
                 self.update_sliders_from_body()
             else:
-                # Add new body with precise placement
+                print(f"Adding new body at world ({world_x:.2f}, {world_y:.2f})")
+                # Store click position for crosshair
+                self.last_click_canvas_x = canvas_x
+                self.last_click_canvas_y = canvas_y
+                self.show_crosshair = True
+                # Add new body exactly where clicked
                 self.add_body(world_x, world_y)
         
         elif app_data == 1:  # Right click - select body only
@@ -250,6 +276,9 @@ class NBodySimulatorDearPyGui:
             self.panning = True
             self.last_mouse_x = mouse_x
             self.last_mouse_y = mouse_y
+        
+        print(f"AFTER: Camera: ({self.camera_x:.2f}, {self.camera_y:.2f}), Zoom: {self.zoom:.3f}")
+        print("=== END DEBUG ===\n")
 
     def mouse_release_handler(self, sender, app_data):
         if app_data == 0:  # Left mouse release
@@ -258,21 +287,20 @@ class NBodySimulatorDearPyGui:
             self.panning = False
 
     def mouse_move_handler(self, sender, app_data):
-        mouse_x, mouse_y = dpg.get_mouse_pos()
+        mouse_pos = dpg.get_mouse_pos()
+        mouse_x, mouse_y = mouse_pos
         
         # Update mouse position display
         if PANEL_WIDTH < mouse_x < VIEWPORT_WIDTH and 0 < mouse_y < VIEWPORT_HEIGHT:
-            sim_x = mouse_x - PANEL_WIDTH
-            sim_y = mouse_y
-            world_x, world_y = self.screen_to_world(sim_x, sim_y)
+            canvas_x, canvas_y = self.mouse_to_canvas_coords(mouse_x, mouse_y)
+            world_x, world_y = self.screen_to_world(canvas_x, canvas_y)
             dpg.set_value("mouse_pos", f"Mouse: ({world_x:.1f}, {world_y:.1f})")
         
         # Handle body dragging
         if self.dragging_body and self.selected_body:
             if PANEL_WIDTH < mouse_x < VIEWPORT_WIDTH and 0 < mouse_y < VIEWPORT_HEIGHT:
-                sim_x = mouse_x - PANEL_WIDTH
-                sim_y = mouse_y
-                world_x, world_y = self.screen_to_world(sim_x, sim_y)
+                canvas_x, canvas_y = self.mouse_to_canvas_coords(mouse_x, mouse_y)
+                world_x, world_y = self.screen_to_world(canvas_x, canvas_y)
                 self.selected_body.x = world_x - self.drag_offset_x
                 self.selected_body.y = world_y - self.drag_offset_y
                 # Clear trail when dragging
@@ -304,28 +332,45 @@ class NBodySimulatorDearPyGui:
             self.last_mouse_y = mouse_y
 
     def mouse_wheel_handler(self, sender, app_data):
-        mouse_x, mouse_y = dpg.get_mouse_pos()
-        if PANEL_WIDTH < mouse_x < VIEWPORT_WIDTH and 0 < mouse_y < VIEWPORT_HEIGHT:
-            # Zoom towards mouse position with smoother scaling
-            sim_x = mouse_x - PANEL_WIDTH
-            sim_y = mouse_y
-            world_x, world_y = self.screen_to_world(sim_x, sim_y)
+        mouse_pos = dpg.get_mouse_pos()
+        mouse_x, mouse_y = mouse_pos
+        
+        # Only zoom if mouse is over simulation area
+        if not (PANEL_WIDTH < mouse_x < VIEWPORT_WIDTH and 0 < mouse_y < VIEWPORT_HEIGHT):
+            return
             
-            # Smoother zoom factor
-            zoom_factor = 1.15 if app_data > 0 else 1.0 / 1.15
-            old_zoom = self.zoom
-            self.zoom *= zoom_factor
-            self.zoom = max(0.05, min(self.zoom, 20.0))  # Extended zoom range
-            
-            # Adjust camera to zoom towards mouse with better precision
-            zoom_change = self.zoom / old_zoom
-            self.camera_x = world_x - (world_x - self.camera_x) * zoom_change
-            self.camera_y = world_y - (world_y - self.camera_y) * zoom_change
+        print(f"Mouse wheel: {app_data}, zoom before: {self.zoom:.3f}")
+        
+        # Get world position before zoom (this is the point we want to zoom towards)
+        canvas_x, canvas_y = self.mouse_to_canvas_coords(mouse_x, mouse_y)
+        world_x, world_y = self.screen_to_world(canvas_x, canvas_y)
+        print(f"Zooming towards world point: ({world_x:.2f}, {world_y:.2f})")
+        
+        # Apply zoom
+        zoom_factor = 1.2 if app_data > 0 else 1.0 / 1.2
+        old_zoom = self.zoom
+        self.zoom *= zoom_factor
+        self.zoom = max(0.1, min(self.zoom, 10.0))
+        
+        print(f"Zoom after: {self.zoom:.3f}")
+        
+        # Adjust camera so that the world point under mouse stays under mouse
+        zoom_ratio = self.zoom / old_zoom
+        self.camera_x = world_x - (world_x - self.camera_x) * zoom_ratio
+        self.camera_y = world_y - (world_y - self.camera_y) * zoom_ratio
+        
+        print(f"Camera adjusted to: ({self.camera_x:.2f}, {self.camera_y:.2f})")
 
     def add_body(self, x: float, y: float):
         """Add a new body at the specified position"""
         colors = [(255, 100, 100), (100, 255, 100), (100, 100, 255), 
                  (255, 255, 100), (255, 100, 255), (100, 255, 255), (255, 165, 0)]
+        
+        print(f"Adding body at world coordinates: ({x:.2f}, {y:.2f})")
+        
+        # Verify the conversion by converting back to screen coordinates
+        check_screen_x, check_screen_y = self.world_to_screen(x, y)
+        print(f"Body should appear at screen coordinates: ({check_screen_x}, {check_screen_y})")
         
         body = Body(
             id=self.next_body_id,
@@ -340,6 +385,8 @@ class NBodySimulatorDearPyGui:
         self.bodies.append(body)
         self.next_body_id += 1
         self.select_body(body)
+        
+        print(f"Body added successfully. Total bodies: {len(self.bodies)}")
 
     def select_body(self, body: Body):
         """Select a body and update sliders"""
@@ -360,9 +407,11 @@ class NBodySimulatorDearPyGui:
         for body in reversed(self.bodies):
             dx = x - body.x
             dy = y - body.y
-            # Use actual visual radius for more precise hit detection
-            hit_radius = max(body.get_display_radius(), 8) / self.zoom  # Scale with zoom
-            if (dx * dx + dy * dy) <= hit_radius ** 2:
+            distance = math.sqrt(dx * dx + dy * dy)
+            # Use a reasonable hit radius that accounts for zoom
+            hit_radius = max(body.get_display_radius() + 5, 15) / max(self.zoom, 0.5)
+            print(f"Checking body at ({body.x:.2f}, {body.y:.2f}), distance: {distance:.2f}, hit_radius: {hit_radius:.2f}")
+            if distance <= hit_radius:
                 return body
         return None
 
@@ -527,58 +576,97 @@ class NBodySimulatorDearPyGui:
         while y < SIM_HEIGHT:
             dpg.draw_line((0, y), (SIM_WIDTH, y), color=(40, 40, 40, 100), thickness=1, parent="simulation_canvas")
             y += grid_size
+        
+        # Draw crosshair at last click position for debugging
+        if self.show_crosshair:
+            dpg.draw_line((self.last_click_canvas_x - 10, self.last_click_canvas_y), 
+                         (self.last_click_canvas_x + 10, self.last_click_canvas_y), 
+                         color=(255, 0, 0), thickness=2, parent="simulation_canvas")
+            dpg.draw_line((self.last_click_canvas_x, self.last_click_canvas_y - 10), 
+                         (self.last_click_canvas_x, self.last_click_canvas_y + 10), 
+                         color=(255, 0, 0), thickness=2, parent="simulation_canvas")
 
     def draw_bodies(self):
         """Draw all bodies and their trails"""
         for body in self.bodies:
-            # Draw trail
-            if len(body.trail) > 1:
-                trail_points = []
-                for i, (tx, ty) in enumerate(body.trail):
-                    screen_x, screen_y = self.world_to_screen(tx, ty)
-                    if 0 <= screen_x <= SIM_WIDTH and 0 <= screen_y <= SIM_HEIGHT:
-                        trail_points.append([screen_x, screen_y])
-                
-                if len(trail_points) > 1:
-                    # Draw trail as connected lines with fading alpha
-                    for i in range(len(trail_points) - 1):
-                        alpha = int((i / len(trail_points)) * 100 + 50)
-                        color = (*body.color, alpha)
-                        dpg.draw_line(trail_points[i], trail_points[i + 1], 
-                                    color=color, thickness=2, parent="simulation_canvas")
-            
-            # Draw body
+            # Convert world position to screen position
             screen_x, screen_y = self.world_to_screen(body.x, body.y)
-            radius = max(3, body.get_display_radius() * self.zoom)
             
-            # Draw selection indicator
-            if body == self.selected_body:
-                dpg.draw_circle((screen_x, screen_y), radius + 5, 
-                              color=(255, 255, 255, 150), thickness=2, parent="simulation_canvas")
-            
-            # Draw body
-            dpg.draw_circle((screen_x, screen_y), radius, 
-                          color=body.color, fill=body.color, parent="simulation_canvas")
-            
-            # Draw velocity vector
-            if body == self.selected_body and (body.vx != 0 or body.vy != 0):
-                vel_scale = 2.0
-                end_x = screen_x + body.vx * vel_scale
-                end_y = screen_y + body.vy * vel_scale
-                dpg.draw_arrow((screen_x, screen_y), (end_x, end_y), 
-                             color=(255, 255, 0), thickness=2, size=10, parent="simulation_canvas")
+            # Only draw if on screen
+            if -50 <= screen_x <= SIM_WIDTH + 50 and -50 <= screen_y <= SIM_HEIGHT + 50:
+                # Draw trail
+                if len(body.trail) > 1:
+                    trail_points = []
+                    for i, (tx, ty) in enumerate(body.trail):
+                        trail_screen_x, trail_screen_y = self.world_to_screen(tx, ty)
+                        if -10 <= trail_screen_x <= SIM_WIDTH + 10 and -10 <= trail_screen_y <= SIM_HEIGHT + 10:
+                            trail_points.append([trail_screen_x, trail_screen_y])
+                    
+                    if len(trail_points) > 1:
+                        # Draw trail as connected lines with fading alpha
+                        for i in range(len(trail_points) - 1):
+                            alpha = int((i / len(trail_points)) * 150 + 50)
+                            color = (*body.color, alpha)
+                            dpg.draw_line(trail_points[i], trail_points[i + 1], 
+                                        color=color, thickness=2, parent="simulation_canvas")
+                
+                # Calculate display radius
+                base_radius = body.get_display_radius()
+                display_radius = max(3, int(base_radius * self.zoom))
+                
+                # Draw selection indicator
+                if body == self.selected_body:
+                    dpg.draw_circle((screen_x, screen_y), display_radius + 8, 
+                                  color=(255, 255, 255, 200), thickness=3, parent="simulation_canvas")
+                
+                # Draw body
+                dpg.draw_circle((screen_x, screen_y), display_radius, 
+                              color=body.color, fill=body.color, parent="simulation_canvas")
+                
+                # Draw velocity vector for selected body
+                if body == self.selected_body and (abs(body.vx) > 1 or abs(body.vy) > 1):
+                    vel_scale = 5.0 * self.zoom
+                    end_x = screen_x + body.vx * vel_scale
+                    end_y = screen_y + body.vy * vel_scale
+                    dpg.draw_arrow((screen_x, screen_y), (end_x, end_y), 
+                                 color=(255, 255, 0), thickness=3, size=15, parent="simulation_canvas")
 
     def world_to_screen(self, x: float, y: float) -> Tuple[int, int]:
         """Convert world coordinates to screen coordinates"""
+        # Use the same conversion as pygame version
         screen_x = int((x - self.camera_x) * self.zoom + SIM_WIDTH // 2)
         screen_y = int((y - self.camera_y) * self.zoom + SIM_HEIGHT // 2)
         return screen_x, screen_y
 
-    def screen_to_world(self, screen_x: int, screen_y: int) -> Tuple[float, float]:
-        """Convert screen coordinates to world coordinates"""
-        world_x = (screen_x - SIM_WIDTH // 2) / self.zoom + self.camera_x
-        world_y = (screen_y - SIM_HEIGHT // 2) / self.zoom + self.camera_y
+    def screen_to_world(self, canvas_x: float, canvas_y: float) -> Tuple[float, float]:
+        """Convert canvas coordinates to world coordinates"""
+        # Debug the conversion step by step
+        center_x = SIM_WIDTH // 2   # Should be 600 for SIM_WIDTH=1200
+        center_y = SIM_HEIGHT // 2  # Should be 400 for SIM_HEIGHT=800
+        
+        print(f"  Canvas center: ({center_x}, {center_y})")
+        print(f"  Canvas click: ({canvas_x}, {canvas_y})")
+        
+        # Calculate offset from center
+        offset_x = canvas_x - center_x
+        offset_y = canvas_y - center_y
+        print(f"  Offset from center: ({offset_x}, {offset_y})")
+        
+        # Convert to world coordinates
+        world_x = offset_x / self.zoom + self.camera_x
+        world_y = offset_y / self.zoom + self.camera_y
+        
+        print(f"  World calculation: ({offset_x}/{self.zoom} + {self.camera_x}, {offset_y}/{self.zoom} + {self.camera_y})")
+        
         return world_x, world_y
+
+    def mouse_to_canvas_coords(self, mouse_x: float, mouse_y: float) -> Tuple[float, float]:
+        """Convert absolute mouse coordinates to canvas-relative coordinates"""
+        # Mouse coordinates are relative to the entire viewport
+        # We need to subtract the panel width to get canvas coordinates
+        canvas_x = mouse_x - PANEL_WIDTH
+        canvas_y = mouse_y
+        return canvas_x, canvas_y
 
 if __name__ == "__main__":
     sim = NBodySimulatorDearPyGui()
