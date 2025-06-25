@@ -27,7 +27,7 @@ class UIManager {
         const sliderConfigs = [
             { id: 'gravity-strength', min: 0.1, max: 3.0, step: 0.1, default: 1.0, extendedMax: 50, format: (v) => v.toFixed(1) },
             { id: 'time-scale', min: 0.1, max: 3.0, step: 0.1, default: 1.0, extendedMax: 10, format: (v) => v.toFixed(1) + 'x' },
-            { id: 'prediction-depth', min: 100, max: 5000, step: 100, default: 1000, extendedMax: 10000, format: (v) => Math.round(v).toString() },
+            { id: 'prediction-depth', min: 100, max: 10000, step: 200, default: 1000, extendedMax: 20000, format: (v) => Math.round(v).toString() },
             { id: 'body-mass', min: 1, max: 200, step: 1, default: 50, extendedMax: 10000, format: (v) => Math.round(v).toString() },
             { id: 'velocity-x', min: -50, max: 50, step: 1, default: 0, extendedMax: 1000, format: (v) => Math.round(v).toString() },
             { id: 'velocity-y', min: -50, max: 50, step: 1, default: 0, extendedMax: 1000, format: (v) => Math.round(v).toString() },

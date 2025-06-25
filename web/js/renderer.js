@@ -40,10 +40,10 @@ class Renderer {
         // Long-term orbit prediction (look far ahead feature)
         this.showLongTermPreview = false;
         this.longTermPreviewPoints = [];
-        this.longTermPreviewSteps = 200000; // Much longer simulation for complex patterns
-        this.longTermPreviewTimeStep = 0.005; // Smaller timestep for better accuracy
-        this.longTermPreviewMaxPoints = 15000;
-        this.longTermPreviewMaxTime = 2000; // Maximum simulation time
+        this.longTermPreviewSteps = 1000000; // Start with very long simulation capability
+        this.longTermPreviewTimeStep = 0.004; // Good balance of accuracy/performance
+        this.longTermPreviewMaxPoints = 25000; // Higher point limit
+        this.longTermPreviewMaxTime = 10000; // Much longer max time
         
         // Initialize with default prediction depth
         this.setPredictionDepth(1000);
@@ -727,6 +727,14 @@ class Renderer {
             return { points: [], stable: false, collision: false };
         }
         
+        // Debug: Log prediction parameters
+        console.log('Long-term prediction parameters:', {
+            steps: this.longTermPreviewSteps,
+            maxTime: this.longTermPreviewMaxTime,
+            timeStep: this.longTermPreviewTimeStep,
+            maxPoints: this.longTermPreviewMaxPoints
+        });
+        
         // Create a copy of the preview body for simulation
         const testBody = new Body(
             previewBody.position.clone(),
@@ -749,7 +757,7 @@ class Renderer {
         let collisionDetected = false;
         let simulationTime = 0;
         let lastRecordTime = 0;
-        const recordInterval = this.longTermPreviewTimeStep * 3; // Record every 3rd step for good density
+        const recordInterval = this.longTermPreviewTimeStep * 1; // Record every step for maximum detail
         
         // Track energy for stability (considering ALL body interactions)
         const initialEnergy = this.calculateSystemEnergyForPrediction(allBodies, physicsEngine);
@@ -763,7 +771,8 @@ class Renderer {
             completed: false
         };
         
-        for (let step = 0; step < this.longTermPreviewSteps && simulationTime < this.longTermPreviewMaxTime; step++) {
+        let step = 0;
+        for (step = 0; step < this.longTermPreviewSteps && simulationTime < this.longTermPreviewMaxTime; step++) {
             // Record position at intervals
             if (simulationTime - lastRecordTime >= recordInterval) {
                 this.longTermPreviewPoints.push({
@@ -776,7 +785,9 @@ class Renderer {
                 
                 lastRecordTime = simulationTime;
                 
-                // Limit points for performance but allow more for complex patterns
+                // Temporarily disable point limiting to get full long orbits
+                // This might be causing premature truncation
+                /*
                 if (this.longTermPreviewPoints.length > this.longTermPreviewMaxPoints) {
                     // Remove every other point from the middle section to maintain start/end detail
                     const keepStart = Math.floor(this.longTermPreviewMaxPoints * 0.1);
@@ -789,6 +800,7 @@ class Renderer {
                         ...this.longTermPreviewPoints.slice(-keepEnd)
                     ];
                 }
+                */
             }
             
             // Check for collisions with any of the fixed bodies
@@ -802,50 +814,34 @@ class Renderer {
             }
             
             // Calculate energy drift periodically (using all body interactions)
-            if (step % 200 === 0) {
+            if (step % 500 === 0) { // Check less frequently
                 const currentEnergy = this.calculateSystemEnergyForPrediction(allBodies, physicsEngine);
                 energyDrift = Math.abs((currentEnergy - initialEnergy) / initialEnergy);
             }
             
             // Break if collision detected and we have enough points
-            if (collisionDetected && this.longTermPreviewPoints.length > 200) {
+            if (collisionDetected && this.longTermPreviewPoints.length > 500) {
                 break;
             }
             
-            // Check for escape velocity or unstable orbit (relative to system center)
+            // Much more lenient escape conditions - let it go very far
             const systemCenter = this.calculateSystemCenter(fixedBodies);
             const distanceFromSystemCenter = testBody.position.distance(systemCenter);
             const speed = testBody.velocity.magnitude();
             
-            // More lenient escape conditions for multi-body systems
-            if (distanceFromSystemCenter > 8000 || speed > 800) {
-                // Allow some time to see the escape trajectory
-                if (this.longTermPreviewPoints.length > 300) {
+            // Very permissive escape conditions - only stop if really escaping
+            const escapeDistance = 50000; // Much larger distance
+            const escapeSpeed = 3000; // Much higher speed
+            
+            if (distanceFromSystemCenter > escapeDistance && speed > escapeSpeed) {
+                // Only break if we have a lot of points and it's clearly escaping
+                if (this.longTermPreviewPoints.length > 2000) {
                     break;
                 }
             }
             
-            // Periodic orbital detection for very long simulations
-            if (step - orbitalPeriodDetection.lastCheck > orbitalPeriodDetection.checkInterval) {
-                if (this.longTermPreviewPoints.length > 1000) {
-                    // Simple position-based periodic detection
-                    const currentPos = testBody.position.clone();
-                    const threshold = 80; // Larger threshold for multi-body systems
-                    
-                    for (let i = Math.max(0, this.longTermPreviewPoints.length - 800); i < this.longTermPreviewPoints.length - 100; i++) {
-                        const oldPos = this.longTermPreviewPoints[i].position;
-                        if (currentPos.distance(oldPos) < threshold) {
-                            orbitalPeriodDetection.completed = true;
-                            break;
-                        }
-                    }
-                    
-                    if (orbitalPeriodDetection.completed) {
-                        break;
-                    }
-                }
-                orbitalPeriodDetection.lastCheck = step;
-            }
+            // Disable periodic orbital detection for now to get full long orbits
+            // This was probably terminating too early
             
             // Reset forces for all bodies
             allBodies.forEach(body => body.resetForce());
@@ -858,6 +854,17 @@ class Renderer {
             
             simulationTime += this.longTermPreviewTimeStep;
         }
+        
+        // Debug: Log why the simulation ended
+        console.log('Long-term prediction ended:', {
+            finalStep: step,
+            maxSteps: this.longTermPreviewSteps,
+            finalTime: simulationTime,
+            maxTime: this.longTermPreviewMaxTime,
+            pointsGenerated: this.longTermPreviewPoints.length,
+            collisionDetected,
+            energyDrift
+        });
         
         // Optimize points for rendering while preserving complex patterns
         this.longTermPreviewPoints = this.optimizeLongTermPoints(this.longTermPreviewPoints);
@@ -1075,38 +1082,38 @@ class Renderer {
             const currentPoint = this.longTermPreviewPoints[i];
             const nextPoint = this.longTermPreviewPoints[i + 1];
             
-            // Use a more visible color scheme - cyan to blue transition
+            // Use a more visible color scheme with slower fading for long orbits
             let alpha, lineWidth;
             
-            if (progress < 0.3) {
-                // Start with bright cyan
-                this.ctx.strokeStyle = `rgba(100, 255, 255, ${0.9 - progress * 0.6})`;
-                lineWidth = 2.5;
-            } else if (progress < 0.6) {
-                // Transition to blue
-                this.ctx.strokeStyle = `rgba(64, 150, 255, ${0.7 - progress * 0.4})`;
-                lineWidth = 2.0;
-            } else if (progress < 0.8) {
-                // Deeper blue
-                this.ctx.strokeStyle = `rgba(100, 100, 255, ${0.5 - progress * 0.2})`;
-                lineWidth = 1.5;
+            if (progress < 0.4) {
+                // Start with bright cyan, fade slower
+                this.ctx.strokeStyle = `rgba(100, 255, 255, ${0.95 - progress * 0.3})`;
+                lineWidth = 2.8;
+            } else if (progress < 0.7) {
+                // Transition to blue, maintain good visibility
+                this.ctx.strokeStyle = `rgba(64, 150, 255, ${0.8 - progress * 0.25})`;
+                lineWidth = 2.3;
+            } else if (progress < 0.9) {
+                // Deeper blue, still quite visible
+                this.ctx.strokeStyle = `rgba(100, 100, 255, ${0.65 - progress * 0.2})`;
+                lineWidth = 1.8;
             } else {
-                // Final fade to purple
-                this.ctx.strokeStyle = `rgba(150, 100, 255, ${Math.max(0.2, 0.4 - progress * 0.2)})`;
-                lineWidth = 1.0;
+                // Final fade to purple, but keep minimum visibility
+                this.ctx.strokeStyle = `rgba(150, 100, 255, ${Math.max(0.35, 0.55 - progress * 0.15)})`;
+                lineWidth = 1.3;
             }
             
-            // Make unstable parts more transparent
+            // Make unstable parts more transparent but not too much
             if (!currentPoint.stable) {
-                alpha = parseFloat(this.ctx.strokeStyle.match(/[\d.]+\)$/)[0].slice(0, -1)) * 0.6;
+                alpha = parseFloat(this.ctx.strokeStyle.match(/[\d.]+\)$/)[0].slice(0, -1)) * 0.75;
                 this.ctx.strokeStyle = this.ctx.strokeStyle.replace(/[\d.]+\)$/, alpha + ')');
             }
             
             this.ctx.lineWidth = lineWidth;
             
-            // Add subtle glow for better visibility
-            this.ctx.shadowColor = this.ctx.strokeStyle.replace(/[\d.]+\)$/, '0.3)');
-            this.ctx.shadowBlur = 2;
+            // Add stronger glow for better visibility of long paths
+            this.ctx.shadowColor = this.ctx.strokeStyle.replace(/[\d.]+\)$/, '0.4)');
+            this.ctx.shadowBlur = 3;
             
             // Draw line segment
             this.ctx.beginPath();
@@ -1168,10 +1175,29 @@ class Renderer {
     }
     
     setPredictionDepth(depth) {
-        // Update prediction parameters based on depth value
-        this.longTermPreviewSteps = Math.floor(depth * 200); // Scale steps with depth
-        this.longTermPreviewMaxTime = Math.floor(depth * 2); // Scale max time with depth
-        this.longTermPreviewMaxPoints = Math.min(15000, Math.floor(depth * 15)); // Scale points but cap at 15k
+        // Much simpler and more aggressive scaling for long predictions
+        const scaleFactor = depth / 1000; // 1000 is the default depth
+        
+        this.longTermPreviewSteps = Math.floor(500000 * scaleFactor); // Base: 500k steps 
+        this.longTermPreviewMaxTime = Math.floor(20000 * scaleFactor); // Base: 20k time units
+        this.longTermPreviewMaxPoints = Math.min(50000, Math.floor(20000 * scaleFactor)); // Base: 20k points, cap at 50k
+        
+        // Adjust timestep for performance vs accuracy
+        if (depth > 5000) {
+            this.longTermPreviewTimeStep = 0.01; // Larger timestep for very long predictions
+        } else if (depth > 2000) {
+            this.longTermPreviewTimeStep = 0.008;
+        } else {
+            this.longTermPreviewTimeStep = 0.005; // Smaller timestep for detailed predictions
+        }
+        
+        // Debug log the new parameters
+        console.log('Updated prediction depth to:', depth, {
+            steps: this.longTermPreviewSteps,
+            maxTime: this.longTermPreviewMaxTime,
+            timeStep: this.longTermPreviewTimeStep,
+            maxPoints: this.longTermPreviewMaxPoints
+        });
     }
 
     setLongTermPreview(show, previewData = null) {
