@@ -10,6 +10,8 @@ class Body {
         this.maxTrailLength = trailLength;
         this.radius = this.calculateRadius();
         this.selected = false;
+        this.hovered = false; // Add hover state
+        this.beingDragged = false; // Add drag state
         this.id = Body.generateId();
         
         // Visual properties
@@ -32,7 +34,9 @@ class Body {
 
     // Calculate visual radius based on mass
     calculateRadius() {
-        return Math.max(3, Math.sqrt(this.mass / 5) + 2);
+        // Ensure mass is a valid, positive number
+        const safeMass = Math.max(0.1, this.mass || 0.1);
+        return Math.max(3, Math.sqrt(safeMass / 5) + 2);
     }
 
     // Update radius when mass changes
@@ -186,6 +190,30 @@ class Body {
     setSelected(selected) {
         this.selected = selected;
         this.targetGlow = selected ? 1.0 : 0.0;
+    }
+
+    // Set hover state
+    setHovered(hovered) {
+        this.hovered = hovered;
+        // Slight glow effect when hovered (but less than selected)
+        if (!this.selected) {
+            this.targetGlow = hovered ? 0.3 : 0.0;
+        }
+    }
+
+    // Set drag state
+    setBeingDragged(beingDragged) {
+        this.beingDragged = beingDragged;
+        // Enhanced glow when being dragged
+        if (beingDragged) {
+            this.targetGlow = 1.5;
+        } else if (this.selected) {
+            this.targetGlow = 1.0;
+        } else if (this.hovered) {
+            this.targetGlow = 0.3;
+        } else {
+            this.targetGlow = 0.0;
+        }
     }
 
     // Get display information

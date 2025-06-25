@@ -278,47 +278,161 @@
         <div id="shortcuts-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
+                    <h3><i class="fas fa-keyboard"></i> Controls & Shortcuts</h3>
                     <button class="close-modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div class="shortcuts-grid">
-                        <div class="shortcut-item">
-                            <kbd>Space</kbd>
-                            <span>Start/Pause simulation</span>
+                    <div class="shortcuts-section">
+                        <h4><i class="fas fa-mouse"></i> Mouse Controls</h4>
+                        <div class="shortcuts-grid">
+                            <div class="shortcut-item">
+                                <kbd>Left Click</kbd>
+                                <span>Select body or add new body</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>Drag</kbd>
+                                <span>Move selected body to new position</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>Right Click</kbd>
+                                <span>Select body (context menu)</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>Mouse Wheel</kbd>
+                                <span>Zoom in/out</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>Ctrl + Drag</kbd>
+                                <span>Pan camera view</span>
+                            </div>
                         </div>
-                        <div class="shortcut-item">
-                            <kbd>R</kbd>
-                            <span>Reset simulation</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>C</kbd>
-                            <span>Clear all bodies</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>T</kbd>
-                            <span>Toggle trails</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>G</kbd>
-                            <span>Toggle grid</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>F</kbd>
-                            <span>Toggle force vectors</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>Delete</kbd>
-                            <span>Delete selected body</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>?</kbd>
-                            <span>Show this help</span>
+                    </div>
+                    <div class="shortcuts-section">
+                        <h4><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h4>
+                        <div class="shortcuts-grid">
+                            <div class="shortcut-item">
+                                <kbd>Space</kbd>
+                                <span>Start/Pause simulation</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>R</kbd>
+                                <span>Reset simulation</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>C</kbd>
+                                <span>Clear all bodies</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>T</kbd>
+                                <span>Toggle trails</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>G</kbd>
+                                <span>Toggle grid</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>F</kbd>
+                                <span>Toggle force vectors</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>I</kbd>
+                                <span>Toggle scale reference</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>Delete</kbd>
+                                <span>Delete selected body</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <kbd>?</kbd>
+                                <span>Show this help</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Reference Panel -->
+        <div id="reference-panel" class="reference-panel">
+            <div class="reference-content">
+                <h4><i class="fas fa-ruler"></i> <span id="reference-title">Real-World Scale Reference</span></h4>
+                
+                <!-- Selected Body Info -->
+                <div id="selected-body-info" class="selected-body-section" style="display: none;">
+                    <h5><i class="fas fa-dot-circle"></i> Selected Body Information</h5>
+                    <div class="body-info-grid">
+                        <div class="body-info-item">
+                            <span class="info-label">Mass:</span>
+                            <span id="body-mass-value" class="info-value">-</span>
+                            <span id="body-mass-real" class="info-real">-</span>
+                        </div>
+                        <div class="body-info-item">
+                            <span class="info-label">Position:</span>
+                            <span id="body-position-value" class="info-value">-</span>
+                            <span id="body-position-real" class="info-real">-</span>
+                        </div>
+                        <div class="body-info-item">
+                            <span class="info-label">Velocity:</span>
+                            <span id="body-velocity-value" class="info-value">-</span>
+                            <span id="body-velocity-real" class="info-real">-</span>
+                        </div>
+                        <div class="body-info-item">
+                            <span class="info-label">Kinetic Energy:</span>
+                            <span id="body-kinetic-value" class="info-value">-</span>
+                            <span id="body-kinetic-real" class="info-real">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Base Scale Reference -->
+                <div class="reference-grid">
+                    <div class="reference-item">
+                        <span class="ref-label">1 Mass Unit ≈</span>
+                        <span class="ref-value">5.97 × 10²⁴ kg (Earth Mass)</span>
+                    </div>
+                    <div class="reference-item">
+                        <span class="ref-label">1 Distance Unit ≈</span>
+                        <span class="ref-value">1.496 × 10¹¹ m (1 AU)</span>
+                    </div>
+                    <div class="reference-item">
+                        <span class="ref-label">1 Time Unit ≈</span>
+                        <span class="ref-value">365.25 days (1 Earth Year)</span>
+                    </div>
+                    <div class="reference-item">
+                        <span class="ref-label">1 Velocity Unit ≈</span>
+                        <span class="ref-value">29.78 km/s (Earth Orbital Speed)</span>
+                    </div>
+                    
+                    <!-- Dynamic comparison bodies -->
+                    <div class="reference-item" id="comparison-sun" style="display: none;">
+                        <span class="ref-label">Sun Mass ≈</span>
+                        <span id="sun-mass-comparison" class="ref-value">333,000 mass units</span>
+                    </div>
+                    <div class="reference-item" id="comparison-moon" style="display: none;">
+                        <span class="ref-label">Moon Mass ≈</span>
+                        <span id="moon-mass-comparison" class="ref-value">0.012 mass units</span>
+                    </div>
+                    <div class="reference-item" id="comparison-jupiter" style="display: none;">
+                        <span class="ref-label">Jupiter Mass ≈</span>
+                        <span id="jupiter-mass-comparison" class="ref-value">318 mass units</span>
+                    </div>
+                    <div class="reference-item" id="comparison-mars" style="display: none;">
+                        <span class="ref-label">Mars Mass ≈</span>
+                        <span id="mars-mass-comparison" class="ref-value">0.107 mass units</span>
+                    </div>
+                </div>
+                
+                <div class="reference-note">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="reference-note-text">Select a body to see detailed real-world comparisons and scale information!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reference Toggle Button -->
+        <button id="reference-toggle" class="reference-toggle" title="Show/Hide Scale Reference">
+            <i class="fas fa-ruler"></i> Scale Reference
+        </button>
 
         <!-- Help Button -->
         <button id="help-btn" class="help-btn" title="Keyboard Shortcuts">

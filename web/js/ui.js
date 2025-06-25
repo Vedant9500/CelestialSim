@@ -6,6 +6,7 @@ class UIManager {
         this.colorPicker = null;
         this.selectedColor = '#ff4757';
         this.orbitMode = false;
+        this.referenceShown = false; // Reference panel state
         this.renderer = null; // Will be set by app
         
         this.initializeSliders();
@@ -53,12 +54,31 @@ class UIManager {
                 
                 // Sync input to slider
                 input.addEventListener('input', (e) => {
-                    const value = parseFloat(e.target.value);
+                    let value = parseFloat(e.target.value);
+                    
+                    // Special validation for mass to prevent zero or negative values
+                    if (config.id === 'body-mass' && (isNaN(value) || value <= 0)) {
+                        value = config.min; // Reset to minimum safe value
+                        input.value = value; // Update the input field
+                    }
+                    
                     // Only update slider if value is within range
                     if (value >= config.min && value <= config.max) {
                         slider.value = value;
                     }
                     this.onSliderChange(config.id, value);
+                });
+                
+                // Also validate on blur (when user finishes typing)
+                input.addEventListener('blur', (e) => {
+                    let value = parseFloat(e.target.value);
+                    
+                    if (config.id === 'body-mass' && (isNaN(value) || value <= 0)) {
+                        value = config.min;
+                        input.value = value;
+                        slider.value = value;
+                        this.onSliderChange(config.id, value);
+                    }
                 });
                 
                 this.sliders.set(config.id, { element: slider, input, config });
@@ -70,7 +90,7 @@ class UIManager {
         const buttonIds = [
             'play-pause', 'reset', 'clear', 'zoom-in', 'zoom-out',
             'center-view', 'fit-view', 'save-config', 'load-config',
-            'export-video', 'delete-selected', 'help-btn'
+            'export-video', 'delete-selected', 'help-btn', 'reference-toggle'
         ];
 
         buttonIds.forEach(id => {

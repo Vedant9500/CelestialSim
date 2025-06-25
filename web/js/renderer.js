@@ -283,9 +283,19 @@ class Renderer {
     }
 
     drawBody(body, isSelected = false) {
-        const radius = body.radius / this.camera.zoom;
+        // Validate body and its properties
+        if (!body || !body.position || !isFinite(body.radius) || body.radius <= 0) {
+            return; // Skip invalid bodies
+        }
+        
+        const radius = Math.max(1, body.radius / this.camera.zoom); // Ensure minimum radius
         const x = body.position.x;
         const y = body.position.y;
+        
+        // Validate coordinates
+        if (!isFinite(x) || !isFinite(y)) {
+            return; // Skip bodies with invalid positions
+        }
         
         // Glow effect for selected body
         if (isSelected && this.glowEffect) {
@@ -324,7 +334,18 @@ class Renderer {
     }
 
     drawGlow(x, y, radius, color) {
+        // Ensure we have valid, finite values
+        if (!isFinite(x) || !isFinite(y) || !isFinite(radius) || radius <= 0) {
+            return; // Skip drawing glow for invalid values
+        }
+        
         const glowRadius = radius * 2;
+        
+        // Double-check that both radii are valid
+        if (!isFinite(glowRadius) || glowRadius <= radius) {
+            return;
+        }
+        
         const gradient = this.ctx.createRadialGradient(x, y, radius, x, y, glowRadius);
         
         gradient.addColorStop(0, this.hexToRgba(color, 0.3));
