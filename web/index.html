@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Body Physics Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-atom"></i>
+                    <h1>N-Body Physics Simulator</h1>
+                </div>
+                <div class="header-controls">
+                    <div class="status-indicator">
+                        <span id="status-text">Stopped</span>
+                        <div id="status-dot" class="status-dot stopped"></div>
+                    </div>
+                    <div class="fps-counter">
+                        <span id="fps-display">60 FPS</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Simulation Canvas -->
+            <div class="simulation-container">
+                <canvas id="simulation-canvas"></canvas>
+                
+                <!-- Canvas Overlay Controls -->
+                <div class="canvas-overlay">
+                    <div class="zoom-controls">
+                        <button id="zoom-in" class="control-btn" title="Zoom In">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <span id="zoom-level">100%</span>
+                        <button id="zoom-out" class="control-btn" title="Zoom Out">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="view-controls">
+                        <button id="center-view" class="control-btn" title="Center View">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button id="fit-view" class="control-btn" title="Fit All Bodies">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading Screen -->
+                <div id="loading-screen" class="loading-screen">
+                    <div class="loading-content">
+                        <div class="loading-spinner"></div>
+                        <h3>Initializing Physics Engine...</h3>
+                        <p>Setting up WebGL renderer and physics calculations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <aside class="control-panel">
+                <div class="panel-section">
+                    <h3><i class="fas fa-play-circle"></i> Simulation Control</h3>
+                    <div class="control-group">
+                        <button id="play-pause" class="primary-btn">
+                            <i class="fas fa-play"></i> Start
+                        </button>
+                        <button id="reset" class="secondary-btn">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                        <button id="clear" class="danger-btn">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fas fa-sliders-h"></i> Physics Settings</h3>
+                    
+                    <div class="slider-group">
+                        <label for="gravity-strength">Gravity Strength</label>
+                        <input type="range" id="gravity-strength" min="0.1" max="3.0" step="0.1" value="1.0">
+                        <span class="slider-value">1.0</span>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label for="time-scale">Time Scale</label>
+                        <input type="range" id="time-scale" min="0.1" max="3.0" step="0.1" value="1.0">
+                        <span class="slider-value">1.0x</span>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="collision-enabled" checked>
+                            <span class="checkmark"></span>
+                            Enable Collisions
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show-trails" checked>
+                            <span class="checkmark"></span>
+                            Show Trails
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show-grid" checked>
+                            <span class="checkmark"></span>
+                            Show Grid
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show-forces">
+                            <span class="checkmark"></span>
+                            Show Force Vectors
+                        </label>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fas fa-plus-circle"></i> Add Bodies</h3>
+                    
+                    <div class="slider-group">
+                        <label for="body-mass">Mass</label>
+                        <input type="range" id="body-mass" min="1" max="200" step="1" value="50">
+                        <span class="slider-value">50</span>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label for="velocity-x">Velocity X</label>
+                        <input type="range" id="velocity-x" min="-50" max="50" step="1" value="0">
+                        <span class="slider-value">0</span>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label for="velocity-y">Velocity Y</label>
+                        <input type="range" id="velocity-y" min="-50" max="50" step="1" value="0">
+                        <span class="slider-value">0</span>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label for="trail-length">Trail Length</label>
+                        <input type="range" id="trail-length" min="0" max="100" step="1" value="50">
+                        <span class="slider-value">50</span>
+                    </div>
+                    
+                    <div class="color-picker-group">
+                        <label>Body Color</label>
+                        <div class="color-picker">
+                            <div class="color-option active" data-color="#ff4757"></div>
+                            <div class="color-option" data-color="#2ed573"></div>
+                            <div class="color-option" data-color="#1e90ff"></div>
+                            <div class="color-option" data-color="#ffa502"></div>
+                            <div class="color-option" data-color="#ff6b9d"></div>
+                            <div class="color-option" data-color="#a4b0be"></div>
+                            <div class="color-option" data-color="#8e44ad"></div>
+                            <div class="color-option" data-color="#f39c12"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fas fa-layer-group"></i> Presets</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" data-preset="solar-system">
+                            <i class="fas fa-sun"></i> Solar System
+                        </button>
+                        <button class="preset-btn" data-preset="binary-stars">
+                            <i class="fas fa-star"></i> Binary Stars
+                        </button>
+                        <button class="preset-btn" data-preset="galaxy">
+                            <i class="fas fa-compact-disc"></i> Galaxy
+                        </button>
+                        <button class="preset-btn" data-preset="chaos">
+                            <i class="fas fa-random"></i> Chaos
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fas fa-save"></i> Data</h3>
+                    <div class="control-group">
+                        <button id="save-config" class="secondary-btn">
+                            <i class="fas fa-download"></i> Save
+                        </button>
+                        <button id="load-config" class="secondary-btn">
+                            <i class="fas fa-upload"></i> Load
+                        </button>
+                        <input type="file" id="file-input" accept=".json" style="display: none;">
+                    </div>
+                    <button id="export-video" class="secondary-btn full-width">
+                        <i class="fas fa-video"></i> Export Video
+                    </button>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fas fa-info-circle"></i> Information</h3>
+                    <div class="info-display">
+                        <div class="info-item">
+                            <span class="info-label">Bodies:</span>
+                            <span id="body-count">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Total Mass:</span>
+                            <span id="total-mass">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Kinetic Energy:</span>
+                            <span id="kinetic-energy">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Potential Energy:</span>
+                            <span id="potential-energy">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mouse Position:</span>
+                            <span id="mouse-position">(0, 0)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Body Info -->
+                <div id="selected-body-panel" class="panel-section" style="display: none;">
+                    <h3><i class="fas fa-crosshairs"></i> Selected Body</h3>
+                    <div class="selected-body-info">
+                        <div class="info-item">
+                            <span class="info-label">Mass:</span>
+                            <span id="selected-mass">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Position:</span>
+                            <span id="selected-position">(0, 0)</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Velocity:</span>
+                            <span id="selected-velocity">(0, 0)</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Speed:</span>
+                            <span id="selected-speed">0</span>
+                        </div>
+                        <button id="delete-selected" class="danger-btn full-width">
+                            <i class="fas fa-times"></i> Delete Body
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Keyboard Shortcuts Modal -->
+        <div id="shortcuts-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="shortcuts-grid">
+                        <div class="shortcut-item">
+                            <kbd>Space</kbd>
+                            <span>Start/Pause simulation</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>R</kbd>
+                            <span>Reset simulation</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>C</kbd>
+                            <span>Clear all bodies</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>T</kbd>
+                            <span>Toggle trails</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>G</kbd>
+                            <span>Toggle grid</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>F</kbd>
+                            <span>Toggle force vectors</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Delete</kbd>
+                            <span>Delete selected body</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>?</kbd>
+                            <span>Show this help</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Button -->
+        <button id="help-btn" class="help-btn" title="Keyboard Shortcuts">
+            <i class="fas fa-question"></i>
+        </button>
+    </div>
+
+    <script src="js/vector2d.js"></script>
+    <script src="js/body.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/presets.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,2 +1,0 @@
-# Requirements for Interactive N-Body Simulation
-dearpygui>=1.6.2
