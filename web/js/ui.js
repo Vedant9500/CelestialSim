@@ -6,6 +6,7 @@ class UIManager {
         this.colorPicker = null;
         this.selectedColor = '#ff4757';
         this.orbitMode = false;
+        this.renderer = null; // Will be set by app
         
         this.initializeSliders();
         this.initializeButtons();
@@ -14,6 +15,10 @@ class UIManager {
         this.initializeModal();
         this.initializeModeButtons();
         this.setupEventListeners();
+    }
+
+    setRenderer(renderer) {
+        this.renderer = renderer;
     }
 
     initializeSliders() {
@@ -147,6 +152,11 @@ class UIManager {
                 velocityYSlider.element.value = 0;
                 velocityYSlider.input.value = 0;
             }
+        }
+        
+        // Hide orbit preview when switching to manual mode
+        if (!this.orbitMode && this.renderer) {
+            this.renderer.setOrbitPreview(false);
         }
         
         this.showNotification(

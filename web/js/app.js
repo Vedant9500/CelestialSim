@@ -6,6 +6,9 @@ class NBodyApp {
         this.physics = new PhysicsEngine();
         this.ui = new UIManager();
         
+        // Pass renderer reference to UI for orbit preview
+        this.ui.setRenderer(this.renderer);
+        
         // Simulation state
         this.bodies = [];
         this.selectedBody = null;
@@ -195,6 +198,9 @@ class NBodyApp {
             const deltaX = x - this.lastMousePos.x;
             const deltaY = y - this.lastMousePos.y;
             this.renderer.panCamera(-deltaX, -deltaY);
+        } else if (this.ui.isOrbitMode() && this.bodies.length > 0) {
+            // Show orbit preview in orbit mode
+            this.updateOrbitPreview(worldPos);
         }
         
         this.lastMousePos = new Vector2D(x, y);
@@ -204,7 +210,7 @@ class NBodyApp {
         if (hoveredBody && !this.isDragging) {
             this.canvas.style.cursor = 'pointer';
         } else if (!this.isDragging) {
-            this.canvas.style.cursor = 'crosshair';
+            this.canvas.style.cursor = this.ui.isOrbitMode() ? 'crosshair' : 'crosshair';
         }
     }
 
@@ -481,6 +487,31 @@ class NBodyApp {
         }
         
         return nearestBody;
+    }
+
+    updateOrbitPreview(mousePosition) {
+        const targetBody = this.findNearestBody(mousePosition);
+        
+        if (!targetBody) {
+            this.renderer.setOrbitPreview(false);
+            return;
+        }
+        
+        // Get current settings
+        const mass = this.ui.getSliderValue('body-mass');
+        const color = this.ui.getSelectedColor();
+        
+        // Calculate orbital velocity
+        const velocity = this.ui.calculateOrbitalVelocity(targetBody, mousePosition, this.physics.gravitationalConstant);
+        
+        // Create a preview body
+        const previewBody = new Body(mousePosition, velocity, mass, color);
+        
+        // Calculate orbit preview
+        const orbitData = this.renderer.calculateOrbitPreview(previewBody, this.bodies, this.physics);
+        
+        // Show the preview
+        this.renderer.setOrbitPreview(true, orbitData);
     }
 
     findBodyAtPosition(position) {

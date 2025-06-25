@@ -29,6 +29,13 @@ class Renderer {
         this.glowEffect = true;
         this.antiAliasing = true;
         
+        // Orbit preview
+        this.showOrbitPreview = false;
+        this.orbitPreviewPoints = [];
+        this.orbitPreviewMaxPoints = 1200;
+        this.orbitPreviewSteps = 4000; // More steps for ultra-smooth orbits
+        this.orbitPreviewTimeStep = 0.002; // Smaller timestep for smoothness
+        
         // Grid settings
         this.gridSpacing = 50;
         this.gridColor = 'rgba(100, 255, 218, 0.1)';
@@ -113,6 +120,9 @@ class Renderer {
         
         // Draw bodies
         this.drawBodies(bodies, selectedBody);
+        
+        // Draw orbit preview
+        this.drawOrbitPreview();
         
         // Restore context state
         this.ctx.restore();
@@ -515,6 +525,375 @@ class Renderer {
         }
     }
 
+    // Orbit Preview System
+    calculateOrbitPreview(previewBody, existingBodies, physicsEngine) {
+        this.orbitPreviewPoints = [];
+        
+        // Find the primary body to orbit around
+        const targetBody = this.findPrimaryBody(previewBody.position, existingBodies);
+        if (!targetBody) return { points: [], stable: false, collision: false };
+        
+        // Create a copy of the preview body for simulation
+        const testBody = new Body(
+            previewBody.position.clone(),
+            previewBody.velocity.clone(),
+            previewBody.mass,
+            previewBody.color
+        );
+        
+        // Create copies of existing bodies
+        const testBodies = existingBodies.map(body => new Body(
+            body.position.clone(),
+            body.velocity.clone(),
+            body.mass,
+            body.color
+        ));
+        
+        // Add the test body to the simulation
+        testBodies.push(testBody);
+        
+        // Track orbital parameters for completion detection
+        const initialPosition = testBody.position.clone();
+        const centerPosition = targetBody.position.clone();
+        let initialAngle = Math.atan2(
+            initialPosition.y - centerPosition.y,
+            initialPosition.x - centerPosition.x
+        );
+        
+        let collisionDetected = false;
+        let stableOrbit = true;
+        let orbitCompleted = false;
+        let angleSum = 0;
+        let lastAngle = initialAngle;
+        let minDistance = Infinity;
+        let maxDistance = 0;
+        let crossedInitialAngle = false;
+        
+        for (let step = 0; step < this.orbitPreviewSteps && !orbitCompleted; step++) {
+            // Store position for preview
+            const currentDistance = testBody.position.distance(centerPosition);
+            minDistance = Math.min(minDistance, currentDistance);
+            maxDistance = Math.max(maxDistance, currentDistance);
+            
+            this.orbitPreviewPoints.push({
+                position: testBody.position.clone(),
+                velocity: testBody.velocity.magnitude(),
+                stable: !collisionDetected && stableOrbit,
+                distance: currentDistance
+            });
+            
+            // Calculate current angle relative to center
+            const currentAngle = Math.atan2(
+                testBody.position.y - centerPosition.y,
+                testBody.position.x - centerPosition.x
+            );
+            
+            // Track angle changes to detect orbit completion
+            let angleDiff = currentAngle - lastAngle;
+            if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+            if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+            angleSum += angleDiff;
+            lastAngle = currentAngle;
+            
+            // Check if we've completed approximately one orbit (2π radians)
+            if (Math.abs(angleSum) > 1.8 * Math.PI && step > 100) {
+                // Check if we're close to the starting position
+                const distanceFromStart = testBody.position.distance(initialPosition);
+                const averageDistance = (minDistance + maxDistance) / 2;
+                
+                if (distanceFromStart < averageDistance * 0.3) {
+                    orbitCompleted = true;
+                    stableOrbit = true;
+                }
+            }
+            
+            // Check for collisions with other bodies
+            for (const otherBody of testBodies) {
+                if (otherBody !== testBody) {
+                    const distance = testBody.position.distance(otherBody.position);
+                    if (distance < physicsEngine.collisionThreshold) {
+                        collisionDetected = true;
+                        stableOrbit = false;
+                        break;
+                    }
+                }
+            }
+            
+            // Check if orbit is getting too eccentric or escaping
+            if (currentDistance > maxDistance * 3 || testBody.velocity.magnitude() > 300) {
+                stableOrbit = false;
+                // Continue a bit more to show escape trajectory
+                if (step > this.orbitPreviewSteps * 0.3) break;
+            }
+            
+            // Reset forces
+            testBodies.forEach(body => body.resetForce());
+            
+            // Calculate forces using the same physics engine
+            physicsEngine.calculateForcesNaive(testBodies);
+            
+            // Update only the test body position
+            testBody.update(this.orbitPreviewTimeStep);
+            
+            // Stop if collision detected and we have enough points
+            if (collisionDetected && this.orbitPreviewPoints.length > 50) {
+                break;
+            }
+        }
+        
+        // If we completed an orbit, close the loop
+        if (orbitCompleted && this.orbitPreviewPoints.length > 0) {
+            // Add a few more points to close the orbit smoothly
+            this.orbitPreviewPoints.push(this.orbitPreviewPoints[0]);
+        }
+        
+        // Optimize points for smooth rendering while maintaining curve quality
+        this.orbitPreviewPoints = this.optimizeOrbitPoints(this.orbitPreviewPoints);
+        
+        return {
+            points: this.orbitPreviewPoints,
+            stable: stableOrbit && (orbitCompleted || !collisionDetected),
+            collision: collisionDetected,
+            completed: orbitCompleted
+        };
+    }
+
+    findPrimaryBody(position, bodies) {
+        let primaryBody = null;
+        let minDistance = Infinity;
+        
+        for (const body of bodies) {
+            const distance = body.position.distance(position);
+            if (distance < minDistance) {
+                minDistance = distance;
+                primaryBody = body;
+            }
+        }
+        
+        return primaryBody;
+    }
+
+    drawOrbitPreview() {
+        if (!this.showOrbitPreview || this.orbitPreviewPoints.length === 0) {
+            return;
+        }
+        
+        this.ctx.save();
+        
+        // Enable anti-aliasing for smoother curves
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+        
+        // Determine orbit style based on stability
+        const lastPoint = this.orbitPreviewPoints[this.orbitPreviewPoints.length - 1];
+        const isStable = lastPoint?.stable;
+        const hasCollision = this.orbitPreviewPoints.some(point => !point.stable);
+        
+        // Set line style based on orbit type
+        if (hasCollision) {
+            // Red spiral for collision course
+            this.ctx.strokeStyle = 'rgba(255, 107, 107, 0.9)';
+            this.ctx.setLineDash([5, 5]);
+            this.ctx.lineWidth = 3;
+        } else if (isStable) {
+            // Bright green for stable orbit
+            this.ctx.strokeStyle = 'rgba(81, 207, 102, 0.9)';
+            this.ctx.setLineDash([]);
+            this.ctx.lineWidth = 3;
+        } else {
+            // Yellow for unstable/escape trajectory
+            this.ctx.strokeStyle = 'rgba(255, 212, 59, 0.9)';
+            this.ctx.setLineDash([10, 5]);
+            this.ctx.lineWidth = 2;
+        }
+        
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+        
+        // Draw the orbit path with a glowing effect
+        this.ctx.shadowColor = this.ctx.strokeStyle;
+        this.ctx.shadowBlur = isStable ? 12 : 6;
+        
+        // Draw main orbit line with smooth curves
+        this.ctx.beginPath();
+        
+        if (this.orbitPreviewPoints.length > 6) {
+            // Use smooth spline curve for best quality
+            this.drawSmoothOrbitCurveSpline();
+        } else if (this.orbitPreviewPoints.length > 2) {
+            // Use simple quadratic curves for fewer points
+            this.drawSmoothOrbitCurve();
+        } else if (this.orbitPreviewPoints.length === 2) {
+            // Simple line for just two points
+            this.ctx.moveTo(this.orbitPreviewPoints[0].position.x, this.orbitPreviewPoints[0].position.y);
+            this.ctx.lineTo(this.orbitPreviewPoints[1].position.x, this.orbitPreviewPoints[1].position.y);
+        } else if (this.orbitPreviewPoints.length === 1) {
+            // Just a point
+            this.ctx.arc(this.orbitPreviewPoints[0].position.x, this.orbitPreviewPoints[0].position.y, 2, 0, Math.PI * 2);
+        }
+        
+        this.ctx.stroke();
+        
+        // Reset shadow for other elements
+        this.ctx.shadowBlur = 0;
+        
+        // Draw start and end points
+        this.drawOrbitEndpoints();
+        
+        // Add directional arrows along the path
+        this.drawOrbitDirectionArrows();
+        
+        // Draw orbit statistics
+        this.drawOrbitInfo();
+        
+        this.ctx.restore();
+    }
+
+    drawOrbitEndpoints() {
+        if (this.orbitPreviewPoints.length === 0) return;
+        
+        // Draw starting point (larger, brighter)
+        const startPoint = this.orbitPreviewPoints[0];
+        // Use world coordinates directly since camera transformation is already applied
+        
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(100, 255, 218, 0.8)';
+        this.ctx.strokeStyle = 'rgba(100, 255, 218, 1)';
+        this.ctx.lineWidth = 2;
+        
+        this.ctx.beginPath();
+        this.ctx.arc(startPoint.position.x, startPoint.position.y, 6, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.stroke();
+        
+        // Add a small arrow to show initial direction
+        if (this.orbitPreviewPoints.length > 1) {
+            const nextPoint = this.orbitPreviewPoints[1];
+            // Use world coordinates directly
+            const direction = {
+                x: nextPoint.position.x - startPoint.position.x,
+                y: nextPoint.position.y - startPoint.position.y
+            };
+            const length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+            
+            if (length > 0) {
+                direction.x /= length;
+                direction.y /= length;
+                
+                this.ctx.translate(startPoint.position.x, startPoint.position.y);
+                this.ctx.rotate(Math.atan2(direction.y, direction.x));
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(8, 0);
+                this.ctx.lineTo(3, -3);
+                this.ctx.lineTo(3, 3);
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+        }
+        
+        this.ctx.restore();
+    }
+
+    drawOrbitInfo() {
+        if (this.orbitPreviewPoints.length === 0) return;
+        
+        // Calculate orbit statistics
+        let minDistance = Infinity;
+        let maxDistance = 0;
+        
+        this.orbitPreviewPoints.forEach(point => {
+            if (point.distance) {
+                minDistance = Math.min(minDistance, point.distance);
+                maxDistance = Math.max(maxDistance, point.distance);
+            }
+        });
+        
+        const eccentricity = maxDistance > 0 ? (maxDistance - minDistance) / maxDistance : 0;
+        const lastPoint = this.orbitPreviewPoints[this.orbitPreviewPoints.length - 1];
+        
+        // Draw info box near the mouse cursor (in screen coordinates)
+        this.ctx.save();
+        
+        // Reset transformations for UI overlay
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        
+        const infoX = this.width * 0.02;
+        const infoY = this.height * 0.15;
+        
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        this.ctx.fillRect(infoX, infoY, 200, 80);
+        
+        this.ctx.fillStyle = lastPoint?.stable ? '#51cf66' : '#ff6b6b';
+        this.ctx.font = '14px Inter, sans-serif';
+        this.ctx.fillText(lastPoint?.stable ? 'Stable Orbit' : 'Unstable Trajectory', infoX + 10, infoY + 20);
+        
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '12px Inter, sans-serif';
+        this.ctx.fillText(`Eccentricity: ${eccentricity.toFixed(3)}`, infoX + 10, infoY + 40);
+        this.ctx.fillText(`Points: ${this.orbitPreviewPoints.length}`, infoX + 10, infoY + 60);
+        
+        this.ctx.restore();
+    }
+
+    drawOrbitDirectionArrows() {
+        if (this.orbitPreviewPoints.length < 10) return;
+        
+        // Adjust arrow spacing based on number of points for better distribution
+        const totalPoints = this.orbitPreviewPoints.length;
+        const desiredArrows = Math.min(8, Math.max(3, totalPoints / 80));
+        const arrowSpacing = Math.floor(totalPoints / desiredArrows);
+        
+        this.ctx.save();
+        this.ctx.fillStyle = this.ctx.strokeStyle; // Use same color as orbit line
+        this.ctx.globalAlpha = 0.8; // Slightly transparent
+        
+        for (let i = arrowSpacing; i < this.orbitPreviewPoints.length - arrowSpacing; i += arrowSpacing) {
+            const current = this.orbitPreviewPoints[i];
+            const next = this.orbitPreviewPoints[Math.min(i + 3, this.orbitPreviewPoints.length - 1)];
+            
+            if (!current || !next) continue;
+            
+            // Calculate arrow direction using a slightly ahead point for smoother direction
+            const direction = {
+                x: next.position.x - current.position.x,
+                y: next.position.y - current.position.y
+            };
+            
+            const length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+            if (length > 1) { // Only draw if there's sufficient direction change
+                direction.x /= length;
+                direction.y /= length;
+                
+                // Draw small arrow
+                this.ctx.save();
+                this.ctx.translate(current.position.x, current.position.y);
+                this.ctx.rotate(Math.atan2(direction.y, direction.x));
+                
+                // Make arrows smaller and more elegant
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, 0);
+                this.ctx.lineTo(-6, -2.5);
+                this.ctx.lineTo(-6, 2.5);
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                this.ctx.restore();
+            }
+        }
+        
+        this.ctx.restore();
+    }
+
+    setOrbitPreview(show, previewData = null) {
+        this.showOrbitPreview = show;
+        if (previewData) {
+            this.orbitPreviewPoints = previewData.points || [];
+        } else {
+            this.orbitPreviewPoints = [];
+        }
+    }
+
     // Settings
     setShowTrails(show) {
         this.showTrails = show;
@@ -549,5 +928,133 @@ class Renderer {
     // Screenshot functionality
     getScreenshot() {
         return this.canvas.toDataURL('image/png');
+    }
+
+    drawSmoothOrbitCurve() {
+        const points = this.orbitPreviewPoints;
+        if (points.length < 3) return;
+        
+        // Start at the first point
+        this.ctx.moveTo(points[0].position.x, points[0].position.y);
+        
+        // For a smooth curve, we'll use quadratic curves with calculated control points
+        for (let i = 1; i < points.length - 1; i++) {
+            const current = points[i].position;
+            const next = points[i + 1].position;
+            
+            // Calculate control point as the midpoint between current and next
+            const controlX = (current.x + next.x) / 2;
+            const controlY = (current.y + next.y) / 2;
+            
+            // Draw quadratic curve to the control point
+            this.ctx.quadraticCurveTo(current.x, current.y, controlX, controlY);
+        }
+        
+        // Draw final segment to the last point
+        const lastPoint = points[points.length - 1].position;
+        const secondLastPoint = points[points.length - 2].position;
+        this.ctx.quadraticCurveTo(secondLastPoint.x, secondLastPoint.y, lastPoint.x, lastPoint.y);
+    }
+
+    drawSmoothOrbitCurveSpline() {
+        // Alternative implementation using Catmull-Rom splines for even smoother curves
+        const points = this.orbitPreviewPoints;
+        if (points.length < 4) {
+            this.drawSmoothOrbitCurve();
+            return;
+        }
+        
+        this.ctx.moveTo(points[0].position.x, points[0].position.y);
+        
+        // Draw curves between each set of 4 points
+        for (let i = 0; i < points.length - 3; i++) {
+            const p0 = points[i].position;
+            const p1 = points[i + 1].position;
+            const p2 = points[i + 2].position;
+            const p3 = points[i + 3].position;
+            
+            // Calculate Catmull-Rom spline control points
+            const tension = 0.3; // Adjust for curve smoothness
+            
+            const cp1x = p1.x + (p2.x - p0.x) * tension;
+            const cp1y = p1.y + (p2.y - p0.y) * tension;
+            const cp2x = p2.x - (p3.x - p1.x) * tension;
+            const cp2y = p2.y - (p3.y - p1.y) * tension;
+            
+            // Draw cubic Bézier curve
+            this.ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        }
+        
+        // Connect to the last point
+        const lastPoint = points[points.length - 1].position;
+        this.ctx.lineTo(lastPoint.x, lastPoint.y);
+    }
+
+    optimizeOrbitPoints(points) {
+        if (points.length <= 50) return points; // Don't optimize small arrays
+        
+        // Use Douglas-Peucker algorithm variant for curve simplification
+        const optimized = [];
+        const tolerance = 2.0; // Pixel tolerance for curve simplification
+        
+        // Always keep the first point
+        optimized.push(points[0]);
+        
+        let lastKeptIndex = 0;
+        
+        for (let i = 2; i < points.length; i++) {
+            const lastPoint = points[lastKeptIndex].position;
+            const currentPoint = points[i].position;
+            const testPoint = points[i - 1].position;
+            
+            // Calculate distance from test point to line between last kept and current
+            const distance = this.pointToLineDistance(testPoint, lastPoint, currentPoint);
+            
+            if (distance > tolerance || i - lastKeptIndex > 15) {
+                // Keep the previous point and update last kept index
+                optimized.push(points[i - 1]);
+                lastKeptIndex = i - 1;
+            }
+        }
+        
+        // Always keep the last point
+        if (points.length > 0) {
+            optimized.push(points[points.length - 1]);
+        }
+        
+        return optimized;
+    }
+
+    pointToLineDistance(point, lineStart, lineEnd) {
+        const A = point.x - lineStart.x;
+        const B = point.y - lineStart.y;
+        const C = lineEnd.x - lineStart.x;
+        const D = lineEnd.y - lineStart.y;
+        
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        
+        if (lenSq === 0) {
+            return Math.sqrt(A * A + B * B);
+        }
+        
+        const param = dot / lenSq;
+        
+        let xx, yy;
+        
+        if (param < 0) {
+            xx = lineStart.x;
+            yy = lineStart.y;
+        } else if (param > 1) {
+            xx = lineEnd.x;
+            yy = lineEnd.y;
+        } else {
+            xx = lineStart.x + param * C;
+            yy = lineStart.y + param * D;
+        }
+        
+        const dx = point.x - xx;
+        const dy = point.y - yy;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 }
