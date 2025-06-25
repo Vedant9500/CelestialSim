@@ -274,8 +274,9 @@ class NBodyApp {
             const deltaY = mousePos.y - this.lastMousePos.y;
             this.renderer.panCamera(-deltaX, -deltaY);
             
-        } else if (this.ui.isOrbitMode() && this.bodies.length > 0 && this.isAddingBody) {
-            // Show orbit preview when adding a new body in orbit mode
+        } else if (this.ui.isOrbitMode() && this.bodies.length > 0) {
+            // Show orbit preview when in orbit mode and there are bodies to orbit around
+            // This should work regardless of whether we're actively adding a body or just planning
             this.updateOrbitPreview(worldPos);
         }
         
@@ -314,6 +315,13 @@ class NBodyApp {
             this.isAddingBody = false;
             if (this.ui.isOrbitMode() && this.bodies.length > 0) {
                 this.addBodyAtPosition(this.mousePos);
+                
+                // After adding a body, refresh orbit preview for potential next body
+                setTimeout(() => {
+                    if (this.ui.isOrbitMode() && this.mousePosition && this.bodies.length > 0) {
+                        this.updateOrbitPreview(this.mousePosition);
+                    }
+                }, 50);
             }
         }
         
@@ -621,7 +629,16 @@ class NBodyApp {
         );
         
         this.bodies.push(body);
-        this.selectBody(body);
+        this.selectBody(body, true); // Pass flag to indicate this is a new body
+        
+        // If we're still in orbit mode and have a mouse position, update orbit preview immediately
+        // This ensures the preview shows up for the next potential body
+        if (this.ui.isOrbitMode() && this.mousePosition && this.bodies.length > 0) {
+            // Use a small timeout to ensure the body is fully added and processed
+            setTimeout(() => {
+                this.updateOrbitPreview(this.mousePosition);
+            }, 10);
+        }
     }
 
     findNearestBody(position) {
@@ -697,15 +714,17 @@ class NBodyApp {
         return closestBody;
     }
 
-    selectBody(body) {
+    selectBody(body, isNewBody = false) {
         // Deselect previous body
         if (this.selectedBody) {
             this.selectedBody.setSelected(false);
         }
         
-        // Clear orbit previews when selecting a body
-        this.renderer.setOrbitPreview(false);
-        this.renderer.setLongTermPreview(false);
+        // Only clear orbit previews when selecting existing bodies, not when adding new ones
+        if (!isNewBody) {
+            this.renderer.setOrbitPreview(false);
+            this.renderer.setLongTermPreview(false);
+        }
         
         this.selectedBody = body;
         
