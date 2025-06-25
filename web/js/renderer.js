@@ -4,6 +4,7 @@ class Renderer {
         this.ctx = canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
+        this.devicePixelRatio = window.devicePixelRatio || 1;
         
         // Camera system
         this.camera = {
@@ -54,19 +55,15 @@ class Renderer {
     }
 
     setupCanvas() {
-        // Set up high DPI rendering
-        const devicePixelRatio = window.devicePixelRatio || 1;
-        const rect = this.canvas.getBoundingClientRect();
+        // Use the device pixel ratio provided by the app or default
+        const dpr = this.devicePixelRatio || window.devicePixelRatio || 1;
         
-        this.canvas.width = rect.width * devicePixelRatio;
-        this.canvas.height = rect.height * devicePixelRatio;
+        // Scale the context to ensure crisp rendering
+        this.ctx.scale(dpr, dpr);
         
-        this.ctx.scale(devicePixelRatio, devicePixelRatio);
-        this.canvas.style.width = rect.width + 'px';
-        this.canvas.style.height = rect.height + 'px';
-        
-        this.width = rect.width;
-        this.height = rect.height;
+        // Update internal dimensions
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
         
         // Enable anti-aliasing
         if (this.antiAliasing) {
@@ -288,7 +285,13 @@ class Renderer {
             return; // Skip invalid bodies
         }
         
-        const radius = Math.max(1, body.radius / this.camera.zoom); // Ensure minimum radius
+        // Use world radius and let camera transformation handle scaling
+        // But ensure minimum screen visibility
+        const minScreenRadius = 2; // minimum pixels on screen
+        const worldRadius = body.radius;
+        const screenRadius = worldRadius * this.camera.zoom;
+        const radius = screenRadius < minScreenRadius ? minScreenRadius / this.camera.zoom : worldRadius;
+        
         const x = body.position.x;
         const y = body.position.y;
         
@@ -509,15 +512,38 @@ class Renderer {
 
     // Coordinate conversion
     worldToScreen(worldX, worldY) {
-        const screenX = (worldX - this.camera.x) * this.camera.zoom + this.width / 2;
-        const screenY = (worldY - this.camera.y) * this.camera.zoom + this.height / 2;
+        const canvasWidth = this.width / this.devicePixelRatio;
+        const canvasHeight = this.height / this.devicePixelRatio;
+        
+        const screenX = (worldX - this.camera.x) * this.camera.zoom + canvasWidth / 2;
+        const screenY = (worldY - this.camera.y) * this.camera.zoom + canvasHeight / 2;
         return new Vector2D(screenX, screenY);
     }
 
     screenToWorld(screenX, screenY) {
-        const worldX = (screenX - this.width / 2) / this.camera.zoom + this.camera.x;
-        const worldY = (screenY - this.height / 2) / this.camera.zoom + this.camera.y;
+        // Convert from canvas coordinates to world coordinates
+        // screenX and screenY should already be in canvas pixel coordinates
+        const canvasWidth = this.width / this.devicePixelRatio;
+        const canvasHeight = this.height / this.devicePixelRatio;
+        
+        const worldX = (screenX - canvasWidth / 2) / this.camera.zoom + this.camera.x;
+        const worldY = (screenY - canvasHeight / 2) / this.camera.zoom + this.camera.y;
         return new Vector2D(worldX, worldY);
+    }
+
+    // Debugging method to troubleshoot coordinate conversion issues
+    debugCoordinates() {
+        const rect = this.canvas.getBoundingClientRect();
+        console.log('Canvas Debug Info:', {
+            canvasWidth: this.canvas.width,
+            canvasHeight: this.canvas.height,
+            displayWidth: rect.width,
+            displayHeight: rect.height,
+            devicePixelRatio: this.devicePixelRatio,
+            zoom: this.camera.zoom,
+            cameraX: this.camera.x,
+            cameraY: this.camera.y
+        });
     }
 
     // Utility functions

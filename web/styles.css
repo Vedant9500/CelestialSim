@@ -311,7 +311,12 @@ body {
 
 /* Sliders */
 .slider-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+}
+
+.slider-group:last-of-type {
+    margin-bottom: 1.5rem;
 }
 
 .slider-group label {
@@ -505,35 +510,55 @@ body {
 }
 
 /* Color Picker */
+.color-picker-group {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-top: 0.5rem;
+}
+
 .color-picker-group label {
-    margin-bottom: 0.75rem;
+    display: block;
+    margin-bottom: 1rem;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
 .color-picker {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    padding: 0.25rem;
+    justify-items: center;
 }
 
 .color-option {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
     cursor: pointer;
     border: 2px solid transparent;
     transition: all 0.3s ease;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .color-option:hover {
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    z-index: 10;
 }
 
 .color-option.active {
-    border-color: #ffffff;
-    transform: scale(1.1);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    border-color: #64ffda;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.3);
+    z-index: 5;
 }
 
 .color-option:nth-child(1) { background-color: #ff4757; }

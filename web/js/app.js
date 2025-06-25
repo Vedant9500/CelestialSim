@@ -64,6 +64,25 @@ class NBodyApp {
         // Window events
         window.addEventListener('resize', () => this.onWindowResize());
         
+        // Handle browser zoom changes
+        let lastDevicePixelRatio = window.devicePixelRatio;
+        const checkZoomChange = () => {
+            if (window.devicePixelRatio !== lastDevicePixelRatio) {
+                lastDevicePixelRatio = window.devicePixelRatio;
+                this.updateCanvasSize();
+            }
+        };
+        
+        // Check for zoom changes periodically
+        setInterval(checkZoomChange, 500);
+        
+        // Also check on various events that might indicate zoom change
+        window.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                setTimeout(checkZoomChange, 100);
+            }
+        });
+        
         // Keyboard events are handled by UI manager
     }
 
@@ -84,8 +103,20 @@ class NBodyApp {
 
     updateCanvasSize() {
         const rect = this.canvas.getBoundingClientRect();
-        this.renderer.width = rect.width;
-        this.renderer.height = rect.height;
+        
+        // Set canvas internal resolution to match display size for crisp rendering
+        const devicePixelRatio = window.devicePixelRatio || 1;
+        this.canvas.width = rect.width * devicePixelRatio;
+        this.canvas.height = rect.height * devicePixelRatio;
+        
+        // Scale the canvas back down using CSS
+        this.canvas.style.width = rect.width + 'px';
+        this.canvas.style.height = rect.height + 'px';
+        
+        // Update renderer with actual canvas size
+        this.renderer.width = this.canvas.width;
+        this.renderer.height = this.canvas.height;
+        this.renderer.devicePixelRatio = devicePixelRatio;
         this.renderer.setupCanvas();
     }
 
@@ -160,13 +191,13 @@ class NBodyApp {
 
     // Event handlers
     onMouseDown(event) {
-        const rect = this.canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const worldPos = this.renderer.screenToWorld(x, y);
+        this.debugMousePosition(event);
+        
+        const mousePos = this.getMousePosition(event);
+        const worldPos = this.renderer.screenToWorld(mousePos.x, mousePos.y);
         
         this.mousePos = worldPos;
-        this.lastMousePos = new Vector2D(x, y);
+        this.lastMousePos = new Vector2D(mousePos.x, mousePos.y);
         this.dragStartPosition = worldPos.clone();
         
         if (event.button === 0) { // Left click
@@ -215,10 +246,8 @@ class NBodyApp {
     }
 
     onMouseMove(event) {
-        const rect = this.canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const worldPos = this.renderer.screenToWorld(x, y);
+        const mousePos = this.getMousePosition(event);
+        const worldPos = this.renderer.screenToWorld(mousePos.x, mousePos.y);
         
         this.mousePos = worldPos;
         
@@ -240,8 +269,8 @@ class NBodyApp {
             
         } else if (event.buttons === 4 || (event.buttons === 1 && event.ctrlKey)) {
             // Middle mouse or Ctrl+left mouse: pan camera
-            const deltaX = x - this.lastMousePos.x;
-            const deltaY = y - this.lastMousePos.y;
+            const deltaX = mousePos.x - this.lastMousePos.x;
+            const deltaY = mousePos.y - this.lastMousePos.y;
             this.renderer.panCamera(-deltaX, -deltaY);
             
         } else if (this.ui.isOrbitMode() && this.bodies.length > 0 && this.isAddingBody) {
@@ -249,7 +278,7 @@ class NBodyApp {
             this.updateOrbitPreview(worldPos);
         }
         
-        this.lastMousePos = new Vector2D(x, y);
+        this.lastMousePos = new Vector2D(mousePos.x, mousePos.y);
         
         // Update cursor based on what's under the mouse
         this.updateCursor(worldPos);
@@ -292,19 +321,21 @@ class NBodyApp {
 
     onMouseWheel(event) {
         event.preventDefault();
-        const rect = this.canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        const mousePos = this.getMousePosition(event);
         
         if (event.deltaY < 0) {
-            this.renderer.zoomIn(x, y);
+            this.renderer.zoomIn(mousePos.x, mousePos.y);
         } else {
-            this.renderer.zoomOut(x, y);
+            this.renderer.zoomOut(mousePos.x, mousePos.y);
         }
     }
 
     onWindowResize() {
         this.updateCanvasSize();
+        // Debug coordinates after resize
+        if (window.location.hash === '#debug') {
+            this.renderer.debugCoordinates();
+        }
     }
 
     // UI event handlers
@@ -1080,6 +1111,40 @@ class NBodyApp {
             
             return isValid;
         });
+    }
+
+    getMousePosition(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        
+        // Calculate the scale between the canvas display size and its internal resolution
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        
+        // Calculate mouse position relative to canvas, accounting for browser zoom
+        const x = (event.clientX - rect.left) * scaleX;
+        const y = (event.clientY - rect.top) * scaleY;
+        
+        // Convert from high-DPI coordinates to logical coordinates
+        const logicalX = x / this.renderer.devicePixelRatio;
+        const logicalY = y / this.renderer.devicePixelRatio;
+        
+        return { x: logicalX, y: logicalY };
+    }
+
+    debugMousePosition(event) {
+        if (window.location.hash === '#debug') {
+            const mousePos = this.getMousePosition(event);
+            const worldPos = this.renderer.screenToWorld(mousePos.x, mousePos.y);
+            
+            console.log('Mouse Debug:', {
+                clientX: event.clientX,
+                clientY: event.clientY,
+                canvasX: mousePos.x,
+                canvasY: mousePos.y,
+                worldX: worldPos.x.toFixed(2),
+                worldY: worldPos.y.toFixed(2)
+            });
+        }
     }
 }
 
