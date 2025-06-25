@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-N-Body Physics Simulator Web Server
-===================================
+CelestialSim Web Server
+======================
 
-A simple HTTP server that serves the N-Body simulation web application
+A simple HTTP server that serves the CelestialSim web application
 and automatically opens it in the default web browser.
 
 Features:
@@ -65,7 +65,7 @@ class NBodyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         return mimetype
 
 class NBodyServer:
-    """Main server class for the N-Body simulation"""
+    """Main server class for CelestialSim"""
     
     def __init__(self, port=8000, host='localhost'):
         self.port = port
@@ -113,7 +113,7 @@ class NBodyServer:
             self.running = True
             
             print("=" * 60)
-            print("🌌 N-Body Physics Simulator - Web Interface")
+            print("🌌 CelestialSim - Interactive Physics Simulator")
             print("=" * 60)
             print(f"Server starting on: http://{self.host}:{self.port}")
             print(f"Serving from: {self.web_dir}")
@@ -160,7 +160,7 @@ class NBodyServer:
     def stop(self):
         """Stop the HTTP server"""
         print("\n" + "=" * 60)
-        print("🛑 Shutting down N-Body Simulator server...")
+        print("🛑 Shutting down CelestialSim server...")
         
         self.running = False
         if self.httpd:
@@ -199,7 +199,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(
-        description="N-Body Physics Simulator Web Server",
+        description="CelestialSim Web Server",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

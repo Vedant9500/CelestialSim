@@ -1,4 +1,4 @@
-// Main application class that ties everything together
+// CelestialSim - Main application class that ties everything together
 class NBodyApp {
     constructor() {
         this.canvas = document.getElementById('simulation-canvas');
@@ -49,8 +49,8 @@ class NBodyApp {
         // Initial UI update
         this.updateUI();
         
-        console.log('N-Body Simulation initialized successfully!');
-        this.ui.showNotification('N-Body Simulation loaded!', 'success');
+        console.log('CelestialSim initialized successfully!');
+        this.ui.showNotification('CelestialSim loaded!', 'success');
     }
 
     setupEventListeners() {

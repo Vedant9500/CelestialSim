@@ -1,4 +1,4 @@
-# N-Body Physics Simulator
+# CelestialSim
 
 A modern, browser-based gravitational physics simulator featuring real-time N-body dynamics with an intuitive user interface. Experience accurate celestial mechanics through interactive simulations of planetary systems, stellar clusters, and complex gravitational interactions.
 
