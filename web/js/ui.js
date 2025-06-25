@@ -5,46 +5,58 @@ class UIManager {
         this.checkboxes = new Map();
         this.colorPicker = null;
         this.selectedColor = '#ff4757';
+        this.orbitMode = false;
         
         this.initializeSliders();
         this.initializeButtons();
         this.initializeCheckboxes();
         this.initializeColorPicker();
         this.initializeModal();
+        this.initializeModeButtons();
         this.setupEventListeners();
     }
 
     initializeSliders() {
         // Define all sliders with their configurations
         const sliderConfigs = [
-            { id: 'gravity-strength', min: 0.1, max: 3.0, step: 0.1, default: 1.0, format: (v) => v.toFixed(1) },
-            { id: 'time-scale', min: 0.1, max: 3.0, step: 0.1, default: 1.0, format: (v) => v.toFixed(1) + 'x' },
-            { id: 'body-mass', min: 1, max: 200, step: 1, default: 50, format: (v) => Math.round(v).toString() },
-            { id: 'velocity-x', min: -50, max: 50, step: 1, default: 0, format: (v) => Math.round(v).toString() },
-            { id: 'velocity-y', min: -50, max: 50, step: 1, default: 0, format: (v) => Math.round(v).toString() },
-            { id: 'trail-length', min: 0, max: 100, step: 1, default: 50, format: (v) => Math.round(v).toString() }
+            { id: 'gravity-strength', min: 0.1, max: 3.0, step: 0.1, default: 1.0, extendedMax: 50, format: (v) => v.toFixed(1) },
+            { id: 'time-scale', min: 0.1, max: 3.0, step: 0.1, default: 1.0, extendedMax: 10, format: (v) => v.toFixed(1) + 'x' },
+            { id: 'body-mass', min: 1, max: 200, step: 1, default: 50, extendedMax: 10000, format: (v) => Math.round(v).toString() },
+            { id: 'velocity-x', min: -50, max: 50, step: 1, default: 0, extendedMax: 1000, format: (v) => Math.round(v).toString() },
+            { id: 'velocity-y', min: -50, max: 50, step: 1, default: 0, extendedMax: 1000, format: (v) => Math.round(v).toString() },
+            { id: 'trail-length', min: 0, max: 100, step: 1, default: 50, extendedMax: 1000, format: (v) => Math.round(v).toString() }
         ];
 
         sliderConfigs.forEach(config => {
             const slider = document.getElementById(config.id);
-            const valueDisplay = slider.parentElement.querySelector('.slider-value');
+            const input = document.getElementById(config.id + '-input');
             
-            if (slider && valueDisplay) {
+            if (slider && input) {
                 // Set initial values
                 slider.min = config.min;
                 slider.max = config.max;
                 slider.step = config.step;
                 slider.value = config.default;
-                valueDisplay.textContent = config.format(config.default);
+                input.value = config.default;
                 
-                // Add event listener
+                // Sync slider to input
                 slider.addEventListener('input', (e) => {
                     const value = parseFloat(e.target.value);
-                    valueDisplay.textContent = config.format(value);
+                    input.value = value;
                     this.onSliderChange(config.id, value);
                 });
                 
-                this.sliders.set(config.id, { element: slider, valueDisplay, config });
+                // Sync input to slider
+                input.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value);
+                    // Only update slider if value is within range
+                    if (value >= config.min && value <= config.max) {
+                        slider.value = value;
+                    }
+                    this.onSliderChange(config.id, value);
+                });
+                
+                this.sliders.set(config.id, { element: slider, input, config });
             }
         });
     }
@@ -91,6 +103,56 @@ class UIManager {
                 this.checkboxes.set(id, checkbox);
             }
         });
+    }
+
+    initializeModeButtons() {
+        const manualModeBtn = document.getElementById('manual-mode');
+        const orbitModeBtn = document.getElementById('orbit-mode');
+        
+        if (manualModeBtn && orbitModeBtn) {
+            manualModeBtn.addEventListener('click', () => {
+                this.setMode('manual');
+            });
+            
+            orbitModeBtn.addEventListener('click', () => {
+                this.setMode('orbit');
+            });
+        }
+    }
+
+    setMode(mode) {
+        this.orbitMode = (mode === 'orbit');
+        
+        const manualModeBtn = document.getElementById('manual-mode');
+        const orbitModeBtn = document.getElementById('orbit-mode');
+        
+        if (manualModeBtn && orbitModeBtn) {
+            manualModeBtn.classList.toggle('active', !this.orbitMode);
+            orbitModeBtn.classList.toggle('active', this.orbitMode);
+        }
+        
+        // Disable velocity sliders in orbit mode
+        const velocityXSlider = this.sliders.get('velocity-x');
+        const velocityYSlider = this.sliders.get('velocity-y');
+        
+        if (velocityXSlider && velocityYSlider) {
+            velocityXSlider.element.disabled = this.orbitMode;
+            velocityXSlider.input.disabled = this.orbitMode;
+            velocityYSlider.element.disabled = this.orbitMode;
+            velocityYSlider.input.disabled = this.orbitMode;
+            
+            if (this.orbitMode) {
+                velocityXSlider.element.value = 0;
+                velocityXSlider.input.value = 0;
+                velocityYSlider.element.value = 0;
+                velocityYSlider.input.value = 0;
+            }
+        }
+        
+        this.showNotification(
+            this.orbitMode ? 'Orbit Mode: Click near a body to create an orbiting body' : 'Manual Mode: Set velocity manually',
+            'info'
+        );
     }
 
     initializeColorPicker() {
@@ -192,7 +254,7 @@ class UIManager {
         const slider = this.sliders.get(sliderId);
         if (slider) {
             slider.element.value = value;
-            slider.valueDisplay.textContent = slider.config.format(value);
+            slider.input.value = value;
         }
     }
 
@@ -360,6 +422,26 @@ class UIManager {
 
     getSelectedColor() {
         return this.selectedColor;
+    }
+
+    // Calculate orbital velocity for a body around a target
+    calculateOrbitalVelocity(targetBody, position, gravitationalConstant) {
+        const direction = targetBody.position.subtract(position);
+        const distance = direction.magnitude();
+        
+        if (distance === 0) return new Vector2D(0, 0);
+        
+        // Calculate orbital speed: v = sqrt(GM/r)
+        const orbitalSpeed = Math.sqrt(gravitationalConstant * targetBody.mass / distance);
+        
+        // Get perpendicular direction for circular orbit
+        const perpendicular = new Vector2D(-direction.y, direction.x).normalize();
+        
+        return perpendicular.multiply(orbitalSpeed);
+    }
+
+    isOrbitMode() {
+        return this.orbitMode;
     }
 
     // File operations

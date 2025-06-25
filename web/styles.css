@@ -322,14 +322,106 @@ body {
     color: #cccccc;
 }
 
+.slider-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
 .slider-group input[type="range"] {
-    width: 100%;
+    flex: 1;
     height: 6px;
     border-radius: 3px;
     background: rgba(255, 255, 255, 0.1);
     outline: none;
     -webkit-appearance: none;
-    margin-bottom: 0.5rem;
+}
+
+.direct-input {
+    width: 70px;
+    padding: 0.4rem 0.6rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.direct-input:focus {
+    outline: none;
+    border-color: #64ffda;
+    background: rgba(100, 255, 218, 0.1);
+    box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
+}
+
+.direct-input::-webkit-outer-spin-button,
+.direct-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+.direct-input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Disabled slider styles */
+.slider-group input[type="range"]:disabled,
+.direct-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.slider-group input[type="range"]:disabled::-webkit-slider-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+}
+
+.direct-input:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Mode Selection */
+.mode-selection {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 0.25rem;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #cccccc;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.mode-btn.active {
+    background: linear-gradient(45deg, #64ffda, #bb86fc);
+    color: #000000;
+    font-weight: 600;
 }
 
 .slider-group input[type="range"]::-webkit-slider-thumb {
@@ -347,6 +439,17 @@ body {
 .slider-group input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(100, 255, 218, 0.4);
+}
+
+.slider-group input[type="range"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.direct-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .slider-value {

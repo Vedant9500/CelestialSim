@@ -89,14 +89,18 @@
                     
                     <div class="slider-group">
                         <label for="gravity-strength">Gravity Strength</label>
-                        <input type="range" id="gravity-strength" min="0.1" max="3.0" step="0.1" value="1.0">
-                        <span class="slider-value">1.0</span>
+                        <div class="slider-input-group">
+                            <input type="range" id="gravity-strength" min="0.1" max="3.0" step="0.1" value="1.0">
+                            <input type="number" id="gravity-strength-input" min="0.01" max="50" step="0.1" value="1.0" class="direct-input">
+                        </div>
                     </div>
                     
                     <div class="slider-group">
                         <label for="time-scale">Time Scale</label>
-                        <input type="range" id="time-scale" min="0.1" max="3.0" step="0.1" value="1.0">
-                        <span class="slider-value">1.0x</span>
+                        <div class="slider-input-group">
+                            <input type="range" id="time-scale" min="0.1" max="3.0" step="0.1" value="1.0">
+                            <input type="number" id="time-scale-input" min="0.01" max="10" step="0.1" value="1.0" class="direct-input">
+                        </div>
                     </div>
                     
                     <div class="checkbox-group">
@@ -126,28 +130,45 @@
                 <div class="panel-section">
                     <h3><i class="fas fa-plus-circle"></i> Add Bodies</h3>
                     
+                    <div class="mode-selection">
+                        <button id="manual-mode" class="mode-btn active">
+                            <i class="fas fa-hand-pointer"></i> Manual
+                        </button>
+                        <button id="orbit-mode" class="mode-btn">
+                            <i class="fas fa-satellite"></i> Orbit
+                        </button>
+                    </div>
+                    
                     <div class="slider-group">
                         <label for="body-mass">Mass</label>
-                        <input type="range" id="body-mass" min="1" max="200" step="1" value="50">
-                        <span class="slider-value">50</span>
+                        <div class="slider-input-group">
+                            <input type="range" id="body-mass" min="1" max="200" step="1" value="50">
+                            <input type="number" id="body-mass-input" min="1" max="10000" step="1" value="50" class="direct-input">
+                        </div>
                     </div>
                     
                     <div class="slider-group">
                         <label for="velocity-x">Velocity X</label>
-                        <input type="range" id="velocity-x" min="-50" max="50" step="1" value="0">
-                        <span class="slider-value">0</span>
+                        <div class="slider-input-group">
+                            <input type="range" id="velocity-x" min="-50" max="50" step="1" value="0">
+                            <input type="number" id="velocity-x-input" min="-1000" max="1000" step="1" value="0" class="direct-input">
+                        </div>
                     </div>
                     
                     <div class="slider-group">
                         <label for="velocity-y">Velocity Y</label>
-                        <input type="range" id="velocity-y" min="-50" max="50" step="1" value="0">
-                        <span class="slider-value">0</span>
+                        <div class="slider-input-group">
+                            <input type="range" id="velocity-y" min="-50" max="50" step="1" value="0">
+                            <input type="number" id="velocity-y-input" min="-1000" max="1000" step="1" value="0" class="direct-input">
+                        </div>
                     </div>
                     
                     <div class="slider-group">
                         <label for="trail-length">Trail Length</label>
-                        <input type="range" id="trail-length" min="0" max="100" step="1" value="50">
-                        <span class="slider-value">50</span>
+                        <div class="slider-input-group">
+                            <input type="range" id="trail-length" min="0" max="100" step="1" value="50">
+                            <input type="number" id="trail-length-input" min="0" max="1000" step="1" value="50" class="direct-input">
+                        </div>
                     </div>
                     
                     <div class="color-picker-group">

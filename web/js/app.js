@@ -433,14 +433,32 @@ class NBodyApp {
     // Body management
     addBodyAtPosition(position) {
         const mass = this.ui.getSliderValue('body-mass');
-        const vx = this.ui.getSliderValue('velocity-x');
-        const vy = this.ui.getSliderValue('velocity-y');
         const trailLength = this.ui.getSliderValue('trail-length');
         const color = this.ui.getSelectedColor();
         
+        let velocity = new Vector2D(0, 0);
+        
+        if (this.ui.isOrbitMode()) {
+            // Find nearest body to orbit around
+            const targetBody = this.findNearestBody(position);
+            
+            if (targetBody) {
+                // Calculate orbital velocity
+                velocity = this.ui.calculateOrbitalVelocity(targetBody, position, this.physics.gravitationalConstant);
+                this.ui.showNotification(`Orbiting around nearest body (mass: ${targetBody.mass})`, 'success');
+            } else {
+                this.ui.showNotification('No bodies found to orbit around', 'warning');
+            }
+        } else {
+            // Manual mode: use slider values
+            const vx = this.ui.getSliderValue('velocity-x');
+            const vy = this.ui.getSliderValue('velocity-y');
+            velocity = new Vector2D(vx, vy);
+        }
+        
         const body = new Body(
             position,
-            new Vector2D(vx, vy),
+            velocity,
             mass,
             color,
             Math.round(trailLength)
@@ -448,6 +466,21 @@ class NBodyApp {
         
         this.bodies.push(body);
         this.selectBody(body);
+    }
+
+    findNearestBody(position) {
+        let nearestBody = null;
+        let minDistance = Infinity;
+        
+        for (const body of this.bodies) {
+            const distance = body.position.distance(position);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestBody = body;
+            }
+        }
+        
+        return nearestBody;
     }
 
     findBodyAtPosition(position) {

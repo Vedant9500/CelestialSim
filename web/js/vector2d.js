@@ -206,6 +206,11 @@ class Vector2D {
         return this.magnitudeSquared() < epsilon * epsilon;
     }
 
+    // Get perpendicular vector (rotate 90 degrees counterclockwise)
+    perpendicular() {
+        return new Vector2D(-this.y, this.x);
+    }
+
     // Set components
     set(x, y) {
         this.x = x;
