@@ -45,6 +45,9 @@ class Renderer {
         this.longTermPreviewMaxPoints = 15000;
         this.longTermPreviewMaxTime = 2000; // Maximum simulation time
         
+        // Initialize with default prediction depth
+        this.setPredictionDepth(1000);
+        
         // Grid settings
         this.gridSpacing = 50;
         this.gridColor = 'rgba(100, 255, 218, 0.1)';
@@ -732,7 +735,7 @@ class Renderer {
             previewBody.color
         );
         
-        // Create copies of existing bodies (these stay stationary)
+        // Create copies of existing bodies (these stay stationary for prediction)
         const fixedBodies = existingBodies.map(body => new Body(
             body.position.clone(),
             body.velocity.clone(),
@@ -740,16 +743,16 @@ class Renderer {
             body.color
         ));
         
-        // Create a combined array for force calculations
+        // Create a combined array for force calculations (all bodies interact)
         const allBodies = [...fixedBodies, testBody];
         
         let collisionDetected = false;
         let simulationTime = 0;
         let lastRecordTime = 0;
-        const recordInterval = this.longTermPreviewTimeStep * 5; // Record every 5th step for better density
+        const recordInterval = this.longTermPreviewTimeStep * 3; // Record every 3rd step for good density
         
-        // Track energy for stability
-        const initialEnergy = this.calculateTestBodyEnergy(testBody, fixedBodies, physicsEngine);
+        // Track energy for stability (considering ALL body interactions)
+        const initialEnergy = this.calculateSystemEnergyForPrediction(allBodies, physicsEngine);
         let energyDrift = 0;
         
         // Enhanced orbital completion detection
@@ -767,7 +770,7 @@ class Renderer {
                     position: testBody.position.clone(),
                     velocity: testBody.velocity.magnitude(),
                     time: simulationTime,
-                    energy: this.calculateTestBodyEnergy(testBody, fixedBodies, physicsEngine),
+                    energy: this.calculateSystemEnergyForPrediction(allBodies, physicsEngine),
                     stable: !collisionDetected && energyDrift < 0.15
                 });
                 
@@ -788,18 +791,19 @@ class Renderer {
                 }
             }
             
-            // Check for collisions with fixed bodies
+            // Check for collisions with any of the fixed bodies
             for (const fixedBody of fixedBodies) {
                 const distance = testBody.position.distance(fixedBody.position);
-                if (distance < (testBody.radius + fixedBody.radius + physicsEngine.collisionThreshold)) {
+                const collisionDistance = (testBody.radius + fixedBody.radius + physicsEngine.collisionThreshold);
+                if (distance < collisionDistance) {
                     collisionDetected = true;
                     break;
                 }
             }
             
-            // Calculate energy drift periodically
+            // Calculate energy drift periodically (using all body interactions)
             if (step % 200 === 0) {
-                const currentEnergy = this.calculateTestBodyEnergy(testBody, fixedBodies, physicsEngine);
+                const currentEnergy = this.calculateSystemEnergyForPrediction(allBodies, physicsEngine);
                 energyDrift = Math.abs((currentEnergy - initialEnergy) / initialEnergy);
             }
             
@@ -808,10 +812,13 @@ class Renderer {
                 break;
             }
             
-            // Check for escape velocity or unstable orbit
-            const distanceFromCenter = testBody.position.magnitude();
+            // Check for escape velocity or unstable orbit (relative to system center)
+            const systemCenter = this.calculateSystemCenter(fixedBodies);
+            const distanceFromSystemCenter = testBody.position.distance(systemCenter);
             const speed = testBody.velocity.magnitude();
-            if (distanceFromCenter > 5000 || speed > 500) {
+            
+            // More lenient escape conditions for multi-body systems
+            if (distanceFromSystemCenter > 8000 || speed > 800) {
                 // Allow some time to see the escape trajectory
                 if (this.longTermPreviewPoints.length > 300) {
                     break;
@@ -823,9 +830,9 @@ class Renderer {
                 if (this.longTermPreviewPoints.length > 1000) {
                     // Simple position-based periodic detection
                     const currentPos = testBody.position.clone();
-                    const threshold = 50; // Position threshold for "close enough"
+                    const threshold = 80; // Larger threshold for multi-body systems
                     
-                    for (let i = Math.max(0, this.longTermPreviewPoints.length - 500); i < this.longTermPreviewPoints.length - 100; i++) {
+                    for (let i = Math.max(0, this.longTermPreviewPoints.length - 800); i < this.longTermPreviewPoints.length - 100; i++) {
                         const oldPos = this.longTermPreviewPoints[i].position;
                         if (currentPos.distance(oldPos) < threshold) {
                             orbitalPeriodDetection.completed = true;
@@ -843,7 +850,7 @@ class Renderer {
             // Reset forces for all bodies
             allBodies.forEach(body => body.resetForce());
             
-            // Calculate forces using the same physics engine
+            // Calculate forces using the same physics engine (ALL bodies interact)
             physicsEngine.calculateForcesNaive(allBodies);
             
             // Update only the test body position (keep fixed bodies stationary)
@@ -864,11 +871,15 @@ class Renderer {
         };
     }
     
-    calculateTestBodyEnergy(testBody, fixedBodies, physicsEngine) {
+    calculateSystemEnergyForPrediction(allBodies, physicsEngine) {
+        // Only calculate energy for the test body (last one in the array)
+        const testBody = allBodies[allBodies.length - 1];
+        const fixedBodies = allBodies.slice(0, -1);
+        
         // Kinetic energy of test body
         let energy = 0.5 * testBody.mass * testBody.velocity.magnitudeSquared();
         
-        // Potential energy with respect to fixed bodies
+        // Potential energy with respect to all fixed bodies
         for (const fixedBody of fixedBodies) {
             const distance = testBody.position.distance(fixedBody.position);
             if (distance > 0) {
@@ -877,6 +888,22 @@ class Renderer {
         }
         
         return energy;
+    }
+    
+    calculateSystemCenter(bodies) {
+        if (bodies.length === 0) return new Vector2D(0, 0);
+        
+        let totalMass = 0;
+        let centerX = 0;
+        let centerY = 0;
+        
+        for (const body of bodies) {
+            totalMass += body.mass;
+            centerX += body.position.x * body.mass;
+            centerY += body.position.y * body.mass;
+        }
+        
+        return new Vector2D(centerX / totalMass, centerY / totalMass);
     }
     
     optimizeLongTermPoints(points) {
@@ -1140,6 +1167,13 @@ class Renderer {
         }
     }
     
+    setPredictionDepth(depth) {
+        // Update prediction parameters based on depth value
+        this.longTermPreviewSteps = Math.floor(depth * 200); // Scale steps with depth
+        this.longTermPreviewMaxTime = Math.floor(depth * 2); // Scale max time with depth
+        this.longTermPreviewMaxPoints = Math.min(15000, Math.floor(depth * 15)); // Scale points but cap at 15k
+    }
+
     setLongTermPreview(show, previewData = null) {
         this.showLongTermPreview = show;
         if (previewData) {

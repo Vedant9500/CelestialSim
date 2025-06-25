@@ -357,6 +357,13 @@ class NBodyApp {
             case 'time-scale':
                 this.physics.setTimeScale(value);
                 break;
+            case 'prediction-depth':
+                // Update the renderer's prediction depth and refresh orbit preview
+                this.renderer.setPredictionDepth(value);
+                if (this.ui.orbitMode && this.mousePosition && this.ui.getCheckboxValue('long-term-preview')) {
+                    this.updateOrbitPreview(this.mousePosition);
+                }
+                break;
             case 'body-mass':
                 if (this.selectedBody) {
                     // Ensure mass is never zero or negative
