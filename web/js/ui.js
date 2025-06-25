@@ -116,7 +116,7 @@ class UIManager {
 
     initializeCheckboxes() {
         const checkboxIds = [
-            'collision-enabled', 'show-trails', 'show-grid', 'show-forces'
+            'collision-enabled', 'show-trails', 'show-grid', 'show-forces', 'long-term-preview'
         ];
 
         checkboxIds.forEach(id => {
@@ -177,6 +177,7 @@ class UIManager {
         // Hide orbit preview when switching to manual mode
         if (!this.orbitMode && this.renderer) {
             this.renderer.setOrbitPreview(false);
+            this.renderer.setLongTermPreview(false);
         }
         
         this.showNotification(

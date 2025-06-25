@@ -250,6 +250,7 @@ class NBodyApp {
         const worldPos = this.renderer.screenToWorld(mousePos.x, mousePos.y);
         
         this.mousePos = worldPos;
+        this.mousePosition = worldPos; // For consistency with other references
         
         if (this.isDragging && this.draggedBody) {
             // Update dragged body position
@@ -306,6 +307,7 @@ class NBodyApp {
             
             // Clear orbit preview
             this.renderer.setOrbitPreview(false);
+            this.renderer.setLongTermPreview(false);
             
         } else if (this.isAddingBody && event.button === 0) {
             // Finished adding a new body
@@ -359,6 +361,11 @@ class NBodyApp {
                     if (safeMass !== value) {
                         this.ui.updateSlider('body-mass', safeMass);
                     }
+                }
+                
+                // Update orbit preview in orbit mode since mass affects orbital dynamics
+                if (this.ui.orbitMode && this.mousePosition) {
+                    this.updateOrbitPreview(this.mousePosition);
                 }
                 break;
             case 'velocity-x':
@@ -439,6 +446,13 @@ class NBodyApp {
                 break;
             case 'show-forces':
                 this.renderer.setShowForces(checked);
+                break;
+            case 'long-term-preview':
+                this.renderer.showLongTermPreview = checked;
+                // Trigger a recalculation of orbit preview if in orbit mode
+                if (this.ui.orbitMode && this.mousePosition) {
+                    this.updateOrbitPreview(this.mousePosition);
+                }
                 break;
         }
     }
@@ -528,6 +542,10 @@ class NBodyApp {
     startSimulation() {
         this.isRunning = true;
         this.isPaused = false;
+        
+        // Clear orbit previews when simulation starts
+        this.renderer.setOrbitPreview(false);
+        this.renderer.setLongTermPreview(false);
     }
 
     pauseSimulation() {
@@ -543,6 +561,11 @@ class NBodyApp {
         this.physics.resetBodies(this.bodies);
         this.isRunning = false;
         this.isPaused = false;
+        
+        // Clear orbit previews
+        this.renderer.setOrbitPreview(false);
+        this.renderer.setLongTermPreview(false);
+        
         this.ui.showNotification('Simulation reset', 'info');
     }
 
@@ -551,6 +574,11 @@ class NBodyApp {
         this.selectedBody = null;
         this.isRunning = false;
         this.isPaused = false;
+        
+        // Clear orbit previews
+        this.renderer.setOrbitPreview(false);
+        this.renderer.setLongTermPreview(false);
+        
         this.updateDynamicReference(); // Update reference panel after clearing
         this.ui.showNotification('All bodies cleared', 'info');
     }
@@ -616,6 +644,7 @@ class NBodyApp {
         
         if (!targetBody) {
             this.renderer.setOrbitPreview(false);
+            this.renderer.setLongTermPreview(false);
             return;
         }
         
@@ -629,11 +658,19 @@ class NBodyApp {
         // Create a preview body
         const previewBody = new Body(mousePosition, velocity, mass, color);
         
-        // Calculate orbit preview
+        // Calculate regular orbit preview
         const orbitData = this.renderer.calculateOrbitPreview(previewBody, this.bodies, this.physics);
         
-        // Show the preview
+        // Show the regular preview
         this.renderer.setOrbitPreview(true, orbitData);
+        
+        // Calculate long-term preview if enabled
+        if (this.renderer.showLongTermPreview) {
+            const longTermData = this.renderer.calculateLongTermOrbitPreview(previewBody, this.bodies, this.physics);
+            this.renderer.setLongTermPreview(true, longTermData);
+        } else {
+            this.renderer.setLongTermPreview(false);
+        }
     }
 
     findBodyAtPosition(position) {
@@ -665,6 +702,10 @@ class NBodyApp {
         if (this.selectedBody) {
             this.selectedBody.setSelected(false);
         }
+        
+        // Clear orbit previews when selecting a body
+        this.renderer.setOrbitPreview(false);
+        this.renderer.setLongTermPreview(false);
         
         this.selectedBody = body;
         
@@ -845,9 +886,17 @@ class NBodyApp {
         if (orbitalData) {
             previewBody.velocity = orbitalData.velocity;
             
-            // Calculate and show orbit preview
+            // Calculate and show regular orbit preview
             const orbitData = this.renderer.calculateOrbitPreview(previewBody, otherBodies, this.physics);
             this.renderer.setOrbitPreview(true, orbitData);
+            
+            // Calculate long-term preview if enabled
+            if (this.renderer.showLongTermPreview) {
+                const longTermData = this.renderer.calculateLongTermOrbitPreview(previewBody, otherBodies, this.physics);
+                this.renderer.setLongTermPreview(true, longTermData);
+            } else {
+                this.renderer.setLongTermPreview(false);
+            }
         }
     }
 
