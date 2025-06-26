@@ -661,7 +661,29 @@ class NBodyApp {
         );
         
         this.bodies.push(body);
+        
+        // IMPORTANT: Calculate initial forces for the new body immediately if simulation is running
+        // This ensures the body participates in physics from the first frame
+        if (this.isRunning && !this.isPaused) {
+            // Use setTimeout to ensure the body is fully added to the array first
+            setTimeout(() => {
+                this.calculateInitialForcesForBody(body);
+            }, 0);
+        }
+        
         this.selectBody(body, true); // Pass flag to indicate this is a new body
+        
+        // Reset velocity sliders to zero for the next body (in manual mode)
+        // In orbit mode, keep them as they show the calculated orbital velocity
+        if (!this.ui.isOrbitMode()) {
+            this.ui.setSliderValue('velocity-x', 0);
+            this.ui.setSliderValue('velocity-y', 0);
+            
+            // Show a subtle notification about the reset
+            setTimeout(() => {
+                this.ui.showNotification('Velocity sliders reset for next body', 'info', 2000);
+            }, 100);
+        }
         
         // If we're still in orbit mode and have a mouse position, update orbit preview immediately
         // This ensures the preview shows up for the next potential body
@@ -671,6 +693,30 @@ class NBodyApp {
                 this.updateOrbitPreview(this.mousePosition);
             }, 10);
         }
+    }
+
+    // Calculate initial forces for a newly added body
+    calculateInitialForcesForBody(newBody) {
+        // Reset the new body's force
+        newBody.resetForce();
+        
+        // Calculate forces between the new body and all existing bodies
+        for (const existingBody of this.bodies) {
+            if (existingBody === newBody) continue; // Skip self
+            
+            // Calculate force between new body and existing body
+            const force = newBody.calculateGravitationalForce(
+                existingBody, 
+                this.physics.gravitationalConstant, 
+                this.physics.softeningParameter
+            );
+            
+            // Apply force to new body only
+            // The regular physics will handle the reciprocal forces in the next step
+            newBody.applyForce(force);
+        }
+        
+        console.log(`Initial force calculated for new body: ${newBody.force.magnitude().toFixed(2)}`);
     }
 
     findNearestBody(position) {
@@ -1032,7 +1078,7 @@ class NBodyApp {
         this.validateAndCleanBodies();
         
         if (this.isRunning && !this.isPaused) {
-            if (this.useWebWorkers && this.physicsWorker && !this.workerBusy && this.bodies.length > 5) {
+            if (this.useWebWorkers && this.physicsWorker && !this.workerBusy && this.bodies.length > 8) {
                 // Use Web Worker for large simulations
                 this.updateWithWebWorker(deltaTime);
             } else {

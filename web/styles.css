@@ -1079,10 +1079,17 @@ kbd {
     font-size: 0.9rem;
 }
 
+.setting-select option {
+    background: #1a1a2e;
+    color: #ffffff;
+    padding: 0.5rem;
+}
+
 .setting-select:focus, .setting-slider:focus {
     outline: none;
     border-color: #ffa500;
     box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+    color: #ffffff;
 }
 
 .setting-checkbox {

@@ -5,7 +5,7 @@ class PhysicsEngine {
         this.collisionThreshold = 15.0;
         this.collisionEnabled = true;
         this.timeScale = 1.0;
-        this.integrationMethod = 'rk4'; // 'verlet', 'euler', 'rk4'
+        this.integrationMethod = 'verlet'; // 'verlet', 'euler', 'rk4' - Verlet is more stable for runtime additions
         this.forceCalculationMethod = 'barnes-hut'; // 'naive' or 'barnes-hut'
         
         // Time accumulator for consistent physics
@@ -59,13 +59,16 @@ class PhysicsEngine {
         // Run physics in timesteps while we have accumulated enough time
         while (this.timeAccumulator >= currentTimeStep) {
             const forceStart = performance.now();
-            
-            // Calculate forces using selected method
-            if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 3) {
-                this.calculateForcesBarnesHut(bodies);
-            } else {
-                this.calculateForcesNaive(bodies);
+                  // Calculate forces using selected method
+        if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
+            this.calculateForcesBarnesHut(bodies);
+            console.log(`Using Barnes-Hut for ${bodies.length} bodies`);
+        } else {
+            this.calculateForcesNaive(bodies);
+            if (bodies.length > 5) {
+                console.log(`Using Naive O(N²) for ${bodies.length} bodies`);
             }
+        }
             
             this.forceCalculationTime = performance.now() - forceStart;
             
@@ -74,7 +77,7 @@ class PhysicsEngine {
             // Update positions and velocities with selected integrator
             if (this.integrationMethod === 'rk4') {
                 this.integrator.integrateRK4(bodies, currentTimeStep, (bodies) => {
-                    if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 3) {
+                    if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
                         this.calculateForcesBarnesHut(bodies);
                     } else {
                         this.calculateForcesNaive(bodies);

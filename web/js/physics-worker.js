@@ -1,6 +1,15 @@
 /**
  * Web Worker for background physics calculations
- * Allows heavy computations to run without blocking the UI
+ * Allows heavy computations to run wi        // Update positions using RK4 integrator
+        if (config.integrationMethod === 'rk4') {
+            this.integrator.integrateRK4(bodies, deltaTime, (bodies) => {
+                if (config.forceMethod === 'barnes-hut' && bodies.length > 5) {
+                    this.calculateForcesBarnesHut(bodies);
+                } else {
+                    this.calculateForcesNaive(bodies);
+                }
+            });
+        } else {king the UI
  */
 
 // Import necessary modules (note: Web Workers have limited access)
@@ -86,7 +95,7 @@ class PhysicsWorker {
         });
         
         // Calculate forces
-        if (config.forceMethod === 'barnes-hut' && bodies.length > 3) {
+        if (config.forceMethod === 'barnes-hut' && bodies.length > 5) {
             this.calculateForcesBarnesHut(bodies);
         } else {
             this.calculateForcesNaive(bodies);
@@ -95,7 +104,7 @@ class PhysicsWorker {
         // Update positions using RK4 integrator
         if (config.integrationMethod === 'rk4') {
             this.integrator.integrateRK4(bodies, deltaTime, (bodies) => {
-                if (config.forceMethod === 'barnes-hut' && bodies.length > 3) {
+                if (config.forceMethod === 'barnes-hut' && bodies.length > 8) {
                     this.calculateForcesBarnesHut(bodies);
                 } else {
                     this.calculateForcesNaive(bodies);

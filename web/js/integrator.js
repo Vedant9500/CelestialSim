@@ -82,8 +82,15 @@ class Integrator {
                 .add(k4_vel[i])
                 .multiply(dt / 6);
 
+            body.lastPosition = initial.position.clone();
             body.position = initial.position.add(pos_update);
             body.velocity = initial.velocity.add(vel_update);
+            
+            // Update body properties that are normally handled in update methods
+            body.kineticEnergy = 0.5 * body.mass * body.velocity.magnitudeSquared();
+            body.addToTrail();
+            body.updateVisualEffects(dt);
+            body.resetForce();
         }
     }
 

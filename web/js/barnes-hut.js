@@ -35,13 +35,19 @@ class QuadTree {
             this.subdivide();
         }
 
-        // Try to insert into children
-        return (
+        // Try to insert into children and update center of mass
+        const inserted = (
             this.children.nw.insert(body) ||
             this.children.ne.insert(body) ||
             this.children.sw.insert(body) ||
             this.children.se.insert(body)
         );
+        
+        if (inserted) {
+            this.updateCenterOfMass();
+        }
+        
+        return inserted;
     }
 
     /**
@@ -84,6 +90,8 @@ class QuadTree {
 
         // Clear bodies from this node (they're now in children)
         this.bodies = [];
+        
+        // Update center of mass after subdivision
         this.updateCenterOfMass();
     }
 
@@ -125,20 +133,21 @@ class QuadTree {
     }
 
     /**
-     * Calculate force on a body using Barnes-Hut approximation
+     * Calculate and apply force on a body using Barnes-Hut approximation
      */
-    calculateForce(body, theta = 0.5, gravitationalConstant = 100) {
-        // If this is an empty node, return zero force
+    calculateForce(body, gravitationalConstant, softeningParameter, theta = 0.5) {
+        // If this is an empty node, return
         if (this.totalMass === 0) {
-            return new Vector2D(0, 0);
+            return;
         }
 
         // Calculate distance to center of mass
-        const distance = body.position.distance(this.centerOfMass);
+        const direction = this.centerOfMass.subtract(body.position);
+        const distance = direction.magnitude();
         
         // Avoid self-interaction
         if (distance === 0) {
-            return new Vector2D(0, 0);
+            return;
         }
 
         // Calculate the ratio s/d where s is the width of the region
@@ -147,22 +156,21 @@ class QuadTree {
 
         // If the node is sufficiently far away (s/d < θ), treat as single body
         if (ratio < theta || !this.divided) {
-            const direction = this.centerOfMass.subtract(body.position);
-            const distanceSquared = distance * distance;
-            const forceMagnitude = gravitationalConstant * body.mass * this.totalMass / distanceSquared;
+            // Apply softening parameter
+            const softenedDistanceSquared = distance * distance + softeningParameter * softeningParameter;
+            const forceMagnitude = gravitationalConstant * body.mass * this.totalMass / softenedDistanceSquared;
             
-            return direction.normalize().multiply(forceMagnitude);
+            const force = direction.normalize().multiply(forceMagnitude);
+            body.applyForce(force);
+            return;
         }
 
         // Otherwise, recursively calculate force from children
-        let totalForce = new Vector2D(0, 0);
         if (this.divided) {
             for (const child of Object.values(this.children)) {
-                totalForce = totalForce.add(child.calculateForce(body, theta, gravitationalConstant));
+                child.calculateForce(body, gravitationalConstant, softeningParameter, theta);
             }
         }
-
-        return totalForce;
     }
 
     /**

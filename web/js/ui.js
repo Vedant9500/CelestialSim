@@ -888,4 +888,22 @@ class UIManager {
     getTheme() {
         return document.body.getAttribute('data-theme') || 'dark';
     }
+
+    // Set slider value programmatically
+    setSliderValue(sliderId, value) {
+        const slider = document.getElementById(sliderId);
+        const input = document.getElementById(sliderId + '-input');
+        
+        if (slider) {
+            slider.value = value;
+            // Trigger the input event to update the display
+            slider.dispatchEvent(new Event('input'));
+        }
+        
+        if (input) {
+            input.value = value;
+            // Trigger the input event to sync with slider
+            input.dispatchEvent(new Event('input'));
+        }
+    }
 }
