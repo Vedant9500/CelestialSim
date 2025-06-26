@@ -286,6 +286,14 @@ class UIManager {
                 this.onPerformanceSettingChange('barnes-hut-theta', value);
             });
         }
+        
+        // GPU acceleration checkbox
+        const gpuAcceleration = document.getElementById('gpu-acceleration');
+        if (gpuAcceleration) {
+            gpuAcceleration.addEventListener('change', (e) => {
+                this.onPerformanceSettingChange('gpu-acceleration', e.target.checked);
+            });
+        }
     }
 
     // Panel toggle methods

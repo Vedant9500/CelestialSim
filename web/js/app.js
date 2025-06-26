@@ -6,6 +6,10 @@ class NBodyApp {
         this.physics = new PhysicsEngine();
         this.ui = new UIManager();
         
+        // Initialize GPU physics engine
+        this.gpuPhysics = new GPUPhysicsEngine();
+        this.useGPU = false;
+        
         // Pass renderer reference to UI for orbit preview
         this.ui.setRenderer(this.renderer);
         
@@ -43,6 +47,9 @@ class NBodyApp {
         this.setupEventListeners();
         this.setupUICallbacks();
         this.setupCanvas();
+        
+        // Initialize GPU status in UI
+        this.updateGPUStatus();
         
         // Hide loading screen after initialization
         setTimeout(() => {
@@ -162,6 +169,15 @@ class NBodyApp {
             const performanceStats = this.physics.getPerformanceStats();
             performanceStats.fps = this.currentFPS;
             performanceStats.bodyCount = this.bodies.length;
+            
+            // Add GPU status to performance stats
+            if (this.useGPU && this.gpuPhysics.isSupported) {
+                performanceStats.method = `${performanceStats.method} (GPU)`;
+                performanceStats.gpuAccelerated = true;
+            } else {
+                performanceStats.gpuAccelerated = false;
+            }
+            
             this.ui.updatePerformanceStats(performanceStats);
             
             // Update energy display
@@ -976,6 +992,29 @@ class NBodyApp {
             case 'barnes-hut-theta':
                 this.physics.setConfiguration({ barnesHutTheta: value });
                 break;
+            case 'gpu-acceleration':
+                this.setGPUEnabled(value);
+                break;
+        }
+    }
+
+    // GPU acceleration control
+    setGPUEnabled(enabled) {
+        if (!this.gpuPhysics.isSupported && enabled) {
+            this.ui.showNotification('GPU acceleration not supported on this device', 'warning');
+            const gpuCheckbox = document.getElementById('gpu-acceleration');
+            if (gpuCheckbox) gpuCheckbox.checked = false;
+            return;
+        }
+        
+        this.useGPU = enabled;
+        
+        if (enabled) {
+            console.log('GPU acceleration enabled');
+            this.ui.showNotification('GPU acceleration enabled', 'success');
+        } else {
+            console.log('GPU acceleration disabled');
+            this.ui.showNotification('GPU acceleration disabled', 'info');
         }
     }
 
@@ -1072,13 +1111,16 @@ class NBodyApp {
         });
     }
 
-    // Enhanced update method with Web Worker support
+    // Enhanced update method with Web Worker and GPU support
     update(deltaTime) {
         // Validate and clean up bodies before physics update
         this.validateAndCleanBodies();
         
         if (this.isRunning && !this.isPaused) {
-            if (this.useWebWorkers && this.physicsWorker && !this.workerBusy && this.bodies.length > 8) {
+            if (this.useGPU && this.gpuPhysics.isSupported && this.bodies.length > 0) {
+                // Use GPU acceleration for physics
+                this.updateWithGPU(deltaTime);
+            } else if (this.useWebWorkers && this.physicsWorker && !this.workerBusy && this.bodies.length > 8) {
                 // Use Web Worker for large simulations
                 this.updateWithWebWorker(deltaTime);
             } else {
@@ -1088,6 +1130,28 @@ class NBodyApp {
         }
         
         this.updateUI();
+    }
+
+    // Update simulation using GPU acceleration
+    updateWithGPU(deltaTime) {
+        try {
+            // Update bodies using GPU physics
+            const gpuSuccess = this.gpuPhysics.update(this.bodies, deltaTime);
+            
+            if (!gpuSuccess) {
+                // GPU physics returned false, fall back to CPU
+                console.log('GPU physics not available, falling back to CPU');
+                this.physics.update(this.bodies, deltaTime);
+            }
+        } catch (error) {
+            console.error('GPU physics update failed, falling back to CPU:', error);
+            // Fallback to CPU physics
+            this.useGPU = false;
+            const gpuCheckbox = document.getElementById('gpu-acceleration');
+            if (gpuCheckbox) gpuCheckbox.checked = false;
+            this.physics.update(this.bodies, deltaTime);
+            this.ui.showNotification('GPU acceleration failed, switched to CPU', 'warning');
+        }
     }
 
     // Update simulation using Web Worker
@@ -1126,6 +1190,34 @@ class NBodyApp {
         // Update the dynamic reference panel if visible
         if (this.ui.referenceShown) {
             this.ui.updateDynamicReference(this.bodies, this.selectedBody);
+        }
+    }
+
+    updateGPUStatus() {
+        // Update GPU status indicator in the UI
+        const gpuStatus = document.getElementById('gpu-status');
+        const gpuCheckbox = document.getElementById('gpu-acceleration');
+        
+        if (gpuStatus && gpuCheckbox) {
+            const gpuInfo = this.gpuPhysics.getPerformanceInfo();
+            
+            if (this.gpuPhysics.isSupported) {
+                gpuStatus.textContent = 'Available';
+                gpuStatus.className = 'gpu-status available';
+                gpuStatus.title = `WebGL ${gpuInfo.webglVersion}\nVendor: ${gpuInfo.vendor}\nRenderer: ${gpuInfo.renderer}\nMax Bodies: ${gpuInfo.maxBodies}`;
+                gpuCheckbox.disabled = false;
+                
+                console.log('GPU acceleration is available:', gpuInfo);
+            } else {
+                gpuStatus.textContent = 'Not Available';
+                gpuStatus.className = 'gpu-status unavailable';
+                gpuStatus.title = 'GPU acceleration is not supported on this device';
+                gpuCheckbox.disabled = true;
+                gpuCheckbox.checked = false;
+                this.useGPU = false;
+                
+                console.log('GPU acceleration not available:', gpuInfo);
+            }
         }
     }
 

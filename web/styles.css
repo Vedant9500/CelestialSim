@@ -1419,3 +1419,23 @@ kbd {
 .shortcuts-section h4 i {
     font-size: 1rem;
 }
+
+/* GPU Status */
+.gpu-status {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.gpu-status.available {
+    color: #32cd32;
+}
+
+.gpu-status.unavailable {
+    color: #ff6347;
+}
+
+.gpu-status.checking {
+    color: #ffa500;
+}
