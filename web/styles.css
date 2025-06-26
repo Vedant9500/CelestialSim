@@ -1008,6 +1008,343 @@ kbd {
     }
 }
 
+/* Performance Panel */
+.performance-panel {
+    position: fixed;
+    top: 80px;
+    right: 0;
+    width: 350px;
+    height: calc(100vh - 160px);
+    background: rgba(0, 0, 0, 0.95);
+    border-left: 1px solid rgba(255, 165, 0, 0.3);
+    backdrop-filter: blur(10px);
+    z-index: 900;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.performance-panel.show {
+    transform: translateX(0);
+}
+
+.performance-content {
+    padding: 1rem;
+}
+
+.performance-content h4 {
+    color: #ffa500;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.performance-content h5 {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.9;
+}
+
+.performance-settings {
+    margin-bottom: 1.5rem;
+}
+
+.setting-group {
+    margin-bottom: 1rem;
+}
+
+.setting-group label {
+    display: block;
+    color: #ffffff;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.setting-select, .setting-slider, .setting-checkbox {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.setting-select:focus, .setting-slider:focus {
+    outline: none;
+    border-color: #ffa500;
+    box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+}
+
+.setting-checkbox {
+    width: auto;
+    margin-right: 0.5rem;
+}
+
+.setting-value {
+    color: #ffa500;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.performance-stats {
+    margin-bottom: 1rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-label {
+    color: #ffffff;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.stat-value {
+    color: #ffa500;
+    font-weight: 600;
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+}
+
+/* Energy Panel */
+.energy-panel {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 350px;
+    height: calc(100vh - 160px);
+    background: rgba(0, 0, 0, 0.95);
+    border-right: 1px solid rgba(100, 255, 218, 0.3);
+    backdrop-filter: blur(10px);
+    z-index: 900;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.energy-panel.show {
+    transform: translateX(0);
+}
+
+.energy-content {
+    padding: 1rem;
+}
+
+.energy-content h4 {
+    color: #64ffda;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.energy-values {
+    margin-bottom: 1.5rem;
+}
+
+.energy-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.energy-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.energy-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.energy-item.kinetic .energy-icon {
+    background: rgba(255, 99, 71, 0.2);
+    color: #ff6347;
+}
+
+.energy-item.potential .energy-icon {
+    background: rgba(138, 43, 226, 0.2);
+    color: #8a2be2;
+}
+
+.energy-item.total .energy-icon {
+    background: rgba(100, 255, 218, 0.2);
+    color: #64ffda;
+}
+
+.energy-item.conservation .energy-icon {
+    background: rgba(50, 205, 50, 0.2);
+    color: #32cd32;
+}
+
+.energy-info {
+    flex: 1;
+}
+
+.energy-label {
+    display: block;
+    color: #ffffff;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    opacity: 0.9;
+}
+
+.energy-value {
+    display: block;
+    font-weight: 600;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+}
+
+.energy-item.kinetic .energy-value {
+    color: #ff6347;
+}
+
+.energy-item.potential .energy-value {
+    color: #8a2be2;
+}
+
+.energy-item.total .energy-value {
+    color: #64ffda;
+}
+
+.conservation-good {
+    color: #32cd32;
+}
+
+.conservation-warning {
+    color: #ffa500;
+}
+
+.conservation-bad {
+    color: #ff6347;
+}
+
+.energy-graph {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#energy-chart {
+    width: 100%;
+    height: 150px;
+    background: transparent;
+}
+
+/* Toggle Buttons */
+.performance-toggle {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffa500;
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+
+.performance-toggle:hover {
+    background: rgba(255, 165, 0, 0.1);
+    border-color: rgba(255, 165, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+.energy-toggle {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: #64ffda;
+    border: 1px solid rgba(100, 255, 218, 0.3);
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+
+.energy-toggle:hover {
+    background: rgba(100, 255, 218, 0.1);
+    border-color: rgba(100, 255, 218, 0.5);
+    transform: translateY(-2px);
+}
+
+.performance-toggle i, .energy-toggle i {
+    margin-right: 0.5rem;
+}
+
+/* Responsive adjustments for new panels */
+@media (max-width: 768px) {
+    .performance-panel, .energy-panel {
+        width: 100%;
+        height: 50vh;
+        top: auto;
+        bottom: 0;
+        transform: translateY(100%);
+    }
+    
+    .performance-panel.show, .energy-panel.show {
+        transform: translateY(0);
+    }
+    
+    .performance-toggle, .energy-toggle {
+        bottom: 4rem;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+    
+    .performance-toggle:hover, .energy-toggle:hover {
+        transform: translateX(-50%) translateY(-2px);
+    }
+}
+
 /* Animation Classes */
 .fade-in {
     animation: fadeIn 0.5s ease-in;

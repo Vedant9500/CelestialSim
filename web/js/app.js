@@ -30,6 +30,12 @@ class NBodyApp {
         this.fpsUpdateTime = 0;
         this.currentFPS = 60;
         
+        // Advanced performance features
+        this.useWebWorkers = false;
+        this.physicsWorker = null;
+        this.workerBusy = false;
+        this.initialEnergy = null;
+        
         this.initialize();
     }
 
@@ -95,6 +101,7 @@ class NBodyApp {
         this.ui.onPresetSelect = (preset) => this.onPresetSelect(preset);
         this.ui.onFileLoad = (file) => this.onFileLoad(file);
         this.ui.onKeyDown = (event) => this.onKeyDown(event);
+        this.ui.onPerformanceSettingChange = (setting, value) => this.onPerformanceSettingChange(setting, value);
     }
 
     setupCanvas() {
@@ -136,16 +143,7 @@ class NBodyApp {
         requestAnimationFrame(loop);
     }
 
-    update(deltaTime) {
-        // Validate and clean up bodies before physics update
-        this.validateAndCleanBodies();
-        
-        if (this.isRunning && !this.isPaused) {
-            this.physics.update(this.bodies, deltaTime);
-        }
-        
-        this.updateUI();
-    }
+    // This update method is replaced by the enhanced version below with Web Worker support
 
     render() {
         this.renderer.render(this.bodies, this.physics, this.selectedBody);
@@ -159,6 +157,21 @@ class NBodyApp {
             this.frameCount = 0;
             this.fpsUpdateTime = currentTime;
             this.ui.updateFPS(this.currentFPS);
+            
+            // Update performance panel
+            const performanceStats = this.physics.getPerformanceStats();
+            performanceStats.fps = this.currentFPS;
+            performanceStats.bodyCount = this.bodies.length;
+            this.ui.updatePerformanceStats(performanceStats);
+            
+            // Update energy display
+            const energyStats = this.physics.getEnergyStats();
+            if (this.initialEnergy === null && energyStats.total !== 0) {
+                this.initialEnergy = energyStats.total;
+            }
+            energyStats.initial = this.initialEnergy;
+            this.ui.updateEnergyDisplay(energyStats);
+            this.ui.updateEnergyChart(energyStats);
         }
     }
 
@@ -445,6 +458,12 @@ class NBodyApp {
             case 'reference-toggle':
                 this.toggleReferencePanel();
                 break;
+            case 'performance-toggle':
+                this.togglePerformancePanel();
+                break;
+            case 'energy-toggle':
+                this.toggleEnergyPanel();
+                break;
         }
     }
 
@@ -468,6 +487,12 @@ class NBodyApp {
                 if (this.ui.orbitMode && this.mousePosition) {
                     this.updateOrbitPreview(this.mousePosition);
                 }
+                break;
+            case 'adaptive-timestep':
+                this.physics.setConfiguration({ adaptiveTimeStep: checked });
+                break;
+            case 'web-workers':
+                this.setWebWorkersEnabled(checked);
                 break;
         }
     }
@@ -663,6 +688,44 @@ class NBodyApp {
         return nearestBody;
     }
 
+    // Update orbit preview for a body being dragged
+    updateOrbitPreviewForDraggedBody() {
+        if (!this.draggedBody || !this.ui.orbitMode) return;
+        
+        // Calculate orbit preview from the dragged body's new position
+        const draggedBodyPos = this.draggedBody.position.clone();
+        
+        // Find the most massive body (excluding the dragged body) to orbit around
+        let primaryBody = null;
+        let maxMass = 0;
+        
+        this.bodies.forEach(body => {
+            if (body !== this.draggedBody && body.mass > maxMass) {
+                maxMass = body.mass;
+                primaryBody = body;
+            }
+        });
+        
+        if (primaryBody) {
+            // Calculate orbital velocity for the dragged body at its new position
+            const orbitalVelocity = this.ui.calculateOrbitalVelocity(primaryBody, draggedBodyPos, this.physics.gravitationalConstant);
+            
+            // Create a temporary body for orbit preview
+            const tempBody = new Body(
+                draggedBodyPos.x,
+                draggedBodyPos.y,
+                orbitalVelocity.x,
+                orbitalVelocity.y,
+                this.draggedBody.mass,
+                this.draggedBody.radius,
+                this.draggedBody.color
+            );
+            
+            // Calculate and render orbit preview
+            this.renderer.renderOrbitPreview([tempBody], this.bodies, this.physics, 500);
+        }
+    }
+
     updateOrbitPreview(mousePosition) {
         const targetBody = this.findNearestBody(mousePosition);
         
@@ -855,370 +918,258 @@ class NBodyApp {
         }
     }
 
-    toggleReferencePanel() {
-        const referencePanel = document.getElementById('reference-panel');
-        const toggleButton = document.getElementById('reference-toggle');
-        
-        if (referencePanel && toggleButton) {
-            const isShown = referencePanel.classList.contains('show');
-            
-            if (isShown) {
-                referencePanel.classList.remove('show');
-                toggleButton.innerHTML = '<i class="fas fa-ruler"></i> Scale Reference';
-                toggleButton.title = 'Show Scale Reference';
-            } else {
-                referencePanel.classList.add('show');
-                toggleButton.innerHTML = '<i class="fas fa-times"></i> Hide Reference';
-                toggleButton.title = 'Hide Scale Reference';
-            }
+    // Performance settings handler
+    onPerformanceSettingChange(setting, value) {
+        switch (setting) {
+            case 'integration-method':
+                this.physics.setConfiguration({ integrationMethod: value });
+                break;
+            case 'force-method':
+                this.physics.setConfiguration({ forceCalculationMethod: value });
+                break;
+            case 'barnes-hut-theta':
+                this.physics.setConfiguration({ barnesHutTheta: value });
+                break;
         }
     }
 
-    updateCursor(worldPos) {
-        // Clear previous hover states
-        this.bodies.forEach(body => body.setHovered(false));
+    // Panel toggle methods
+    togglePerformancePanel() {
+        this.ui.togglePerformancePanel();
+    }
+
+    toggleEnergyPanel() {
+        this.ui.toggleEnergyPanel();
+    }
+
+    // Web Workers control
+    setWebWorkersEnabled(enabled) {
+        this.useWebWorkers = enabled;
         
-        if (this.isDragging) {
-            this.canvas.style.cursor = 'grabbing';
-        } else {
-            const hoveredBody = this.findBodyAtPosition(worldPos);
-            if (hoveredBody) {
-                hoveredBody.setHovered(true);
-                this.canvas.style.cursor = 'grab';
-            } else if (this.ui.isOrbitMode()) {
-                this.canvas.style.cursor = 'crosshair';
-            } else {
-                this.canvas.style.cursor = 'crosshair';
-            }
+        if (enabled && !this.physicsWorker) {
+            this.initializeWebWorker();
+        } else if (!enabled && this.physicsWorker) {
+            this.physicsWorker.terminate();
+            this.physicsWorker = null;
+            this.workerBusy = false;
         }
     }
 
-    updateOrbitPreviewForDraggedBody() {
-        if (!this.draggedBody || this.bodies.length < 2) return;
-        
-        // Create a temporary body for orbit preview calculation
-        const previewBody = {
-            position: this.draggedBody.position.clone(),
-            velocity: new Vector2D(0, 0), // Will be calculated by orbit mode
-            mass: this.draggedBody.mass,
-            color: this.draggedBody.color
-        };
-        
-        // Get other bodies (excluding the dragged one)
-        const otherBodies = this.bodies.filter(body => body !== this.draggedBody);
-        
-        // Calculate orbital velocity
-        const orbitalData = this.calculateOrbitVelocity(previewBody.position, otherBodies);
-        if (orbitalData) {
-            previewBody.velocity = orbitalData.velocity;
+    // Initialize Web Worker for background physics
+    initializeWebWorker() {
+        try {
+            this.physicsWorker = new Worker('js/physics-worker.js');
             
-            // Calculate and show regular orbit preview
-            const orbitData = this.renderer.calculateOrbitPreview(previewBody, otherBodies, this.physics);
-            this.renderer.setOrbitPreview(true, orbitData);
-            
-            // Calculate long-term preview if enabled
-            if (this.renderer.showLongTermPreview) {
-                const longTermData = this.renderer.calculateLongTermOrbitPreview(previewBody, otherBodies, this.physics);
-                this.renderer.setLongTermPreview(true, longTermData);
-            } else {
-                this.renderer.setLongTermPreview(false);
-            }
-        }
-    }
-
-    applyOrbitVelocityToDraggedBody() {
-        if (!this.draggedBody || this.bodies.length < 2) return;
-        
-        // Get other bodies (excluding the dragged one)
-        const otherBodies = this.bodies.filter(body => body !== this.draggedBody);
-        
-        // Calculate and apply orbital velocity
-        const orbitalData = this.calculateOrbitVelocity(this.draggedBody.position, otherBodies);
-        if (orbitalData) {
-            this.draggedBody.velocity = orbitalData.velocity.clone();
-            
-            // Update UI to reflect new velocity
-            if (this.draggedBody === this.selectedBody) {
-                this.ui.updateSelectedBodyPanel(this.selectedBody);
-            }
-            
-            console.log(`Applied orbital velocity: (${orbitalData.velocity.x.toFixed(2)}, ${orbitalData.velocity.y.toFixed(2)}) around body at distance ${orbitalData.distance.toFixed(2)}`);
-        }
-    }
-
-    calculateOrbitVelocity(position, otherBodies) {
-        if (otherBodies.length === 0) return null;
-        
-        // Find the closest body to orbit around
-        let targetBody = null;
-        let minDistance = Infinity;
-        
-        for (const body of otherBodies) {
-            const distance = body.position.distance(position);
-            if (distance < minDistance && distance > 0) {
-                minDistance = distance;
-                targetBody = body;
-            }
-        }
-        
-        if (!targetBody) return null;
-        
-        const direction = targetBody.position.subtract(position);
-        const distance = direction.magnitude();
-        
-        if (distance === 0) return null;
-        
-        // Calculate orbital speed: v = sqrt(GM/r)
-        const gravitationalConstant = this.physics.gravitationalConstant;
-        const orbitalSpeed = Math.sqrt(gravitationalConstant * targetBody.mass / distance);
-        
-        // Get perpendicular direction for circular orbit (counterclockwise)
-        const perpendicular = new Vector2D(-direction.y, direction.x).normalize();
-        
-        // Add the target body's velocity to make the orbit relative to the moving target
-        const relativeVelocity = perpendicular.multiply(orbitalSpeed);
-        const absoluteVelocity = relativeVelocity.add(targetBody.velocity);
-        
-        return {
-            velocity: absoluteVelocity,
-            targetBody: targetBody,
-            distance: distance,
-            orbitalSpeed: orbitalSpeed
-        };
-    }
-
-    updateDynamicReference() {
-        const selectedBodyInfo = document.getElementById('selected-body-info');
-        const referenceTitle = document.getElementById('reference-title');
-        const noteText = document.getElementById('reference-note-text');
-        
-        if (this.selectedBody) {
-            // Show selected body section
-            selectedBodyInfo.style.display = 'block';
-            referenceTitle.textContent = `Scale Reference - Body #${this.selectedBody.id}`;
-            
-            // Update body information
-            this.updateSelectedBodyReference();
-            
-            // Update note
-            noteText.textContent = `Selected body is ${this.getBodyMassComparison(this.selectedBody.mass)}. Drag to move or adjust properties!`;
-            
-            // Show relevant comparison bodies
-            this.updateComparisonBodies();
-            
-        } else {
-            // Hide selected body section
-            selectedBodyInfo.style.display = 'none';
-            referenceTitle.textContent = 'Real-World Scale Reference';
-            noteText.textContent = 'Select a body to see detailed real-world comparisons and scale information!';
-            
-            // Hide all comparison bodies
-            this.hideAllComparisonBodies();
-        }
-    }
-
-    updateSelectedBodyReference() {
-        if (!this.selectedBody) return;
-        
-        const body = this.selectedBody;
-        
-        // Mass
-        const massValue = document.getElementById('body-mass-value');
-        const massReal = document.getElementById('body-mass-real');
-        if (massValue && massReal) {
-            massValue.textContent = `${body.mass.toFixed(1)} units`;
-            massReal.textContent = `≈ ${this.formatScientific(body.mass * 5.97e24)} kg`;
-        }
-        
-        // Position
-        const positionValue = document.getElementById('body-position-value');
-        const positionReal = document.getElementById('body-position-real');
-        if (positionValue && positionReal) {
-            positionValue.textContent = `(${body.position.x.toFixed(1)}, ${body.position.y.toFixed(1)})`;
-            const distanceAU = Math.sqrt(body.position.x * body.position.x + body.position.y * body.position.y);
-            positionReal.textContent = `≈ ${distanceAU.toFixed(3)} AU from center`;
-        }
-        
-        // Velocity
-        const velocityValue = document.getElementById('body-velocity-value');
-        const velocityReal = document.getElementById('body-velocity-real');
-        if (velocityValue && velocityReal) {
-            const speed = body.velocity.magnitude();
-            velocityValue.textContent = `${speed.toFixed(1)} units`;
-            velocityReal.textContent = `≈ ${(speed * 29.78).toFixed(1)} km/s`;
-        }
-        
-        // Kinetic Energy
-        const kineticValue = document.getElementById('body-kinetic-value');
-        const kineticReal = document.getElementById('body-kinetic-real');
-        if (kineticValue && kineticReal) {
-            const ke = 0.5 * body.mass * body.velocity.magnitudeSquared();
-            kineticValue.textContent = `${this.formatNumber(ke)} units`;
-            // Real kinetic energy in Joules (very rough approximation)
-            const realKE = ke * 5.97e24 * (29780 * 29780);
-            kineticReal.textContent = `≈ ${this.formatScientific(realKE)} J`;
-        }
-    }
-
-    updateComparisonBodies() {
-        if (!this.selectedBody) return;
-        
-        const mass = this.selectedBody.mass;
-        
-        // Show comparison bodies based on selected mass
-        const sunComparison = document.getElementById('comparison-sun');
-        const moonComparison = document.getElementById('comparison-moon');
-        const jupiterComparison = document.getElementById('comparison-jupiter');
-        const marsComparison = document.getElementById('comparison-mars');
-        
-        // Always show some references, but highlight relevant ones
-        if (sunComparison) {
-            sunComparison.style.display = 'flex';
-            const ratio = 333000 / mass;
-            document.getElementById('sun-mass-comparison').textContent = 
-                `${ratio.toFixed(0)}x this body (333,000 units)`;
+            this.physicsWorker.onmessage = (e) => {
+                const { type, data } = e.data;
                 
-            if (mass > 100000) {
-                sunComparison.classList.add('highlight');
-                setTimeout(() => sunComparison.classList.remove('highlight'), 3000);
-            }
-        }
-        
-        if (moonComparison) {
-            moonComparison.style.display = 'flex';
-            const ratio = mass / 0.012;
-            document.getElementById('moon-mass-comparison').textContent = 
-                `${ratio.toFixed(1)}x Moon mass (0.012 units)`;
-                
-            if (mass < 1) {
-                moonComparison.classList.add('highlight');
-                setTimeout(() => moonComparison.classList.remove('highlight'), 3000);
-            }
-        }
-        
-        if (jupiterComparison) {
-            jupiterComparison.style.display = 'flex';
-            const ratio = 318 / mass;
-            document.getElementById('jupiter-mass-comparison').textContent = 
-                `${ratio.toFixed(1)}x this body (318 units)`;
-                
-            if (mass > 100 && mass < 1000) {
-                jupiterComparison.classList.add('highlight');
-                setTimeout(() => jupiterComparison.classList.remove('highlight'), 3000);
-            }
-        }
-        
-        if (marsComparison) {
-            marsComparison.style.display = 'flex';
-            const ratio = mass / 0.107;
-            document.getElementById('mars-mass-comparison').textContent = 
-                `${ratio.toFixed(1)}x Mars mass (0.107 units)`;
-                
-            if (mass < 5 && mass > 0.05) {
-                marsComparison.classList.add('highlight');
-                setTimeout(() => marsComparison.classList.remove('highlight'), 3000);
-            }
+                switch (type) {
+                    case 'simulation-result':
+                        if (!this.workerBusy) return; // Ignore stale results
+                        
+                        // Update bodies with worker results
+                        this.updateBodiesFromWorker(data.bodies);
+                        
+                        // Update energy tracking
+                        this.physics.totalKineticEnergy = data.energy.kinetic;
+                        this.physics.totalPotentialEnergy = data.energy.potential;
+                        this.physics.totalEnergy = data.energy.total;
+                        
+                        this.workerBusy = false;
+                        break;
+                        
+                    case 'error':
+                        console.error('Physics worker error:', data.message);
+                        this.setWebWorkersEnabled(false);
+                        break;
+                }
+            };
+            
+            this.physicsWorker.onerror = (error) => {
+                console.error('Physics worker error:', error);
+                this.setWebWorkersEnabled(false);
+            };
+            
+            // Configure worker with current physics settings
+            this.physicsWorker.postMessage({
+                type: 'configure',
+                data: {
+                    gravitationalConstant: this.physics.gravitationalConstant,
+                    softeningParameter: this.physics.softeningParameter,
+                    barnesHutTheta: this.physics.barnesHutTheta
+                }
+            });
+            
+        } catch (error) {
+            console.error('Failed to initialize Web Worker:', error);
+            this.useWebWorkers = false;
         }
     }
 
-    hideAllComparisonBodies() {
-        const comparisonElements = [
-            'comparison-sun', 'comparison-moon', 
-            'comparison-jupiter', 'comparison-mars'
-        ];
-        
-        comparisonElements.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.display = 'none';
-                element.classList.remove('highlight');
+    // Update bodies from worker results
+    updateBodiesFromWorker(workerBodies) {
+        workerBodies.forEach((workerBody, index) => {
+            if (index < this.bodies.length) {
+                const body = this.bodies[index];
+                body.position.x = workerBody.position.x;
+                body.position.y = workerBody.position.y;
+                body.velocity.x = workerBody.velocity.x;
+                body.velocity.y = workerBody.velocity.y;
+                body.kineticEnergy = workerBody.kineticEnergy;
+                body.potentialEnergy = workerBody.potentialEnergy;
+                
+                // Update trails if needed
+                if (workerBody.trail) {
+                    body.trail = workerBody.trail;
+                }
             }
         });
     }
 
-    getBodyMassComparison(mass) {
-        if (mass > 100000) return "stellar mass scale";
-        if (mass > 10000) return "massive star/brown dwarf scale";
-        if (mass > 1000) return "gas giant scale";
-        if (mass > 100) return "super-Earth scale";
-        if (mass > 10) return "large planet scale";
-        if (mass > 1) return "Earth-like scale";
-        if (mass > 0.1) return "Mars-like scale";
-        if (mass > 0.01) return "Moon-like scale";
-        return "asteroid scale";
+    // Enhanced update method with Web Worker support
+    update(deltaTime) {
+        // Validate and clean up bodies before physics update
+        this.validateAndCleanBodies();
+        
+        if (this.isRunning && !this.isPaused) {
+            if (this.useWebWorkers && this.physicsWorker && !this.workerBusy && this.bodies.length > 5) {
+                // Use Web Worker for large simulations
+                this.updateWithWebWorker(deltaTime);
+            } else {
+                // Use main thread physics
+                this.physics.update(this.bodies, deltaTime);
+            }
+        }
+        
+        this.updateUI();
     }
 
-    formatNumber(num) {
-        if (num === 0) return "0";
-        if (Math.abs(num) >= 1000000) return this.formatScientific(num);
-        if (Math.abs(num) >= 1000) return (num / 1000).toFixed(1) + "k";
-        if (Math.abs(num) >= 1) return num.toFixed(1);
-        if (Math.abs(num) >= 0.01) return num.toFixed(3);
-        return this.formatScientific(num);
+    // Update simulation using Web Worker
+    updateWithWebWorker(deltaTime) {
+        if (this.workerBusy) return; // Skip if worker is busy
+        
+        this.workerBusy = true;
+        
+        // Serialize bodies for worker
+        const serializedBodies = this.bodies.map(body => ({
+            id: body.id,
+            position: { x: body.position.x, y: body.position.y },
+            velocity: { x: body.velocity.x, y: body.velocity.y },
+            mass: body.mass,
+            radius: body.radius,
+            color: body.color,
+            trail: body.trail || []
+        }));
+        
+        // Send simulation step to worker
+        this.physicsWorker.postMessage({
+            type: 'simulate',
+            data: {
+                bodies: serializedBodies,
+                deltaTime: deltaTime,
+                config: {
+                    integrationMethod: this.physics.integrationMethod,
+                    forceMethod: this.physics.forceCalculationMethod
+                }
+            }
+        });
     }
 
-    formatScientific(num) {
-        if (num === 0) return "0";
-        const exp = Math.floor(Math.log10(Math.abs(num)));
-        const mantissa = num / Math.pow(10, exp);
-        return `${mantissa.toFixed(2)} × 10^${exp}`;
+    // Utility methods
+    updateDynamicReference() {
+        // Update the dynamic reference panel if visible
+        if (this.ui.referenceShown) {
+            this.ui.updateDynamicReference(this.bodies, this.selectedBody);
+        }
     }
 
     validateAndCleanBodies() {
-        // Remove any bodies with invalid properties
+        // Remove any invalid bodies (NaN positions, etc.)
         this.bodies = this.bodies.filter(body => {
-            const isValid = body && 
-                           body.position && 
-                           isFinite(body.position.x) && 
-                           isFinite(body.position.y) &&
-                           isFinite(body.mass) && 
-                           body.mass > 0 &&
-                           isFinite(body.radius) && 
-                           body.radius > 0;
-            
-            if (!isValid) {
+            if (!body || !body.position || !body.velocity) {
                 console.warn('Removing invalid body:', body);
-                // If this was the selected body, clear selection
-                if (body === this.selectedBody) {
-                    this.selectedBody = null;
-                }
+                return false;
             }
             
-            return isValid;
+            if (isNaN(body.position.x) || isNaN(body.position.y) || 
+                isNaN(body.velocity.x) || isNaN(body.velocity.y)) {
+                console.warn('Removing body with NaN values:', body);
+                return false;
+            }
+            
+            return true;
         });
     }
 
     getMousePosition(event) {
         const rect = this.canvas.getBoundingClientRect();
-        
-        // Calculate the scale between the canvas display size and its internal resolution
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
-        
-        // Calculate mouse position relative to canvas, accounting for browser zoom
-        const x = (event.clientX - rect.left) * scaleX;
-        const y = (event.clientY - rect.top) * scaleY;
-        
-        // Convert from high-DPI coordinates to logical coordinates
-        const logicalX = x / this.renderer.devicePixelRatio;
-        const logicalY = y / this.renderer.devicePixelRatio;
-        
-        return { x: logicalX, y: logicalY };
+        return new Vector2D(
+            (event.clientX - rect.left) * this.renderer.devicePixelRatio,
+            (event.clientY - rect.top) * this.renderer.devicePixelRatio
+        );
     }
 
     debugMousePosition(event) {
-        if (window.location.hash === '#debug') {
-            const mousePos = this.getMousePosition(event);
-            const worldPos = this.renderer.screenToWorld(mousePos.x, mousePos.y);
+        // Debug helper for mouse position issues
+        const rect = this.canvas.getBoundingClientRect();
+        const clientPos = new Vector2D(event.clientX - rect.left, event.clientY - rect.top);
+        const mousePos = this.getMousePosition(event);
+        const worldPos = this.renderer.screenToWorld(mousePos.x, mousePos.y);
+        
+        console.debug('Mouse Debug:', {
+            client: clientPos,
+            screen: mousePos,
+            world: worldPos,
+            devicePixelRatio: this.renderer.devicePixelRatio
+        });
+    }
+
+    // Get body at a specific world position (for mouse interactions)
+    getBodyAtPosition(worldPos) {
+        // Check bodies in reverse order (last drawn = on top)
+        for (let i = this.bodies.length - 1; i >= 0; i--) {
+            const body = this.bodies[i];
+            const distance = body.position.distance(worldPos);
             
-            console.log('Mouse Debug:', {
-                clientX: event.clientX,
-                clientY: event.clientY,
-                canvasX: mousePos.x,
-                canvasY: mousePos.y,
-                worldX: worldPos.x.toFixed(2),
-                worldY: worldPos.y.toFixed(2)
-            });
+            // Use a slightly larger radius for easier clicking
+            const clickRadius = Math.max(body.radius, 15);
+            
+            if (distance <= clickRadius) {
+                return body;
+            }
+        }
+        return null;
+    }
+
+    // Update cursor based on what's under the mouse
+    updateCursor(worldPos) {
+        const bodyUnderMouse = this.getBodyAtPosition(worldPos);
+        
+        if (bodyUnderMouse) {
+            // Mouse is over a body
+            if (this.ui.orbitMode) {
+                this.canvas.style.cursor = 'copy'; // Orbit mode - copy cursor
+            } else {
+                this.canvas.style.cursor = 'grab'; // Normal mode - grab cursor
+            }
+        } else if (this.ui.orbitMode && this.bodies.length > 0) {
+            this.canvas.style.cursor = 'crosshair'; // Orbit mode with bodies available
+        } else {
+            this.canvas.style.cursor = 'crosshair'; // Default adding cursor
+        }
+        
+        // Update cursor during drag operations
+        if (this.isDragging) {
+            this.canvas.style.cursor = 'grabbing';
+        }
+    }
+
+    // Toggle reference panel
+    toggleReferencePanel() {
+        this.ui.referenceShown = !this.ui.referenceShown;
+        const panel = document.getElementById('reference-panel');
+        if (panel) {
+            panel.classList.toggle('show');
         }
     }
 }

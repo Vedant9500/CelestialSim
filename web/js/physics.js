@@ -5,20 +5,44 @@ class PhysicsEngine {
         this.collisionThreshold = 15.0;
         this.collisionEnabled = true;
         this.timeScale = 1.0;
-        this.integrationMethod = 'verlet'; // 'verlet' or 'euler'
+        this.integrationMethod = 'rk4'; // 'verlet', 'euler', 'rk4'
+        this.forceCalculationMethod = 'barnes-hut'; // 'naive' or 'barnes-hut'
         
         // Time accumulator for consistent physics
         this.timeAccumulator = 0.0;
         this.fixedTimeStep = 1.0 / 60.0; // 60 FPS physics
+        this.adaptiveTimeStep = false;
+        this.maxTimeStep = 1.0 / 30.0;
+        this.minTimeStep = 1.0 / 240.0;
         
         // Energy tracking
         this.totalKineticEnergy = 0;
         this.totalPotentialEnergy = 0;
         this.totalEnergy = 0;
+        this.energyHistory = [];
+        this.maxEnergyHistory = 1000;
+        
+        // Performance tracking
+        this.lastFrameTime = 0;
+        this.physicsTime = 0;
+        this.forceCalculationTime = 0;
+        this.integrationTime = 0;
+        
+        // Initialize advanced components
+        this.integrator = new Integrator();
+        this.barnesHut = null;
+        this.barnesHutTheta = 0.5; // Barnes-Hut approximation parameter
+        
+        // Double precision support
+        this.useDoublePrecision = false;
+        
+        console.log('PhysicsEngine initialized with advanced features');
     }
 
     // Main physics update loop
     update(bodies, deltaTime) {
+        const startTime = performance.now();
+        
         // Add scaled time to accumulator
         this.timeAccumulator += deltaTime * this.timeScale;
         
@@ -26,26 +50,58 @@ class PhysicsEngine {
         this.totalKineticEnergy = 0;
         this.totalPotentialEnergy = 0;
         
-        // Run physics in fixed timesteps while we have accumulated enough time
-        while (this.timeAccumulator >= this.fixedTimeStep) {
-            // Calculate forces
-            this.calculateForces(bodies);
+        // Determine timestep (adaptive or fixed)
+        let currentTimeStep = this.fixedTimeStep;
+        if (this.adaptiveTimeStep && bodies.length > 0) {
+            currentTimeStep = this.calculateAdaptiveTimeStep(bodies);
+        }
+        
+        // Run physics in timesteps while we have accumulated enough time
+        while (this.timeAccumulator >= currentTimeStep) {
+            const forceStart = performance.now();
             
-            // Update positions and velocities with FIXED timestep
-            // This ensures gravity remains consistent regardless of time scale
-            this.updateBodies(bodies, this.fixedTimeStep);
+            // Calculate forces using selected method
+            if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 3) {
+                this.calculateForcesBarnesHut(bodies);
+            } else {
+                this.calculateForcesNaive(bodies);
+            }
+            
+            this.forceCalculationTime = performance.now() - forceStart;
+            
+            const integrationStart = performance.now();
+            
+            // Update positions and velocities with selected integrator
+            if (this.integrationMethod === 'rk4') {
+                this.integrator.integrateRK4(bodies, currentTimeStep, (bodies) => {
+                    if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 3) {
+                        this.calculateForcesBarnesHut(bodies);
+                    } else {
+                        this.calculateForcesNaive(bodies);
+                    }
+                });
+            } else {
+                this.updateBodies(bodies, currentTimeStep);
+            }
+            
+            this.integrationTime = performance.now() - integrationStart;
             
             // Handle collisions
             if (this.collisionEnabled) {
                 this.handleCollisions(bodies);
             }
             
-            // Subtract the fixed timestep from accumulator
-            this.timeAccumulator -= this.fixedTimeStep;
+            // Subtract the timestep from accumulator
+            this.timeAccumulator -= currentTimeStep;
         }
         
         // Calculate total energy
         this.calculateTotalEnergy(bodies);
+        
+        // Update energy history
+        this.updateEnergyHistory();
+        
+        this.physicsTime = performance.now() - startTime;
         
         return bodies;
     }
@@ -84,6 +140,75 @@ class PhysicsEngine {
                 body2.potentialEnergy += potentialEnergy / 2;
             }
         }
+    }
+
+    // Barnes-Hut O(N log N) force calculation
+    calculateForcesBarnesHut(bodies) {
+        // Reset forces
+        bodies.forEach(body => {
+            body.resetForce();
+            body.potentialEnergy = 0;
+        });
+        
+        // Build quadtree
+        const bounds = this.calculateBounds(bodies);
+        this.barnesHut = new QuadTree(bounds, 1);
+        
+        // Insert all bodies
+        bodies.forEach(body => this.barnesHut.insert(body));
+        
+        // Calculate forces for each body
+        bodies.forEach(body => {
+            this.barnesHut.calculateForce(body, this.gravitationalConstant, this.softeningParameter, this.barnesHutTheta);
+        });
+    }
+    
+    // Calculate bounding box for all bodies
+    calculateBounds(bodies) {
+        if (bodies.length === 0) {
+            return { x: -1000, y: -1000, width: 2000, height: 2000 };
+        }
+        
+        let minX = bodies[0].position.x;
+        let maxX = bodies[0].position.x;
+        let minY = bodies[0].position.y;
+        let maxY = bodies[0].position.y;
+        
+        bodies.forEach(body => {
+            minX = Math.min(minX, body.position.x);
+            maxX = Math.max(maxX, body.position.x);
+            minY = Math.min(minY, body.position.y);
+            maxY = Math.max(maxY, body.position.y);
+        });
+        
+        // Add padding
+        const padding = Math.max(maxX - minX, maxY - minY) * 0.1;
+        return {
+            x: minX - padding,
+            y: minY - padding,
+            width: (maxX - minX) + 2 * padding,
+            height: (maxY - minY) + 2 * padding
+        };
+    }
+    
+    // Calculate adaptive timestep based on system dynamics
+    calculateAdaptiveTimeStep(bodies) {
+        let maxAcceleration = 0;
+        
+        bodies.forEach(body => {
+            const acceleration = body.force.magnitude() / body.mass;
+            maxAcceleration = Math.max(maxAcceleration, acceleration);
+        });
+        
+        if (maxAcceleration === 0) {
+            return this.fixedTimeStep;
+        }
+        
+        // Calculate timestep based on acceleration
+        const adaptiveStep = Math.sqrt(this.softeningParameter / maxAcceleration) * 0.1;
+        
+        // Clamp to reasonable bounds
+        return Math.max(this.minTimeStep, Math.min(this.maxTimeStep, adaptiveStep));
     }
 
     // Update body positions using selected integration method
@@ -137,7 +262,15 @@ class PhysicsEngine {
 
     // Calculate total system energy
     calculateTotalEnergy(bodies) {
+        this.totalKineticEnergy = 0;
         this.totalPotentialEnergy = 0;
+        
+        // Calculate kinetic energy
+        bodies.forEach(body => {
+            const kineticEnergy = 0.5 * body.mass * body.velocity.magnitudeSquared();
+            this.totalKineticEnergy += kineticEnergy;
+            body.kineticEnergy = kineticEnergy;
+        });
         
         // Calculate potential energy
         for (let i = 0; i < bodies.length; i++) {
@@ -147,7 +280,8 @@ class PhysicsEngine {
                 const distance = body1.position.distance(body2.position);
                 const safeDist = Math.max(distance, this.softeningParameter);
                 
-                this.totalPotentialEnergy -= this.gravitationalConstant * body1.mass * body2.mass / safeDist;
+                const potentialEnergy = -this.gravitationalConstant * body1.mass * body2.mass / safeDist;
+                this.totalPotentialEnergy += potentialEnergy;
             }
         }
         
@@ -258,29 +392,85 @@ class PhysicsEngine {
         };
     }
 
-    // Set physics parameters
-    setGravitationalConstant(g) {
-        this.gravitationalConstant = g;
+    // Get performance statistics
+    getPerformanceStats() {
+        return {
+            physicsTime: this.physicsTime,
+            forceCalculationTime: this.forceCalculationTime,
+            integrationTime: this.integrationTime,
+            method: this.integrationMethod,
+            forceMethod: this.forceCalculationMethod,
+            adaptiveTimeStep: this.adaptiveTimeStep,
+            currentTimeStep: this.adaptiveTimeStep ? this.calculateAdaptiveTimeStep([]) : this.fixedTimeStep
+        };
+    }
+    
+    // Get energy statistics
+    getEnergyStats() {
+        return {
+            kinetic: this.totalKineticEnergy,
+            potential: this.totalPotentialEnergy,
+            total: this.totalEnergy,
+            history: this.energyHistory.slice(-100) // Last 100 entries
+        };
+    }
+    
+    // Set physics configuration
+    setConfiguration(config) {
+        if (config.integrationMethod !== undefined) {
+            this.integrationMethod = config.integrationMethod;
+            console.log('Integration method changed to:', this.integrationMethod);
+        }
+        
+        if (config.forceCalculationMethod !== undefined) {
+            this.forceCalculationMethod = config.forceCalculationMethod;
+            console.log('Force calculation method changed to:', this.forceCalculationMethod);
+        }
+        
+        if (config.adaptiveTimeStep !== undefined) {
+            this.adaptiveTimeStep = config.adaptiveTimeStep;
+            console.log('Adaptive timestep:', this.adaptiveTimeStep ? 'enabled' : 'disabled');
+        }
+        
+        if (config.barnesHutTheta !== undefined) {
+            this.barnesHutTheta = config.barnesHutTheta;
+            console.log('Barnes-Hut theta changed to:', this.barnesHutTheta);
+        }
+        
+        if (config.useDoublePrecision !== undefined) {
+            this.useDoublePrecision = config.useDoublePrecision;
+            console.log('Double precision:', this.useDoublePrecision ? 'enabled' : 'disabled');
+        }
     }
 
-    setSofteningParameter(s) {
-        this.softeningParameter = s;
-    }
-
-    setCollisionThreshold(t) {
-        this.collisionThreshold = t;
-    }
-
-    setTimeScale(scale) {
-        this.timeScale = Math.max(0.01, Math.min(10.0, scale));
-    }
-
+    // Configuration setters
     setCollisionEnabled(enabled) {
         this.collisionEnabled = enabled;
+        console.log('Collisions:', enabled ? 'enabled' : 'disabled');
+    }
+    
+    setGravitationalConstant(value) {
+        this.gravitationalConstant = value;
+        console.log('Gravitational constant changed to:', value);
+    }
+    
+    setTimeScale(value) {
+        this.timeScale = value;
+        console.log('Time scale changed to:', value);
     }
 
-    setIntegrationMethod(method) {
-        this.integrationMethod = method;
+    // Update energy history for tracking
+    updateEnergyHistory() {
+        this.energyHistory.push({
+            time: Date.now(),
+            kinetic: this.totalKineticEnergy,
+            potential: this.totalPotentialEnergy,
+            total: this.totalEnergy
+        });
+        
+        // Keep history size manageable
+        if (this.energyHistory.length > this.maxEnergyHistory) {
+            this.energyHistory.shift();
+        }
     }
-
 }

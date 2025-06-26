@@ -442,6 +442,140 @@
             </div>
         </div>
 
+        <!-- Performance Panel -->
+        <div id="performance-panel" class="performance-panel">
+            <div class="performance-content">
+                <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
+                
+                <!-- Performance Settings -->
+                <div class="performance-settings">
+                    <h5><i class="fas fa-cog"></i> Physics Settings</h5>
+                    
+                    <div class="setting-group">
+                        <label for="integration-method">Integration Method:</label>
+                        <select id="integration-method" class="setting-select">
+                            <option value="rk4">RK4 (High Accuracy)</option>
+                            <option value="verlet">Verlet (Stable)</option>
+                            <option value="euler">Euler (Fast)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="force-method">Force Calculation:</label>
+                        <select id="force-method" class="setting-select">
+                            <option value="barnes-hut">Barnes-Hut (O(N log N))</option>
+                            <option value="naive">Naive (O(N²))</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="adaptive-timestep">Adaptive Timestep:</label>
+                        <input type="checkbox" id="adaptive-timestep" class="setting-checkbox">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="web-workers">Use Web Workers:</label>
+                        <input type="checkbox" id="web-workers" class="setting-checkbox">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="barnes-hut-theta">Barnes-Hut θ:</label>
+                        <input type="range" id="barnes-hut-theta" class="setting-slider" min="0.1" max="2.0" step="0.1" value="0.5">
+                        <span id="barnes-hut-theta-value" class="setting-value">0.5</span>
+                    </div>
+                </div>
+                
+                <!-- Performance Stats -->
+                <div class="performance-stats">
+                    <h5><i class="fas fa-chart-line"></i> Performance Statistics</h5>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Frame Rate:</span>
+                            <span id="performance-fps" class="stat-value">60 FPS</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Physics Time:</span>
+                            <span id="performance-physics-time" class="stat-value">0.0 ms</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Force Calc:</span>
+                            <span id="performance-force-time" class="stat-value">0.0 ms</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Integration:</span>
+                            <span id="performance-integration-time" class="stat-value">0.0 ms</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Bodies:</span>
+                            <span id="performance-body-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Method:</span>
+                            <span id="performance-current-method" class="stat-value">RK4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energy Panel -->
+        <div id="energy-panel" class="energy-panel">
+            <div class="energy-content">
+                <h4><i class="fas fa-bolt"></i> Energy Monitor</h4>
+                
+                <!-- Energy Values -->
+                <div class="energy-values">
+                    <div class="energy-item kinetic">
+                        <div class="energy-icon"><i class="fas fa-running"></i></div>
+                        <div class="energy-info">
+                            <span class="energy-label">Kinetic Energy</span>
+                            <span id="energy-kinetic" class="energy-value">0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="energy-item potential">
+                        <div class="energy-icon"><i class="fas fa-mountain"></i></div>
+                        <div class="energy-info">
+                            <span class="energy-label">Potential Energy</span>
+                            <span id="energy-potential" class="energy-value">0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="energy-item total">
+                        <div class="energy-icon"><i class="fas fa-equals"></i></div>
+                        <div class="energy-info">
+                            <span class="energy-label">Total Energy</span>
+                            <span id="energy-total" class="energy-value">0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="energy-item conservation">
+                        <div class="energy-icon"><i class="fas fa-balance-scale"></i></div>
+                        <div class="energy-info">
+                            <span class="energy-label">Conservation</span>
+                            <span id="energy-conservation" class="energy-value conservation-good">100.0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Energy Graph Placeholder -->
+                <div class="energy-graph">
+                    <canvas id="energy-chart" width="300" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Toggle Button -->
+        <button id="performance-toggle" class="performance-toggle" title="Show/Hide Performance Monitor">
+            <i class="fas fa-tachometer-alt"></i> Performance
+        </button>
+
+        <!-- Energy Toggle Button -->
+        <button id="energy-toggle" class="energy-toggle" title="Show/Hide Energy Monitor">
+            <i class="fas fa-bolt"></i> Energy
+        </button>
+
         <!-- Reference Toggle Button -->
         <button id="reference-toggle" class="reference-toggle" title="Show/Hide Scale Reference">
             <i class="fas fa-ruler"></i> Scale Reference
@@ -455,6 +589,8 @@
 
     <script src="js/vector2d.js"></script>
     <script src="js/body.js"></script>
+    <script src="js/integrator.js"></script>
+    <script src="js/barnes-hut.js"></script>
     <script src="js/physics.js"></script>
     <script src="js/renderer.js"></script>
     <script src="js/ui.js"></script>

@@ -7,6 +7,8 @@ class UIManager {
         this.selectedColor = '#ff4757';
         this.orbitMode = false;
         this.referenceShown = false; // Reference panel state
+        this.performanceShown = false; // Performance panel state
+        this.energyShown = false; // Energy panel state
         this.renderer = null; // Will be set by app
         
         this.initializeSliders();
@@ -15,7 +17,10 @@ class UIManager {
         this.initializeColorPicker();
         this.initializeModal();
         this.initializeModeButtons();
+        this.initializePerformanceControls();
+        this.initializeEnergyChart();
         this.setupEventListeners();
+        this.initializeEnergyChart();
     }
 
     setRenderer(renderer) {
@@ -91,7 +96,8 @@ class UIManager {
         const buttonIds = [
             'play-pause', 'reset', 'clear', 'zoom-in', 'zoom-out',
             'center-view', 'fit-view', 'save-config', 'load-config',
-            'export-video', 'delete-selected', 'help-btn', 'reference-toggle'
+            'export-video', 'delete-selected', 'help-btn', 'reference-toggle',
+            'performance-toggle', 'energy-toggle'
         ];
 
         buttonIds.forEach(id => {
@@ -117,7 +123,8 @@ class UIManager {
 
     initializeCheckboxes() {
         const checkboxIds = [
-            'collision-enabled', 'show-trails', 'show-grid', 'show-forces', 'long-term-preview'
+            'collision-enabled', 'show-trails', 'show-grid', 'show-forces', 'long-term-preview',
+            'adaptive-timestep', 'web-workers'
         ];
 
         checkboxIds.forEach(id => {
@@ -250,6 +257,226 @@ class UIManager {
                 }
             }
         });
+    }
+
+    initializePerformanceControls() {
+        // Integration method dropdown
+        const integrationMethod = document.getElementById('integration-method');
+        if (integrationMethod) {
+            integrationMethod.addEventListener('change', (e) => {
+                this.onPerformanceSettingChange('integration-method', e.target.value);
+            });
+        }
+        
+        // Force calculation method dropdown
+        const forceMethod = document.getElementById('force-method');
+        if (forceMethod) {
+            forceMethod.addEventListener('change', (e) => {
+                this.onPerformanceSettingChange('force-method', e.target.value);
+            });
+        }
+        
+        // Barnes-Hut theta slider
+        const barnesHutTheta = document.getElementById('barnes-hut-theta');
+        const barnesHutThetaValue = document.getElementById('barnes-hut-theta-value');
+        if (barnesHutTheta && barnesHutThetaValue) {
+            barnesHutTheta.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                barnesHutThetaValue.textContent = value.toFixed(1);
+                this.onPerformanceSettingChange('barnes-hut-theta', value);
+            });
+        }
+    }
+
+    // Panel toggle methods
+    togglePerformancePanel() {
+        const panel = document.getElementById('performance-panel');
+        if (panel) {
+            panel.classList.toggle('show');
+        }
+    }
+
+    toggleEnergyPanel() {
+        const panel = document.getElementById('energy-panel');
+        if (panel) {
+            panel.classList.toggle('show');
+        }
+    }
+
+    // Update performance statistics display
+    updatePerformanceStats(stats) {
+        const fpsDisplay = document.getElementById('performance-fps');
+        const physicsTime = document.getElementById('performance-physics-time');
+        const forceTime = document.getElementById('performance-force-time');
+        const integrationTime = document.getElementById('performance-integration-time');
+        const bodyCount = document.getElementById('performance-body-count');
+        const currentMethod = document.getElementById('performance-current-method');
+
+        if (fpsDisplay) fpsDisplay.textContent = `${Math.round(stats.fps || 0)} FPS`;
+        if (physicsTime) physicsTime.textContent = `${stats.physicsTime?.toFixed(2) || '0.0'} ms`;
+        if (forceTime) forceTime.textContent = `${stats.forceCalculationTime?.toFixed(2) || '0.0'} ms`;
+        if (integrationTime) integrationTime.textContent = `${stats.integrationTime?.toFixed(2) || '0.0'} ms`;
+        if (bodyCount) bodyCount.textContent = stats.bodyCount || 0;
+        if (currentMethod) currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
+    }
+
+    // Update energy display
+    updateEnergyDisplay(energy) {
+        const kineticDisplay = document.getElementById('energy-kinetic');
+        const potentialDisplay = document.getElementById('energy-potential');
+        const totalDisplay = document.getElementById('energy-total');
+        const conservationDisplay = document.getElementById('energy-conservation');
+
+        if (kineticDisplay) {
+            kineticDisplay.textContent = this.formatScientific(energy.kinetic);
+        }
+        if (potentialDisplay) {
+            potentialDisplay.textContent = this.formatScientific(energy.potential);
+        }
+        if (totalDisplay) {
+            totalDisplay.textContent = this.formatScientific(energy.total);
+        }
+        
+        // Calculate conservation (assuming initial energy is stored)
+        if (conservationDisplay && energy.initial !== undefined) {
+            const conservation = Math.abs(energy.total) > 0 ? 
+                (1 - Math.abs(energy.total - energy.initial) / Math.abs(energy.initial)) * 100 : 100;
+            
+            conservationDisplay.textContent = `${conservation.toFixed(1)}%`;
+            conservationDisplay.className = 'energy-value ' + 
+                (conservation > 99 ? 'conservation-good' : 
+                 conservation > 95 ? 'conservation-warning' : 'conservation-bad');
+        }
+    }
+
+    // Initialize energy chart
+    initializeEnergyChart() {
+        this.energyChart = {
+            canvas: document.getElementById('energy-chart'),
+            context: null,
+            data: [],
+            maxPoints: 100
+        };
+        
+        if (this.energyChart.canvas) {
+            this.energyChart.context = this.energyChart.canvas.getContext('2d');
+            // Set canvas size
+            const rect = this.energyChart.canvas.getBoundingClientRect();
+            this.energyChart.canvas.width = rect.width * window.devicePixelRatio;
+            this.energyChart.canvas.height = rect.height * window.devicePixelRatio;
+            this.energyChart.context.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+    }
+
+    // Update energy chart with new data
+    updateEnergyChart(energy) {
+        if (!this.energyChart.context) return;
+        
+        // Add new data point
+        this.energyChart.data.push({
+            kinetic: energy.kinetic,
+            potential: energy.potential,
+            total: energy.total,
+            timestamp: Date.now()
+        });
+        
+        // Keep only recent data
+        if (this.energyChart.data.length > this.energyChart.maxPoints) {
+            this.energyChart.data.shift();
+        }
+        
+        // Draw chart
+        this.drawEnergyChart();
+    }
+
+    // Draw the energy chart
+    drawEnergyChart() {
+        const ctx = this.energyChart.context;
+        const canvas = this.energyChart.canvas;
+        const data = this.energyChart.data;
+        
+        if (!ctx || data.length < 2) return;
+        
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        // Find min/max values for scaling
+        let minValue = Infinity;
+        let maxValue = -Infinity;
+        
+        data.forEach(point => {
+            minValue = Math.min(minValue, point.kinetic, point.potential, point.total);
+            maxValue = Math.max(maxValue, point.kinetic, point.potential, point.total);
+        });
+        
+        // Add some padding
+        const range = maxValue - minValue;
+        minValue -= range * 0.1;
+        maxValue += range * 0.1;
+        
+        const scaleY = height / (maxValue - minValue);
+        const scaleX = width / (data.length - 1);
+        
+        // Draw grid lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+            const y = (i / 4) * height;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+        
+        // Draw energy lines
+        const drawLine = (color, getValue) => {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            data.forEach((point, index) => {
+                const x = index * scaleX;
+                const y = height - (getValue(point) - minValue) * scaleY;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+        };
+        
+        // Draw lines for each energy type
+        drawLine('#ff6347', p => p.kinetic);  // Kinetic (red)
+        drawLine('#8a2be2', p => p.potential); // Potential (purple)
+        drawLine('#64ffda', p => p.total);     // Total (cyan)
+        
+        // Draw legend
+        ctx.font = '10px Inter';
+        ctx.fillStyle = '#ff6347';
+        ctx.fillText('Kinetic', 5, 15);
+        ctx.fillStyle = '#8a2be2';
+        ctx.fillText('Potential', 5, 30);
+        ctx.fillStyle = '#64ffda';
+        ctx.fillText('Total', 5, 45);
+    }
+
+    // Format numbers in scientific notation for display
+    formatScientific(value) {
+        if (Math.abs(value) < 0.01 || Math.abs(value) > 9999) {
+            return value.toExponential(2);
+        }
+        return value.toFixed(2);
+    }
+
+    // Event handler for performance settings
+    onPerformanceSettingChange(setting, value) {
+        console.log(`Performance setting ${setting} changed to ${value}`);
     }
 
     // Event handlers (to be overridden by the main application)
@@ -438,6 +665,88 @@ class UIManager {
             setTimeout(() => {
                 loadingScreen.style.display = 'none';
             }, 500);
+        }
+    }
+
+    // Update dynamic reference panel
+    updateDynamicReference(bodies, selectedBody) {
+        if (!this.referenceShown) return;
+        
+        // Update selected body information if there is one
+        const selectedBodyInfo = document.getElementById('selected-body-info');
+        if (selectedBody && selectedBodyInfo) {
+            selectedBodyInfo.style.display = 'block';
+            
+            // Update body information
+            const massValue = document.getElementById('body-mass-value');
+            const massReal = document.getElementById('body-mass-real');
+            const positionValue = document.getElementById('body-position-value');
+            const positionReal = document.getElementById('body-position-real');
+            const velocityValue = document.getElementById('body-velocity-value');
+            const velocityReal = document.getElementById('body-velocity-real');
+            const kineticValue = document.getElementById('body-kinetic-value');
+            const kineticReal = document.getElementById('body-kinetic-real');
+            
+            if (massValue) massValue.textContent = selectedBody.mass.toFixed(1);
+            if (massReal) massReal.textContent = `(${(selectedBody.mass * 5.97e24).toExponential(2)} kg)`;
+            
+            if (positionValue) {
+                positionValue.textContent = `(${selectedBody.position.x.toFixed(1)}, ${selectedBody.position.y.toFixed(1)})`;
+            }
+            if (positionReal) {
+                const realX = selectedBody.position.x * 1.496e11;
+                const realY = selectedBody.position.y * 1.496e11;
+                positionReal.textContent = `(${realX.toExponential(2)}, ${realY.toExponential(2)} m)`;
+            }
+            
+            if (velocityValue) {
+                const speed = selectedBody.velocity.magnitude();
+                velocityValue.textContent = speed.toFixed(1);
+            }
+            if (velocityReal) {
+                const realSpeed = selectedBody.velocity.magnitude() * 29780;
+                velocityReal.textContent = `(${realSpeed.toFixed(0)} m/s)`;
+            }
+            
+            if (kineticValue && selectedBody.kineticEnergy !== undefined) {
+                kineticValue.textContent = selectedBody.kineticEnergy.toFixed(1);
+            }
+            if (kineticReal && selectedBody.kineticEnergy !== undefined) {
+                const realKE = selectedBody.kineticEnergy * 5.97e24 * Math.pow(29780, 2);
+                kineticReal.textContent = `(${realKE.toExponential(2)} J)`;
+            }
+        } else if (selectedBodyInfo) {
+            selectedBodyInfo.style.display = 'none';
+        }
+        
+        // Update comparison bodies based on current masses
+        this.updateMassComparisons(bodies);
+    }
+    
+    // Update mass comparison display
+    updateMassComparisons(bodies) {
+        if (bodies.length === 0) return;
+        
+        const maxMass = Math.max(...bodies.map(b => b.mass));
+        const minMass = Math.min(...bodies.map(b => b.mass));
+        
+        // Show/hide comparison elements based on mass range
+        const sunComparison = document.getElementById('comparison-sun');
+        const moonComparison = document.getElementById('comparison-moon');
+        const jupiterComparison = document.getElementById('comparison-jupiter');
+        const marsComparison = document.getElementById('comparison-mars');
+        
+        if (sunComparison) {
+            sunComparison.style.display = maxMass > 100 ? 'flex' : 'none';
+        }
+        if (moonComparison) {
+            moonComparison.style.display = minMass < 1 ? 'flex' : 'none';
+        }
+        if (jupiterComparison) {
+            jupiterComparison.style.display = maxMass > 50 ? 'flex' : 'none';
+        }
+        if (marsComparison) {
+            marsComparison.style.display = minMass < 10 ? 'flex' : 'none';
         }
     }
 
