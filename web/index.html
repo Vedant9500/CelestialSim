@@ -90,7 +90,8 @@
                     <div class="slider-group">
                         <label for="gravity-strength">Gravity Strength</label>
                         <div class="slider-input-group">
-                            <input type="range" id="gravity-strength" min="0.1" max="3.0" step="0.1" value="1.0">
+                            <input type="range" id="gravity-strength" min="0.1" max="3.0" step="0.1" value="1.0"
+                                   data-tooltip="Multiplier for gravitational force strength. 1.0 = realistic physics, higher values = stronger gravity and faster orbits, lower values = weaker gravity and slower motion.">
                             <input type="number" id="gravity-strength-input" min="0.01" max="50" step="0.1" value="1.0" class="direct-input">
                         </div>
                     </div>
@@ -98,7 +99,8 @@
                     <div class="slider-group">
                         <label for="time-scale">Time Scale</label>
                         <div class="slider-input-group">
-                            <input type="range" id="time-scale" min="0.1" max="3.0" step="0.1" value="1.0">
+                            <input type="range" id="time-scale" min="0.1" max="3.0" step="0.1" value="1.0"
+                                   data-tooltip="Controls simulation speed. 1.0 = normal time, higher values = faster simulation time passage, lower values = slower motion for detailed observation.">
                             <input type="number" id="time-scale-input" min="0.01" max="10" step="0.1" value="1.0" class="direct-input">
                         </div>
                     </div>
@@ -106,33 +108,39 @@
                     <div class="slider-group">
                         <label for="prediction-depth">Prediction Depth</label>
                         <div class="slider-input-group">
-                            <input type="range" id="prediction-depth" min="100" max="10000" step="200" value="1000">
+                            <input type="range" id="prediction-depth" min="100" max="10000" step="200" value="1000"
+                                   data-tooltip="How far ahead to predict orbital paths when placing bodies. Higher values show longer orbital predictions but may be slower to compute.">
                             <input type="number" id="prediction-depth-input" min="50" max="20000" step="100" value="1000" class="direct-input">
                         </div>
                     </div>
                     
                     <div class="checkbox-group">
-                        <label class="checkbox-label">
+                        <label class="checkbox-label"
+                               data-tooltip="When enabled, bodies will merge when they get very close together, conserving mass and momentum. Realistic for celestial body interactions.">
                             <input type="checkbox" id="collision-enabled" checked>
                             <span class="checkmark"></span>
                             Enable Collisions
                         </label>
-                        <label class="checkbox-label">
+                        <label class="checkbox-label"
+                               data-tooltip="Shows the path history of each body as colored lines. Helps visualize orbital patterns and trajectories over time.">
                             <input type="checkbox" id="show-trails" checked>
                             <span class="checkmark"></span>
                             Show Trails
                         </label>
-                        <label class="checkbox-label">
+                        <label class="checkbox-label"
+                               data-tooltip="Displays a reference grid to help judge distances and scale in the simulation space.">
                             <input type="checkbox" id="show-grid" checked>
                             <span class="checkmark"></span>
                             Show Grid
                         </label>
-                        <label class="checkbox-label">
+                        <label class="checkbox-label"
+                               data-tooltip="Shows arrows indicating the gravitational force direction and magnitude acting on each body. Useful for understanding physics but may impact performance with many bodies.">
                             <input type="checkbox" id="show-forces">
                             <span class="checkmark"></span>
                             Show Force Vectors
                         </label>
-                        <label class="checkbox-label">
+                        <label class="checkbox-label"
+                               data-tooltip="When placing bodies in orbit mode, shows a long-term orbital prediction to visualize the complete orbital path. May be slow with complex systems.">
                             <input type="checkbox" id="long-term-preview">
                             <span class="checkmark"></span>
                             Look Far Ahead
@@ -144,10 +152,12 @@
                     <h3><i class="fas fa-plus-circle"></i> Add Bodies</h3>
                     
                     <div class="mode-selection">
-                        <button id="manual-mode" class="mode-btn active">
+                        <button id="manual-mode" class="mode-btn active"
+                                data-tooltip="Place bodies with custom velocities you set using the sliders below. Full control over initial conditions.">
                             <i class="fas fa-hand-pointer"></i> Manual
                         </button>
-                        <button id="orbit-mode" class="mode-btn">
+                        <button id="orbit-mode" class="mode-btn"
+                                data-tooltip="Automatically calculates orbital velocity to orbit the nearest existing body. Creates realistic planetary systems and stable orbits.">
                             <i class="fas fa-satellite"></i> Orbit
                         </button>
                     </div>
@@ -155,7 +165,8 @@
                     <div class="slider-group">
                         <label for="body-mass">Mass</label>
                         <div class="slider-input-group">
-                            <input type="range" id="body-mass" min="1" max="200" step="1" value="50">
+                            <input type="range" id="body-mass" min="1" max="200" step="1" value="50"
+                                   data-tooltip="Mass of new bodies you create. Higher mass = stronger gravitational attraction and larger visual size. Affects orbital dynamics and collision behavior.">
                             <input type="number" id="body-mass-input" min="1" max="10000" step="1" value="50" class="direct-input">
                         </div>
                     </div>
@@ -163,7 +174,8 @@
                     <div class="slider-group">
                         <label for="velocity-x">Velocity X</label>
                         <div class="slider-input-group">
-                            <input type="range" id="velocity-x" min="-50" max="50" step="1" value="0">
+                            <input type="range" id="velocity-x" min="-50" max="50" step="1" value="0"
+                                   data-tooltip="Initial horizontal velocity for new bodies in manual mode. Positive = rightward motion, negative = leftward motion. Used only when not in orbit mode.">
                             <input type="number" id="velocity-x-input" min="-1000" max="1000" step="1" value="0" class="direct-input">
                         </div>
                     </div>
@@ -171,7 +183,8 @@
                     <div class="slider-group">
                         <label for="velocity-y">Velocity Y</label>
                         <div class="slider-input-group">
-                            <input type="range" id="velocity-y" min="-50" max="50" step="1" value="0">
+                            <input type="range" id="velocity-y" min="-50" max="50" step="1" value="0"
+                                   data-tooltip="Initial vertical velocity for new bodies in manual mode. Positive = upward motion, negative = downward motion. Used only when not in orbit mode.">
                             <input type="number" id="velocity-y-input" min="-1000" max="1000" step="1" value="0" class="direct-input">
                         </div>
                     </div>
@@ -179,7 +192,8 @@
                     <div class="slider-group">
                         <label for="trail-length">Trail Length</label>
                         <div class="slider-input-group">
-                            <input type="range" id="trail-length" min="0" max="100" step="1" value="50">
+                            <input type="range" id="trail-length" min="0" max="100" step="1" value="50"
+                                   data-tooltip="Number of previous positions to display as a trail behind each body. Higher values show longer orbital history but may impact performance with many bodies.">
                             <input type="number" id="trail-length-input" min="0" max="1000" step="1" value="50" class="direct-input">
                         </div>
                     </div>
@@ -202,16 +216,20 @@
                 <div class="panel-section">
                     <h3><i class="fas fa-layer-group"></i> Presets</h3>
                     <div class="preset-buttons">
-                        <button class="preset-btn" data-preset="solar-system">
+                        <button class="preset-btn" data-preset="solar-system"
+                                data-tooltip="Creates a realistic solar system with the Sun, Earth, Mars, and Jupiter in proper orbits and scales.">
                             <i class="fas fa-sun"></i> Solar System
                         </button>
-                        <button class="preset-btn" data-preset="binary-stars">
+                        <button class="preset-btn" data-preset="binary-stars"
+                                data-tooltip="Two massive stars orbiting each other with smaller planets, demonstrating complex gravitational dynamics.">
                             <i class="fas fa-star"></i> Binary Stars
                         </button>
-                        <button class="preset-btn" data-preset="galaxy">
+                        <button class="preset-btn" data-preset="galaxy"
+                                data-tooltip="Spiral galaxy formation with a central massive black hole and many orbiting stars showing galactic rotation.">
                             <i class="fas fa-compact-disc"></i> Galaxy
                         </button>
-                        <button class="preset-btn" data-preset="chaos">
+                        <button class="preset-btn" data-preset="chaos"
+                                data-tooltip="Random collection of bodies with various masses and velocities to explore chaotic gravitational interactions.">
                             <i class="fas fa-random"></i> Chaos
                         </button>
                     </div>
@@ -220,15 +238,18 @@
                 <div class="panel-section">
                     <h3><i class="fas fa-save"></i> Data</h3>
                     <div class="control-group">
-                        <button id="save-config" class="secondary-btn">
+                        <button id="save-config" class="secondary-btn"
+                                data-tooltip="Download current simulation state (all bodies, positions, velocities) as a JSON file that can be loaded later.">
                             <i class="fas fa-download"></i> Save
                         </button>
-                        <button id="load-config" class="secondary-btn">
+                        <button id="load-config" class="secondary-btn"
+                                data-tooltip="Load a previously saved simulation state from a JSON file. Will replace current bodies with saved configuration.">
                             <i class="fas fa-upload"></i> Load
                         </button>
                         <input type="file" id="file-input" accept=".json" style="display: none;">
                     </div>
-                    <button id="export-video" class="secondary-btn full-width">
+                    <button id="export-video" class="secondary-btn full-width"
+                            data-tooltip="Records the simulation as an animated GIF or video file. Note: This may impact performance during recording and requires a modern browser.">
                         <i class="fas fa-video"></i> Export Video
                     </button>
                 </div>
@@ -453,7 +474,8 @@
                     
                     <div class="setting-group">
                         <label for="integration-method">Integration Method:</label>
-                        <select id="integration-method" class="setting-select">
+                        <select id="integration-method" class="setting-select" 
+                                data-tooltip="Choose the numerical method for solving physics equations. RK4 is most accurate but slower, Verlet is stable and efficient, Euler is fastest but less accurate.">
                             <option value="rk4">RK4 (High Accuracy)</option>
                             <option value="verlet" selected>Verlet (Stable)</option>
                             <option value="euler">Euler (Fast)</option>
@@ -462,7 +484,8 @@
                     
                     <div class="setting-group">
                         <label for="force-method">Force Calculation:</label>
-                        <select id="force-method" class="setting-select">
+                        <select id="force-method" class="setting-select"
+                                data-tooltip="Algorithm for calculating gravitational forces. Barnes-Hut is much faster for many bodies (O(N log N)) but slightly less accurate. Naive is exact but slow for many bodies (O(N²)).">
                             <option value="barnes-hut">Barnes-Hut (O(N log N))</option>
                             <option value="naive">Naive (O(N²))</option>
                         </select>
@@ -470,23 +493,27 @@
                     
                     <div class="setting-group">
                         <label for="adaptive-timestep">Adaptive Timestep:</label>
-                        <input type="checkbox" id="adaptive-timestep" class="setting-checkbox">
+                        <input type="checkbox" id="adaptive-timestep" class="setting-checkbox"
+                               data-tooltip="Automatically adjusts simulation timestep based on system dynamics. Smaller steps for chaotic systems, larger steps for stable systems. Improves accuracy but may reduce performance.">
                     </div>
                     
                     <div class="setting-group">
                         <label for="web-workers">Use Web Workers:</label>
-                        <input type="checkbox" id="web-workers" class="setting-checkbox">
+                        <input type="checkbox" id="web-workers" class="setting-checkbox"
+                               data-tooltip="Runs physics calculations in a background thread to prevent UI freezing. Recommended for complex simulations with many bodies. May add slight latency.">
                     </div>
                     
                     <div class="setting-group">
-                        <label for="barnes-hut-theta">Barnes-Hut θ:</label>
-                        <input type="range" id="barnes-hut-theta" class="setting-slider" min="0.1" max="2.0" step="0.1" value="0.5">
+                        <label for="barnes-hut-theta">Barnes-Hut θ (Theta):</label>
+                        <input type="range" id="barnes-hut-theta" class="setting-slider" min="0.1" max="2.0" step="0.1" value="0.5"
+                               data-tooltip="Controls Barnes-Hut approximation accuracy. Lower values (0.1-0.5) = more accurate but slower. Higher values (0.8-2.0) = faster but less accurate. Affects force calculation precision.">
                         <span id="barnes-hut-theta-value" class="setting-value">0.5</span>
                     </div>
                     
                     <div class="setting-group">
                         <label for="gpu-acceleration">GPU Acceleration (WebGL):</label>
-                        <input type="checkbox" id="gpu-acceleration" class="setting-checkbox">
+                        <input type="checkbox" id="gpu-acceleration" class="setting-checkbox"
+                               data-tooltip="Uses your graphics card (GPU) for physics calculations instead of CPU. Can dramatically speed up simulations with many bodies but limited to ~1000 bodies and may not work on all devices.">
                         <span class="gpu-status" id="gpu-status">Checking...</span>
                     </div>
                 </div>
@@ -605,17 +632,23 @@
         </div>
 
         <!-- Performance Toggle Button -->
-        <button id="performance-toggle" class="performance-toggle" title="Show/Hide Performance Monitor">
+        <button id="performance-toggle" class="performance-toggle" 
+                data-tooltip="Open advanced performance settings and monitoring panel. Shows detailed physics timing, method selection, and optimization options."
+                title="Show/Hide Performance Monitor">
             <i class="fas fa-tachometer-alt"></i> Performance
         </button>
 
         <!-- Energy Toggle Button -->
-        <button id="energy-toggle" class="energy-toggle" title="Show/Hide Energy Monitor">
+        <button id="energy-toggle" class="energy-toggle" 
+                data-tooltip="Open energy conservation monitoring panel. Shows kinetic, potential, and total energy values with conservation tracking."
+                title="Show/Hide Energy Monitor">
             <i class="fas fa-bolt"></i> Energy
         </button>
 
         <!-- Reference Toggle Button -->
-        <button id="reference-toggle" class="reference-toggle" title="Show/Hide Scale Reference">
+        <button id="reference-toggle" class="reference-toggle" 
+                data-tooltip="Open real-world scale reference panel. Shows how simulation units relate to actual astronomical scales and distances."
+                title="Show/Hide Scale Reference">
             <i class="fas fa-ruler"></i> Scale Reference
         </button>
 

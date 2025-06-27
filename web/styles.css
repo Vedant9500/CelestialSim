@@ -1786,3 +1786,27 @@ kbd {
         transform: translateX(-50%);
     }
 }
+
+/* Tooltip System - Using JavaScript floating tooltips */
+[data-tooltip] {
+    cursor: help;
+}
+
+/* Floating tooltip container (created by JavaScript) */
+.floating-tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.95);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    z-index: 10000;
+    pointer-events: none;
+    max-width: 300px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}

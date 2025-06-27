@@ -10,6 +10,12 @@ class UIManager {
         this.performanceShown = false; // Performance panel state
         this.energyShown = false; // Energy panel state
         this.renderer = null; // Will be set by app
+        this.tooltipElement = null;
+        
+        // Bind tooltip methods for proper event listener handling
+        this.boundShowTooltip = (e) => this.showTooltip(e.target, e);
+        this.boundHideTooltip = () => this.hideTooltip();
+        this.boundUpdatePosition = (e) => this.updateTooltipPosition(e);
         
         this.initializeSliders();
         this.initializeButtons();
@@ -20,6 +26,7 @@ class UIManager {
         this.initializePerformanceControls();
         this.initializeEnergyChart();
         this.setupEventListeners();
+        this.initializeTooltips();
         this.initializeEnergyChart();
     }
 
@@ -990,5 +997,150 @@ class UIManager {
             // Trigger the input event to sync with slider
             input.dispatchEvent(new Event('input'));
         }
+    }
+
+    // Initialize tooltip system
+    initializeTooltips() {
+        // Create tooltip element
+        this.createTooltipElement();
+        
+        // Get all elements with tooltips
+        const tooltipElements = document.querySelectorAll('[data-tooltip]');
+        
+        tooltipElements.forEach(element => {
+            // Remove existing listeners to avoid duplicates
+            element.removeEventListener('mouseenter', this.boundShowTooltip);
+            element.removeEventListener('mouseleave', this.boundHideTooltip);
+            element.removeEventListener('mousemove', this.boundUpdatePosition);
+            element.removeEventListener('focus', this.boundShowTooltip);
+            element.removeEventListener('blur', this.boundHideTooltip);
+            
+            // Setup new listeners
+            this.setupTooltipForElement(element);
+        });
+    }
+    
+    createTooltipElement() {
+        // Remove existing tooltip if present
+        const existingTooltip = document.getElementById('floating-tooltip');
+        if (existingTooltip) {
+            existingTooltip.remove();
+        }
+        
+        // Create new tooltip element
+        this.tooltipElement = document.createElement('div');
+        this.tooltipElement.id = 'floating-tooltip';
+        this.tooltipElement.className = 'floating-tooltip';
+        this.tooltipElement.style.cssText = `
+            position: fixed;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            max-width: 300px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        `;
+        document.body.appendChild(this.tooltipElement);
+    }
+    
+    showTooltip(element, event) {
+        const tooltipText = element.getAttribute('data-tooltip');
+        if (!tooltipText || !this.tooltipElement) return;
+        
+        this.tooltipElement.textContent = tooltipText;
+        this.tooltipElement.style.opacity = '1';
+        this.tooltipElement.style.transform = 'translateY(0)';
+        
+        // Initial positioning
+        if (event) {
+            this.updateTooltipPosition(event);
+        }
+    }
+    
+    hideTooltip() {
+        if (this.tooltipElement) {
+            this.tooltipElement.style.opacity = '0';
+            this.tooltipElement.style.transform = 'translateY(-8px)';
+        }
+    }
+    
+    updateTooltipPosition(event) {
+        if (!this.tooltipElement || this.tooltipElement.style.opacity === '0') return;
+        
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+        const tooltipRect = this.tooltipElement.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        let x = mouseX + 15; // Offset from cursor
+        let y = mouseY - tooltipRect.height - 10; // Above cursor
+        
+        // Adjust if tooltip would go off screen horizontally
+        if (x + tooltipRect.width > viewportWidth - 10) {
+            x = mouseX - tooltipRect.width - 15; // Show to the left of cursor
+        }
+        
+        // Adjust if tooltip would go off screen vertically
+        if (y < 10) {
+            y = mouseY + 15; // Show below cursor
+        }
+        
+        // Ensure tooltip doesn't go off screen
+        x = Math.max(10, Math.min(x, viewportWidth - tooltipRect.width - 10));
+        y = Math.max(10, Math.min(y, viewportHeight - tooltipRect.height - 10));
+        
+        this.tooltipElement.style.left = x + 'px';
+        this.tooltipElement.style.top = y + 'px';
+    }
+    
+    // Legacy methods for compatibility
+    adjustTooltipPosition() {
+        // This method is now handled by updateTooltipPosition
+    }
+    
+    setupDynamicTooltipPositioning() {
+        // No longer needed with floating tooltip
+    }
+    
+    // Add tooltip to element programmatically
+    addTooltip(element, text) {
+        element.setAttribute('data-tooltip', text);
+        // Add event listeners for this specific element
+        this.setupTooltipForElement(element);
+    }
+    
+    // Setup tooltip for a single element
+    setupTooltipForElement(element) {
+        element.addEventListener('mouseenter', this.boundShowTooltip);
+        element.addEventListener('mouseleave', this.boundHideTooltip);
+        element.addEventListener('mousemove', this.boundUpdatePosition);
+        element.addEventListener('focus', this.boundShowTooltip);
+        element.addEventListener('blur', this.boundHideTooltip);
+    }
+    
+    // Remove tooltip from element
+    removeTooltip(element) {
+        element.removeAttribute('data-tooltip');
+    }
+    
+    // Update tooltip text
+    updateTooltip(element, newText) {
+        element.setAttribute('data-tooltip', newText);
+    }
+    
+    // Reinitialize tooltips (useful after dynamic content changes)
+    reinitializeTooltips() {
+        this.initializeTooltips();
     }
 }
