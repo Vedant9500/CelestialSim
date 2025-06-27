@@ -69,6 +69,10 @@ class PhysicsEngine {
         }
         
         // Run physics in timesteps while we have accumulated enough time
+        let totalForceTime = 0;
+        let totalIntegrationTime = 0;
+        let stepsExecuted = 0;
+        
         while (this.timeAccumulator >= currentTimeStep) {
             const forceStart = performance.now();
             if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > PHYSICS_CONSTANTS.BARNES_HUT_MAX_BODIES_THRESHOLD) {
@@ -77,7 +81,7 @@ class PhysicsEngine {
                 this.calculateForcesNaive(bodies);
             }
             
-            this.forceCalculationTime = performance.now() - forceStart;
+            totalForceTime += performance.now() - forceStart;
             
             const integrationStart = performance.now();
             
@@ -93,7 +97,7 @@ class PhysicsEngine {
                 this.updateBodies(bodies, currentTimeStep);
             }
             
-            this.integrationTime = performance.now() - integrationStart;
+            totalIntegrationTime += performance.now() - integrationStart;
             
             // Handle collisions
             if (this.collisionEnabled) {
@@ -103,6 +107,18 @@ class PhysicsEngine {
             // Subtract the timestep from accumulator
             this.timeAccumulator -= currentTimeStep;
             this.simulationTime += currentTimeStep;
+            stepsExecuted++;
+        }
+        
+        // Update timing statistics (average if multiple steps were executed)
+        if (stepsExecuted > 0) {
+            this.forceCalculationTime = totalForceTime / stepsExecuted;
+            this.integrationTime = totalIntegrationTime / stepsExecuted;
+        } else {
+            // If no physics steps were executed this frame, keep previous values
+            // but decay them slightly to indicate low activity
+            this.forceCalculationTime = Math.max(0, this.forceCalculationTime * 0.9);
+            this.integrationTime = Math.max(0, this.integrationTime * 0.9);
         }
         
         // Calculate total energy

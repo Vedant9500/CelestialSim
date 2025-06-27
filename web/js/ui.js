@@ -325,9 +325,23 @@ class UIManager {
         const currentMethod = document.getElementById('performance-current-method');
 
         if (fpsDisplay) fpsDisplay.textContent = `${Math.round(stats.fps || 0)} FPS`;
-        if (physicsTime) physicsTime.textContent = `${stats.physicsTime?.toFixed(2) || '0.0'} ms`;
-        if (forceTime) forceTime.textContent = `${stats.forceCalculationTime?.toFixed(2) || '0.0'} ms`;
-        if (integrationTime) integrationTime.textContent = `${stats.integrationTime?.toFixed(2) || '0.0'} ms`;
+        
+        // Display with better precision and show actual values
+        if (physicsTime) {
+            const value = stats.physicsTime || 0;
+            physicsTime.textContent = value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+        }
+        
+        if (forceTime) {
+            const value = stats.forceCalculationTime || 0;
+            forceTime.textContent = value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+        }
+        
+        if (integrationTime) {
+            const value = stats.integrationTime || 0;
+            integrationTime.textContent = value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+        }
+        
         if (bodyCount) bodyCount.textContent = stats.bodyCount || 0;
         if (currentMethod) currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
     }
