@@ -72,16 +72,19 @@ class Body {
             this.lastPosition = this.position.clone();
             this.position.addMut(this.velocity.multiply(deltaTime));
         } else {
-            // Verlet integration with consistent timestep
+            // Proper Verlet integration
             const newPosition = this.position
                 .multiply(2)
                 .subtract(this.lastPosition)
                 .add(this.acceleration.multiply(deltaTime * deltaTime));
             
-            this.lastPosition = this.position.clone();
+            // Update lastPosition BEFORE changing position
+            const tempPosition = this.position.clone();
             this.position = newPosition;
+            this.lastPosition = tempPosition;
             
-            // Calculate velocity from position difference
+            // Calculate velocity from position difference (for display/energy calc)
+            // v = (x(t) - x(t-dt)) / dt
             this.velocity = this.position.subtract(this.lastPosition).divide(deltaTime);
         }
 
@@ -137,13 +140,16 @@ class Body {
         
         // Softening to prevent singularities
         const softenedDistanceSquared = distanceSquared + softeningParameter * softeningParameter;
+        
+        // Avoid unnecessary sqrt - we can normalize by dividing by distance directly
         const distance = Math.sqrt(softenedDistanceSquared);
         
         // F = G * m1 * m2 / r^2
         const forceMagnitude = gravitationalConstant * this.mass * other.mass / softenedDistanceSquared;
         
-        // Return force vector
-        return direction.normalize().multiply(forceMagnitude);
+        // More efficient: direction / distance gives us the unit vector
+        // This avoids calling normalize() which does another sqrt
+        return direction.multiply(forceMagnitude / distance);
     }
 
     // Check if this body would collide with another

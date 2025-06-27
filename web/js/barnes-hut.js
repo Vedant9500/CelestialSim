@@ -141,9 +141,11 @@ class QuadTree {
             return;
         }
 
-        // Calculate distance to center of mass
-        const direction = this.centerOfMass.subtract(body.position);
-        const distance = direction.magnitude();
+        // Calculate distance to center of mass (use more efficient calculation)
+        const dx = this.centerOfMass.x - body.position.x;
+        const dy = this.centerOfMass.y - body.position.y;
+        const distanceSquared = dx * dx + dy * dy;
+        const distance = Math.sqrt(distanceSquared);
         
         // Avoid self-interaction
         if (distance === 0) {
@@ -156,11 +158,13 @@ class QuadTree {
 
         // If the node is sufficiently far away (s/d < θ), treat as single body
         if (ratio < theta || !this.divided) {
-            // Apply softening parameter
-            const softenedDistanceSquared = distance * distance + softeningParameter * softeningParameter;
+            // Apply softening parameter (consistent with direct calculation)
+            const softenedDistanceSquared = distanceSquared + softeningParameter * softeningParameter;
+            const softenedDistance = Math.sqrt(softenedDistanceSquared);
             const forceMagnitude = gravitationalConstant * body.mass * this.totalMass / softenedDistanceSquared;
             
-            const force = direction.normalize().multiply(forceMagnitude);
+            // More efficient: avoid normalize() call
+            const force = new Vector2D(dx * forceMagnitude / softenedDistance, dy * forceMagnitude / softenedDistance);
             body.applyForce(force);
             return;
         }

@@ -156,10 +156,13 @@ class PhysicsEngine {
                 body1.applyForce(force);
                 body2.applyForce(force.multiply(-1)); // Newton's third law
                 
-                // Calculate potential energy for this pair
-                const distance = body1.position.distance(body2.position);
-                const safeDist = Math.max(distance, this.softeningParameter);
-                const potentialEnergy = -this.gravitationalConstant * body1.mass * body2.mass / safeDist;
+                // Calculate potential energy for this pair (use same softening as force)
+                const dx = body1.position.x - body2.position.x;
+                const dy = body1.position.y - body2.position.y;
+                const distanceSquared = dx * dx + dy * dy;
+                const softenedDistanceSquared = distanceSquared + this.softeningParameter * this.softeningParameter;
+                const distance = Math.sqrt(softenedDistanceSquared);
+                const potentialEnergy = -this.gravitationalConstant * body1.mass * body2.mass / distance;
                 
                 body1.potentialEnergy += potentialEnergy / 2;
                 body2.potentialEnergy += potentialEnergy / 2;
@@ -249,7 +252,7 @@ class PhysicsEngine {
         });
     }
 
-    // Handle collisions between bodies
+    // Handle collisions between bodies (optimized)
     handleCollisions(bodies) {
         const bodiesToRemove = new Set();
         const bodiesToAdd = [];
@@ -263,7 +266,13 @@ class PhysicsEngine {
                 const body1 = bodies[i];
                 const body2 = bodies[j];
                 
-                if (body1.wouldCollideWith(body2, this.collisionThreshold)) {
+                // More efficient collision detection using squared distance
+                const dx = body1.position.x - body2.position.x;
+                const dy = body1.position.y - body2.position.y;
+                const distanceSquared = dx * dx + dy * dy;
+                const thresholdSquared = this.collisionThreshold * this.collisionThreshold;
+                
+                if (distanceSquared < thresholdSquared) {
                     // Create merged body
                     const merged = Body.merge(body1, body2);
                     bodiesToAdd.push(merged);
@@ -308,17 +317,15 @@ class PhysicsEngine {
                 const body1 = bodies[i];
                 const body2 = bodies[j];
                 
-                // Use high precision distance calculation
+                // Use same distance calculation as force computation for consistency
                 const dx = body1.position.x - body2.position.x;
                 const dy = body1.position.y - body2.position.y;
                 const distanceSquared = dx * dx + dy * dy;
-                const distance = Math.sqrt(distanceSquared);
-                
-                // Avoid division by zero without affecting energy conservation
-                const safeDist = Math.max(distance, this.softeningParameter * 0.01);
+                const softenedDistanceSquared = distanceSquared + this.softeningParameter * this.softeningParameter;
+                const distance = Math.sqrt(softenedDistanceSquared);
                 
                 // Calculate gravitational potential energy: U = -G*m1*m2/r
-                const potentialEnergy = -this.gravitationalConstant * body1.mass * body2.mass / safeDist;
+                const potentialEnergy = -this.gravitationalConstant * body1.mass * body2.mass / distance;
                 
                 // Kahan summation for improved numerical precision
                 const adjustedValue = potentialEnergy - compensationError;
