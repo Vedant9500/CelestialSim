@@ -1,4 +1,3 @@
-// CelestialSim - Main application class that ties everything together
 class NBodyApp {
     constructor() {
         this.canvas = document.getElementById('simulation-canvas');
@@ -6,14 +5,11 @@ class NBodyApp {
         this.physics = new PhysicsEngine();
         this.ui = new UIManager();
         
-        // Initialize GPU physics engine
         this.gpuPhysics = new GPUPhysicsEngine();
         this.useGPU = false;
         
-        // Pass renderer reference to UI for orbit preview
         this.ui.setRenderer(this.renderer);
         
-        // Simulation state
         this.bodies = [];
         this.selectedBody = null;
         this.isRunning = false;
@@ -34,7 +30,6 @@ class NBodyApp {
         this.fpsUpdateTime = 0;
         this.currentFPS = 60;
         
-        // Advanced performance features
         this.useWebWorkers = false;
         this.physicsWorker = null;
         this.workerBusy = false;
@@ -51,12 +46,10 @@ class NBodyApp {
         // Initialize GPU status in UI
         this.updateGPUStatus();
         
-        // Hide loading screen after initialization
         setTimeout(() => {
             this.ui.hideLoading();
         }, 1000);
         
-        // Start the main loop
         this.startMainLoop();
         
         // Initial UI update
@@ -304,8 +297,6 @@ class NBodyApp {
             this.renderer.panCamera(-deltaX, -deltaY);
             
         } else if (this.ui.isOrbitMode() && this.bodies.length > 0) {
-            // Show orbit preview when in orbit mode and there are bodies to orbit around
-            // This should work regardless of whether we're actively adding a body or just planning
             this.updateOrbitPreview(worldPos);
         }
         
@@ -514,7 +505,6 @@ class NBodyApp {
     }
 
     onColorChange(color) {
-        // This will be used for new bodies
     }
 
     onPresetSelect(preset) {

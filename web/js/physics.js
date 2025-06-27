@@ -43,17 +43,13 @@ class PhysicsEngine {
         console.log('PhysicsEngine initialized with advanced features');
     }
 
-    // Main physics update loop
     update(bodies, deltaTime) {
         const startTime = performance.now();
         
-        // Track simulation state
         this.currentBodyCount = bodies.length;
         
-        // Add scaled time to accumulator
         this.timeAccumulator += deltaTime * this.timeScale;
         
-        // Reset energy calculations
         this.totalKineticEnergy = 0;
         this.totalPotentialEnergy = 0;
         
@@ -66,8 +62,7 @@ class PhysicsEngine {
         // Run physics in timesteps while we have accumulated enough time
         while (this.timeAccumulator >= currentTimeStep) {
             const forceStart = performance.now();
-                  // Calculate forces using selected method
-        if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
+            if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
             this.calculateForcesBarnesHut(bodies);
             console.log(`Using Barnes-Hut for ${bodies.length} bodies`);
         } else {
@@ -81,7 +76,6 @@ class PhysicsEngine {
             
             const integrationStart = performance.now();
             
-            // Update positions and velocities with selected integrator
             if (this.integrationMethod === 'rk4') {
                 this.integrator.integrateRK4(bodies, currentTimeStep, (bodies) => {
                     if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
@@ -126,7 +120,6 @@ class PhysicsEngine {
         this.calculateForcesNaive(bodies);
     }
 
-    // O(n²) naive force calculation
     calculateForcesNaive(bodies) {
         for (let i = 0; i < bodies.length; i++) {
             for (let j = i + 1; j < bodies.length; j++) {
@@ -318,7 +311,6 @@ class PhysicsEngine {
         this.totalEnergy = this.totalKineticEnergy + this.totalPotentialEnergy;
     }
 
-    // Get center of mass
     getCenterOfMass(bodies) {
         if (bodies.length === 0) return new Vector2D(0, 0);
         

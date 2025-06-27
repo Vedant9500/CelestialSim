@@ -44,7 +44,6 @@ class UIManager {
             const input = document.getElementById(config.id + '-input');
             
             if (slider && input) {
-                // Set initial values
                 slider.min = config.min;
                 slider.max = config.max;
                 slider.step = config.step;
@@ -317,7 +316,6 @@ class UIManager {
         }
     }
 
-    // Update performance statistics display
     updatePerformanceStats(stats) {
         const fpsDisplay = document.getElementById('performance-fps');
         const physicsTime = document.getElementById('performance-physics-time');
@@ -334,7 +332,6 @@ class UIManager {
         if (currentMethod) currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
     }
 
-    // Update energy display with comprehensive statistics
     updateEnergyDisplay(energy) {
         const kineticDisplay = document.getElementById('energy-kinetic');
         const potentialDisplay = document.getElementById('energy-potential');

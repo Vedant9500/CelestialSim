@@ -89,7 +89,6 @@ class Renderer {
         this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // Main render function
     render(bodies, physicsEngine, selectedBody = null) {
         this.clear();
         
