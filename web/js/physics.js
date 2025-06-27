@@ -1,8 +1,8 @@
 class PhysicsEngine {
     constructor() {
-        this.gravitationalConstant = 100.0;
-        this.softeningParameter = 20.0;
-        this.collisionThreshold = 15.0;
+        this.gravitationalConstant = PHYSICS_CONSTANTS.GRAVITATIONAL_CONSTANT;
+        this.softeningParameter = PHYSICS_CONSTANTS.SOFTENING_PARAMETER;
+        this.collisionThreshold = PHYSICS_CONSTANTS.COLLISION_THRESHOLD;
         this.collisionEnabled = true;
         this.timeScale = 1.0;
         this.integrationMethod = 'verlet'; // 'verlet', 'euler', 'rk4' - Verlet is more stable for runtime additions
@@ -10,10 +10,10 @@ class PhysicsEngine {
         
         // Time accumulator for consistent physics
         this.timeAccumulator = 0.0;
-        this.fixedTimeStep = 1.0 / 60.0; // 60 FPS physics
+        this.fixedTimeStep = PHYSICS_CONSTANTS.FIXED_TIME_STEP;
         this.adaptiveTimeStep = false;
-        this.maxTimeStep = 1.0 / 30.0;
-        this.minTimeStep = 1.0 / 240.0;
+        this.maxTimeStep = PHYSICS_CONSTANTS.MAX_TIME_STEP;
+        this.minTimeStep = PHYSICS_CONSTANTS.MIN_TIME_STEP;
         
         // Energy tracking
         this.totalKineticEnergy = 0;
@@ -31,7 +31,7 @@ class PhysicsEngine {
         // Initialize advanced components
         this.integrator = new Integrator();
         this.barnesHut = null;
-        this.barnesHutTheta = 0.5; // Barnes-Hut approximation parameter
+        this.barnesHutTheta = PHYSICS_CONSTANTS.BARNES_HUT_THETA;
         
         // Double precision support
         this.useDoublePrecision = false;
@@ -39,12 +39,21 @@ class PhysicsEngine {
         // Simulation state tracking
         this.simulationTime = 0;
         this.currentBodyCount = 0;
-        
-        console.log('PhysicsEngine initialized with advanced features');
     }
 
     update(bodies, deltaTime) {
         const startTime = performance.now();
+        
+        // Validate input parameters
+        if (!bodies || !Array.isArray(bodies)) {
+            console.error('PhysicsEngine.update: Invalid bodies array provided');
+            return bodies || [];
+        }
+        
+        if (typeof deltaTime !== 'number' || deltaTime <= 0 || !isFinite(deltaTime)) {
+            console.warn('PhysicsEngine.update: Invalid deltaTime, using default');
+            deltaTime = this.fixedTimeStep;
+        }
         
         this.currentBodyCount = bodies.length;
         
@@ -62,15 +71,11 @@ class PhysicsEngine {
         // Run physics in timesteps while we have accumulated enough time
         while (this.timeAccumulator >= currentTimeStep) {
             const forceStart = performance.now();
-            if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
-            this.calculateForcesBarnesHut(bodies);
-            console.log(`Using Barnes-Hut for ${bodies.length} bodies`);
-        } else {
-            this.calculateForcesNaive(bodies);
-            if (bodies.length > 5) {
-                console.log(`Using Naive O(N²) for ${bodies.length} bodies`);
+            if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > PHYSICS_CONSTANTS.BARNES_HUT_MAX_BODIES_THRESHOLD) {
+                this.calculateForcesBarnesHut(bodies);
+            } else {
+                this.calculateForcesNaive(bodies);
             }
-        }
             
             this.forceCalculationTime = performance.now() - forceStart;
             
@@ -493,44 +498,36 @@ class PhysicsEngine {
     setConfiguration(config) {
         if (config.integrationMethod !== undefined) {
             this.integrationMethod = config.integrationMethod;
-            console.log('Integration method changed to:', this.integrationMethod);
         }
         
         if (config.forceCalculationMethod !== undefined) {
             this.forceCalculationMethod = config.forceCalculationMethod;
-            console.log('Force calculation method changed to:', this.forceCalculationMethod);
         }
         
         if (config.adaptiveTimeStep !== undefined) {
             this.adaptiveTimeStep = config.adaptiveTimeStep;
-            console.log('Adaptive timestep:', this.adaptiveTimeStep ? 'enabled' : 'disabled');
         }
         
         if (config.barnesHutTheta !== undefined) {
             this.barnesHutTheta = config.barnesHutTheta;
-            console.log('Barnes-Hut theta changed to:', this.barnesHutTheta);
         }
         
         if (config.useDoublePrecision !== undefined) {
             this.useDoublePrecision = config.useDoublePrecision;
-            console.log('Double precision:', this.useDoublePrecision ? 'enabled' : 'disabled');
         }
     }
 
     // Configuration setters
     setCollisionEnabled(enabled) {
         this.collisionEnabled = enabled;
-        console.log('Collisions:', enabled ? 'enabled' : 'disabled');
     }
     
     setGravitationalConstant(value) {
         this.gravitationalConstant = value;
-        console.log('Gravitational constant changed to:', value);
     }
     
     setTimeScale(value) {
         this.timeScale = value;
-        console.log('Time scale changed to:', value);
     }
 
     // Update energy history for tracking with simulation time

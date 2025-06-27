@@ -36,7 +36,10 @@ class Vector2D {
     }
 
     divide(scalar) {
-        if (scalar === 0) return new Vector2D(0, 0);
+        if (scalar === 0) {
+            console.warn('Vector2D: Division by zero detected, returning zero vector');
+            return new Vector2D(0, 0);
+        }
         return new Vector2D(this.x / scalar, this.y / scalar);
     }
 

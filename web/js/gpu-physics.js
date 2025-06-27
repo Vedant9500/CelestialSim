@@ -22,6 +22,7 @@ class GPUPhysicsEngine {
         this.maxBodies = 1024; // Maximum bodies GPU can handle (limited by uniform space)
         this.currentBodyCount = 0;
         this.isInitialized = false;
+        this.limitWarningShown = false; // Track if we've shown the limitation warning
 
         // Performance tracking
         this.performanceStats = {
@@ -275,6 +276,12 @@ class GPUPhysicsEngine {
     updateSimulation(bodies, deltaTime) {
         const gl = this.gl;
         const bodyCount = this.currentBodyCount;
+        
+        // Check for body count limits and warn user
+        if (bodyCount > this.maxBodies && !this.limitWarningShown) {
+            console.warn(`GPU Physics Warning: Body count (${bodyCount}) exceeds GPU limit (${this.maxBodies}). Performance may be degraded or simulation may fail.`);
+            this.limitWarningShown = true;
+        }
 
         // 1. Prepare uniform data (positions and masses of all bodies)
         const uniformBodyData = new Float32Array(bodyCount * 3);

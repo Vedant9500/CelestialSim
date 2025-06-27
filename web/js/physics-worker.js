@@ -1,15 +1,6 @@
 /**
  * Web Worker for background physics calculations
- * Allows heavy computations to run wi        // Update positions using RK4 integrator
-        if (config.integrationMethod === 'rk4') {
-            this.integrator.integrateRK4(bodies, deltaTime, (bodies) => {
-                if (config.forceMethod === 'barnes-hut' && bodies.length > 5) {
-                    this.calculateForcesBarnesHut(bodies);
-                } else {
-                    this.calculateForcesNaive(bodies);
-                }
-            });
-        } else {king the UI
+ * Allows heavy computations to run without blocking the UI
  */
 
 // Import necessary modules (note: Web Workers have limited access)
@@ -81,13 +72,11 @@ class PhysicsWorker {
         // Reconstruct body objects from serialized data
         const bodies = bodiesData.map(bodyData => {
             const body = new Body(
-                bodyData.position.x,
-                bodyData.position.y,
-                bodyData.velocity.x,
-                bodyData.velocity.y,
+                new Vector2D(bodyData.position.x, bodyData.position.y),
+                new Vector2D(bodyData.velocity.x, bodyData.velocity.y),
                 bodyData.mass,
-                bodyData.radius,
-                bodyData.color
+                bodyData.color,
+                bodyData.trailLength || 50
             );
             body.id = bodyData.id;
             body.trail = bodyData.trail || [];

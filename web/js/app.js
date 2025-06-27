@@ -686,11 +686,6 @@ class NBodyApp {
         if (!this.ui.isOrbitMode()) {
             this.ui.setSliderValue('velocity-x', 0);
             this.ui.setSliderValue('velocity-y', 0);
-            
-            // Show a subtle notification about the reset
-            setTimeout(() => {
-                this.ui.showNotification('Velocity sliders reset for next body', 'info', 2000);
-            }, 100);
         }
         
         // If we're still in orbit mode and have a mouse position, update orbit preview immediately

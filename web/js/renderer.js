@@ -546,8 +546,9 @@ class Renderer {
 
     // Debugging method to troubleshoot coordinate conversion issues
     debugCoordinates() {
+        // Debug info available via browser dev tools if needed
         const rect = this.canvas.getBoundingClientRect();
-        console.log('Canvas Debug Info:', {
+        return {
             canvasWidth: this.canvas.width,
             canvasHeight: this.canvas.height,
             displayWidth: rect.width,
@@ -556,7 +557,7 @@ class Renderer {
             zoom: this.camera.zoom,
             cameraX: this.camera.x,
             cameraY: this.camera.y
-        });
+        };
     }
 
     // Utility functions
@@ -726,14 +727,6 @@ class Renderer {
             return { points: [], stable: false, collision: false };
         }
         
-        // Debug: Log prediction parameters
-        console.log('Long-term prediction parameters:', {
-            steps: this.longTermPreviewSteps,
-            maxTime: this.longTermPreviewMaxTime,
-            timeStep: this.longTermPreviewTimeStep,
-            maxPoints: this.longTermPreviewMaxPoints
-        });
-        
         // Create a copy of the preview body for simulation
         const testBody = new Body(
             previewBody.position.clone(),
@@ -784,8 +777,8 @@ class Renderer {
                 
                 lastRecordTime = simulationTime;
                 
-                // Temporarily disable point limiting to get full long orbits
-                // This might be causing premature truncation
+                // Point limiting temporarily disabled for full orbit visualization
+                // TODO: Implement smarter point reduction algorithm that preserves orbit shape
                 /*
                 if (this.longTermPreviewPoints.length > this.longTermPreviewMaxPoints) {
                     // Remove every other point from the middle section to maintain start/end detail
@@ -853,17 +846,6 @@ class Renderer {
             
             simulationTime += this.longTermPreviewTimeStep;
         }
-        
-        // Debug: Log why the simulation ended
-        console.log('Long-term prediction ended:', {
-            finalStep: step,
-            maxSteps: this.longTermPreviewSteps,
-            finalTime: simulationTime,
-            maxTime: this.longTermPreviewMaxTime,
-            pointsGenerated: this.longTermPreviewPoints.length,
-            collisionDetected,
-            energyDrift
-        });
         
         // Optimize points for rendering while preserving complex patterns
         this.longTermPreviewPoints = this.optimizeLongTermPoints(this.longTermPreviewPoints);
@@ -1189,14 +1171,6 @@ class Renderer {
         } else {
             this.longTermPreviewTimeStep = 0.005; // Smaller timestep for detailed predictions
         }
-        
-        // Debug log the new parameters
-        console.log('Updated prediction depth to:', depth, {
-            steps: this.longTermPreviewSteps,
-            maxTime: this.longTermPreviewMaxTime,
-            timeStep: this.longTermPreviewTimeStep,
-            maxPoints: this.longTermPreviewMaxPoints
-        });
     }
 
     setLongTermPreview(show, previewData = null) {

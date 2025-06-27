@@ -36,7 +36,7 @@ class Body {
     calculateRadius() {
         // Ensure mass is a valid, positive number
         const safeMass = Math.max(0.1, this.mass || 0.1);
-        return Math.max(3, Math.sqrt(safeMass / 5) + 2);
+        return Math.max(RENDERING_CONSTANTS.MIN_BODY_RADIUS, Math.sqrt(safeMass / RENDERING_CONSTANTS.BODY_RADIUS_SCALE) + 2);
     }
 
     // Update radius when mass changes
@@ -131,7 +131,7 @@ class Body {
     }
 
     // Calculate gravitational force from another body
-    calculateGravitationalForce(other, gravitationalConstant, softeningParameter = 20) {
+    calculateGravitationalForce(other, gravitationalConstant, softeningParameter = PHYSICS_CONSTANTS.SOFTENING_PARAMETER) {
         const direction = other.position.subtract(this.position);
         const distanceSquared = direction.magnitudeSquared();
         
@@ -147,13 +147,13 @@ class Body {
     }
 
     // Check if this body would collide with another
-    wouldCollideWith(other, threshold = 15) {
+    wouldCollideWith(other, threshold = PHYSICS_CONSTANTS.COLLISION_THRESHOLD) {
         const distance = this.position.distance(other.position);
         return distance < threshold;
     }
 
     // Check if a point is inside this body (for mouse interaction)
-    containsPoint(point, hitboxScale = 1.2) {
+    containsPoint(point, hitboxScale = RENDERING_CONSTANTS.BODY_HITBOX_SCALE) {
         const distance = this.position.distance(point);
         return distance <= this.radius * hitboxScale;
     }
@@ -308,7 +308,7 @@ class Body {
     }
 
     // Get orbital parameters relative to another body
-    getOrbitalParameters(centralBody) {
+    getOrbitalParameters(centralBody, gravitationalConstant = PHYSICS_CONSTANTS.GRAVITATIONAL_CONSTANT) {
         const relativePosition = this.position.subtract(centralBody.position);
         const relativeVelocity = this.velocity.subtract(centralBody.velocity);
         

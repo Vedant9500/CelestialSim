@@ -547,36 +547,36 @@ class UIManager {
 
     // Event handler for performance settings
     onPerformanceSettingChange(setting, value) {
-        console.log(`Performance setting ${setting} changed to ${value}`);
+        // Performance setting changed - override in main app
     }
 
     // Event handlers (to be overridden by the main application)
     onSliderChange(sliderId, value) {
-        console.log(`Slider ${sliderId} changed to ${value}`);
+        // Slider changed - override in main app
     }
 
     onButtonClick(buttonId) {
-        console.log(`Button ${buttonId} clicked`);
+        // Button clicked - override in main app
     }
 
     onCheckboxChange(checkboxId, checked) {
-        console.log(`Checkbox ${checkboxId} changed to ${checked}`);
+        // Checkbox changed - override in main app
     }
 
     onColorChange(color) {
-        console.log(`Color changed to ${color}`);
+        // Color changed - override in main app
     }
 
     onPresetSelect(preset) {
-        console.log(`Preset ${preset} selected`);
+        // Preset selected - override in main app
     }
 
     onFileLoad(file) {
-        console.log(`File loaded: ${file.name}`);
+        // File loaded - override in main app
     }
 
     onKeyDown(event) {
-        console.log(`Key pressed: ${event.key}`);
+        // Key pressed - override in main app
     }
 
     // UI update methods
