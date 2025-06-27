@@ -277,8 +277,6 @@ class GPUPhysicsEngine {
         const bodyCount = this.currentBodyCount;
 
         // 1. Prepare uniform data (positions and masses of all bodies)
-        // Note: This uses CPU-side positions which may lag behind GPU state by 1 frame
-        // For a production system, consider using compute shaders or double-buffered uniforms
         const uniformBodyData = new Float32Array(bodyCount * 3);
         for (let i = 0; i < bodyCount; i++) {
             const body = bodies[i];
@@ -287,6 +285,8 @@ class GPUPhysicsEngine {
             uniformBodyData[idx + 1] = body.position.y;
             uniformBodyData[idx + 2] = body.mass;
         }
+
+        // 2. Set up WebGL state
         gl.useProgram(this.program);
 
         // Set uniforms

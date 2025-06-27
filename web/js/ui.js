@@ -328,7 +328,7 @@ class UIManager {
         if (currentMethod) currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
     }
 
-    // Update energy display
+    // Update energy display with comprehensive statistics
     updateEnergyDisplay(energy) {
         const kineticDisplay = document.getElementById('energy-kinetic');
         const potentialDisplay = document.getElementById('energy-potential');
@@ -345,15 +345,75 @@ class UIManager {
             totalDisplay.textContent = this.formatScientific(energy.total);
         }
         
-        // Calculate conservation (assuming initial energy is stored)
-        if (conservationDisplay && energy.initial !== undefined) {
-            const conservation = Math.abs(energy.total) > 0 ? 
-                (1 - Math.abs(energy.total - energy.initial) / Math.abs(energy.initial)) * 100 : 100;
+        // Enhanced conservation display
+        if (conservationDisplay) {
+            let conservation = 100;
+            let conservationText = '100.0%';
             
-            conservationDisplay.textContent = `${conservation.toFixed(1)}%`;
+            if (energy.conservationError !== undefined && energy.conservationError >= 0) {
+                conservation = (1 - energy.conservationError) * 100;
+                conservationText = `${conservation.toFixed(3)}%`;
+                
+                // Add drift information if significant
+                if (Math.abs(energy.energyDrift) > 1e-6) {
+                    conservationText += ` (drift: ${this.formatScientific(energy.energyDrift)})`;
+                }
+            } else if (energy.initial !== undefined && energy.initial !== 0) {
+                // Fallback to old method
+                conservation = Math.abs(energy.total) > 0 ? 
+                    (1 - Math.abs(energy.total - energy.initial) / Math.abs(energy.initial)) * 100 : 100;
+                conservationText = `${conservation.toFixed(1)}%`;
+            }
+            
+            conservationDisplay.textContent = conservationText;
             conservationDisplay.className = 'energy-value ' + 
-                (conservation > 99 ? 'conservation-good' : 
+                (conservation > 99.9 ? 'conservation-excellent' :
+                 conservation > 99 ? 'conservation-good' : 
                  conservation > 95 ? 'conservation-warning' : 'conservation-bad');
+        }
+        
+        // Update additional energy statistics if elements exist
+        this.updateEnergyRatios(energy);
+        this.updateEnergyRates(energy);
+        this.updateSystemProperties(energy);
+    }
+    
+    // Update energy ratios display
+    updateEnergyRatios(energy) {
+        const kineticRatioDisplay = document.getElementById('energy-kinetic-ratio');
+        const potentialRatioDisplay = document.getElementById('energy-potential-ratio');
+        
+        if (kineticRatioDisplay && energy.kineticRatio !== undefined) {
+            kineticRatioDisplay.textContent = `${(energy.kineticRatio * 100).toFixed(1)}%`;
+        }
+        if (potentialRatioDisplay && energy.potentialRatio !== undefined) {
+            potentialRatioDisplay.textContent = `${(energy.potentialRatio * 100).toFixed(1)}%`;
+        }
+    }
+    
+    // Update energy rates display
+    updateEnergyRates(energy) {
+        const kineticRateDisplay = document.getElementById('energy-kinetic-rate');
+        const potentialRateDisplay = document.getElementById('energy-potential-rate');
+        
+        if (kineticRateDisplay && energy.kineticRate !== undefined) {
+            kineticRateDisplay.textContent = this.formatScientific(energy.kineticRate) + '/s';
+        }
+        if (potentialRateDisplay && energy.potentialRate !== undefined) {
+            potentialRateDisplay.textContent = this.formatScientific(energy.potentialRate) + '/s';
+        }
+    }
+    
+    // Update system properties display
+    updateSystemProperties(energy) {
+        const temperatureDisplay = document.getElementById('system-temperature');
+        const specificEnergyDisplay = document.getElementById('specific-energy');
+        
+        if (temperatureDisplay && energy.systemTemperature !== undefined) {
+            temperatureDisplay.textContent = this.formatScientific(energy.systemTemperature);
+        }
+        if (specificEnergyDisplay && energy.specificEnergy !== undefined) {
+            specificEnergyDisplay.textContent = this.formatScientific(energy.specificEnergy);
         }
     }
 

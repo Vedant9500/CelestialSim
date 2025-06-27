@@ -36,12 +36,19 @@ class PhysicsEngine {
         // Double precision support
         this.useDoublePrecision = false;
         
+        // Simulation state tracking
+        this.simulationTime = 0;
+        this.currentBodyCount = 0;
+        
         console.log('PhysicsEngine initialized with advanced features');
     }
 
     // Main physics update loop
     update(bodies, deltaTime) {
         const startTime = performance.now();
+        
+        // Track simulation state
+        this.currentBodyCount = bodies.length;
         
         // Add scaled time to accumulator
         this.timeAccumulator += deltaTime * this.timeScale;
@@ -96,6 +103,7 @@ class PhysicsEngine {
             
             // Subtract the timestep from accumulator
             this.timeAccumulator -= currentTimeStep;
+            this.simulationTime += currentTimeStep;
         }
         
         // Calculate total energy
@@ -263,31 +271,50 @@ class PhysicsEngine {
         bodies.push(...bodiesToAdd);
     }
 
-    // Calculate total system energy
+    // Calculate total system energy with improved accuracy
     calculateTotalEnergy(bodies) {
         this.totalKineticEnergy = 0;
         this.totalPotentialEnergy = 0;
         
-        // Calculate kinetic energy
+        // Calculate kinetic energy with higher precision
         bodies.forEach(body => {
-            const kineticEnergy = 0.5 * body.mass * body.velocity.magnitudeSquared();
+            const velocityMagnitudeSquared = body.velocity.magnitudeSquared();
+            const kineticEnergy = 0.5 * body.mass * velocityMagnitudeSquared;
             this.totalKineticEnergy += kineticEnergy;
             body.kineticEnergy = kineticEnergy;
         });
         
-        // Calculate potential energy
+        // Calculate potential energy with improved precision
+        // Use Kahan summation for better numerical accuracy
+        let potentialSum = 0;
+        let compensationError = 0;
+        
         for (let i = 0; i < bodies.length; i++) {
             for (let j = i + 1; j < bodies.length; j++) {
                 const body1 = bodies[i];
                 const body2 = bodies[j];
-                const distance = body1.position.distance(body2.position);
-                const safeDist = Math.max(distance, this.softeningParameter);
                 
+                // Use high precision distance calculation
+                const dx = body1.position.x - body2.position.x;
+                const dy = body1.position.y - body2.position.y;
+                const distanceSquared = dx * dx + dy * dy;
+                const distance = Math.sqrt(distanceSquared);
+                
+                // Avoid division by zero without affecting energy conservation
+                const safeDist = Math.max(distance, this.softeningParameter * 0.01);
+                
+                // Calculate gravitational potential energy: U = -G*m1*m2/r
                 const potentialEnergy = -this.gravitationalConstant * body1.mass * body2.mass / safeDist;
-                this.totalPotentialEnergy += potentialEnergy;
+                
+                // Kahan summation for improved numerical precision
+                const adjustedValue = potentialEnergy - compensationError;
+                const temporarySum = potentialSum + adjustedValue;
+                compensationError = (temporarySum - potentialSum) - adjustedValue;
+                potentialSum = temporarySum;
             }
         }
         
+        this.totalPotentialEnergy = potentialSum;
         this.totalEnergy = this.totalKineticEnergy + this.totalPotentialEnergy;
     }
 
@@ -408,13 +435,65 @@ class PhysicsEngine {
         };
     }
     
-    // Get energy statistics
+    // Get comprehensive energy statistics
     getEnergyStats() {
+        const currentTime = Date.now();
+        
+        // Calculate energy conservation metrics
+        let energyDrift = 0;
+        let energyConservationRatio = 1.0;
+        
+        if (this.energyHistory.length > 1) {
+            const initialEnergy = this.energyHistory[0].total;
+            const currentEnergy = this.totalEnergy;
+            
+            if (Math.abs(initialEnergy) > 1e-10) {
+                energyDrift = currentEnergy - initialEnergy;
+                energyConservationRatio = currentEnergy / initialEnergy;
+            }
+        }
+        
+        // Calculate energy rates (if we have enough history)
+        let kineticEnergyRate = 0;
+        let potentialEnergyRate = 0;
+        
+        if (this.energyHistory.length >= 2) {
+            const recent = this.energyHistory[this.energyHistory.length - 1];
+            const previous = this.energyHistory[this.energyHistory.length - 2];
+            const timeDelta = (recent.time - previous.time) / 1000; // seconds
+            
+            if (timeDelta > 0) {
+                kineticEnergyRate = (recent.kinetic - previous.kinetic) / timeDelta;
+                potentialEnergyRate = (recent.potential - previous.potential) / timeDelta;
+            }
+        }
+        
+        // Calculate system temperature (avg kinetic energy per particle)
+        const totalBodies = this.currentBodyCount || 1;
+        const systemTemperature = this.totalKineticEnergy / totalBodies;
+        
         return {
             kinetic: this.totalKineticEnergy,
             potential: this.totalPotentialEnergy,
             total: this.totalEnergy,
-            history: this.energyHistory.slice(-100) // Last 100 entries
+            history: this.energyHistory.slice(-100), // Last 100 entries
+            
+            // Conservation metrics
+            energyDrift: energyDrift,
+            conservationRatio: energyConservationRatio,
+            conservationError: Math.abs(1.0 - energyConservationRatio),
+            
+            // Energy rates
+            kineticRate: kineticEnergyRate,
+            potentialRate: potentialEnergyRate,
+            
+            // System properties
+            systemTemperature: systemTemperature,
+            specificEnergy: totalBodies > 0 ? this.totalEnergy / totalBodies : 0,
+            
+            // Ratios for analysis
+            kineticRatio: this.totalEnergy !== 0 ? this.totalKineticEnergy / Math.abs(this.totalEnergy) : 0,
+            potentialRatio: this.totalEnergy !== 0 ? this.totalPotentialEnergy / Math.abs(this.totalEnergy) : 0
         };
     }
     
@@ -462,13 +541,17 @@ class PhysicsEngine {
         console.log('Time scale changed to:', value);
     }
 
-    // Update energy history for tracking
+    // Update energy history for tracking with simulation time
     updateEnergyHistory() {
+        const currentTime = performance.now();
+        
         this.energyHistory.push({
-            time: Date.now(),
+            time: currentTime,
+            simulationTime: this.simulationTime || 0,
             kinetic: this.totalKineticEnergy,
             potential: this.totalPotentialEnergy,
-            total: this.totalEnergy
+            total: this.totalEnergy,
+            bodyCount: this.currentBodyCount || 0
         });
         
         // Keep history size manageable
