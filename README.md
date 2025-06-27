@@ -63,7 +63,7 @@ No installation required! The simulator runs entirely in your web browser.
 - **F**: Toggle force vector display
 - **I**: Toggle real-world scale reference
 - **Delete**: Remove selected body
-- **?**: Show help documentation
+- **F1** or **?**: Show help documentation and keyboard shortcuts
 - **Esc**: Deselect all, close dialogs
 
 ## 🔧 Interface Overview

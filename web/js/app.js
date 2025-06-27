@@ -468,8 +468,8 @@ class NBodyApp {
             case 'delete-selected':
                 this.deleteSelectedBody();
                 break;
-            case 'help-btn':
-                this.ui.showModal();
+            case 'help-btn-removed':
+                // Help button removed - use F1 or ? key instead
                 break;
             case 'reference-toggle':
                 this.toggleReferencePanel();
@@ -573,6 +573,8 @@ class NBodyApp {
                 this.deleteSelectedBody();
                 break;
             case '?':
+            case 'f1':
+                event.preventDefault();
                 this.ui.showModal();
                 break;
             case 'i':

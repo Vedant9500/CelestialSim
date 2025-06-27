@@ -797,27 +797,7 @@ kbd {
 }
 
 /* Help Button */
-.help-btn {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #64ffda, #bb86fc);
-    border: none;
-    color: #000000;
-    font-size: 1.2rem;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.3);
-    transition: all 0.3s ease;
-    z-index: 1500;
-}
-
-.help-btn:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 8px 30px rgba(100, 255, 218, 0.4);
-}
+/* Help button removed - use F1 key instead */
 
 /* Scrollbar Styling */
 .control-panel::-webkit-scrollbar {
@@ -846,7 +826,7 @@ kbd {
     background: rgba(0, 0, 0, 0.95);
     border-top: 1px solid rgba(100, 255, 218, 0.3);
     backdrop-filter: blur(10px);
-    z-index: 900;
+    z-index: 1100;
     transform: translateY(100%);
     transition: transform 0.3s ease;
 }
@@ -949,8 +929,8 @@ kbd {
 /* Performance toggle button */
 .performance-toggle {
     position: fixed;
-    bottom: 1rem;
-    left: 13rem;
+    bottom: 4rem;
+    left: 1rem;
     background: rgba(0, 0, 0, 0.8);
     color: #64ffda;
     border: 1px solid rgba(100, 255, 218, 0.3);
@@ -1063,8 +1043,8 @@ kbd {
     
     /* Responsive adjustments for toggle buttons */
     .performance-toggle {
-        bottom: 0.5rem;
-        left: 9rem;
+        bottom: 3.5rem;
+        left: 0.5rem;
         padding: 0.4rem 0.8rem;
         font-size: 0.8rem;
     }
@@ -1085,7 +1065,8 @@ kbd {
 
 @media (max-width: 480px) {
     .performance-toggle {
-        left: 7rem;
+        bottom: 3rem;
+        left: 0.25rem;
     }
     
     .energy-toggle {
@@ -1109,7 +1090,7 @@ kbd {
     background: rgba(0, 0, 0, 0.95);
     border-left: 1px solid rgba(255, 165, 0, 0.3);
     backdrop-filter: blur(10px);
-    z-index: 900;
+    z-index: 1100;
     transform: translateX(100%);
     transition: transform 0.3s ease;
     overflow-y: auto;
@@ -1237,7 +1218,7 @@ kbd {
     background: rgba(0, 0, 0, 0.95);
     border-right: 1px solid rgba(100, 255, 218, 0.3);
     backdrop-filter: blur(10px);
-    z-index: 900;
+    z-index: 1100;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     overflow-y: auto;
