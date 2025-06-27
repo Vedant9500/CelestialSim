@@ -1308,8 +1308,10 @@ class NBodyApp {
     toggleReferencePanel() {
         this.ui.referenceShown = !this.ui.referenceShown;
         const panel = document.getElementById('reference-panel');
-        if (panel) {
+        const button = document.getElementById('reference-toggle');
+        if (panel && button) {
             panel.classList.toggle('show');
+            button.classList.toggle('active');
         }
     }
 }

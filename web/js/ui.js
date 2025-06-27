@@ -299,15 +299,21 @@ class UIManager {
     // Panel toggle methods
     togglePerformancePanel() {
         const panel = document.getElementById('performance-panel');
-        if (panel) {
+        const button = document.getElementById('performance-toggle');
+        if (panel && button) {
             panel.classList.toggle('show');
+            button.classList.toggle('active');
+            this.performanceShown = panel.classList.contains('show');
         }
     }
 
     toggleEnergyPanel() {
         const panel = document.getElementById('energy-panel');
-        if (panel) {
+        const button = document.getElementById('energy-toggle');
+        if (panel && button) {
             panel.classList.toggle('show');
+            button.classList.toggle('active');
+            this.energyShown = panel.classList.contains('show');
         }
     }
 
