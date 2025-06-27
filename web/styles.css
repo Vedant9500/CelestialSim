@@ -1273,7 +1273,8 @@ kbd {
     width: 380px;
     height: calc(100vh - 160px);
     background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(13, 13, 20, 0.98) 100%);
-    border-left: 2px solid rgba(255, 165, 0, 0.2);
+    border: 2px solid rgba(255, 165, 0, 0.2);
+    border-right: none;
     backdrop-filter: blur(20px);
     box-shadow: -4px 0 30px rgba(0, 0, 0, 0.3);
     z-index: 1100;
@@ -1366,6 +1367,9 @@ kbd {
     background-repeat: no-repeat;
     background-size: 1.5rem 1.5rem;
     padding-right: 2.5rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 .setting-select option {
@@ -1470,7 +1474,8 @@ kbd {
     width: 400px;
     height: calc(100vh - 160px);
     background: linear-gradient(135deg, rgba(15, 15, 23, 0.98) 0%, rgba(8, 8, 15, 0.98) 100%);
-    border-right: 2px solid rgba(100, 255, 218, 0.2);
+    border: 2px solid rgba(100, 255, 218, 0.2);
+    border-left: none;
     backdrop-filter: blur(20px);
     box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
     z-index: 1100;
