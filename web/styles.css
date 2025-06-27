@@ -799,8 +799,8 @@ kbd {
 /* Help Button */
 .help-btn {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    top: 1rem;
+    right: 1rem;
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -950,7 +950,7 @@ kbd {
 .performance-toggle {
     position: fixed;
     bottom: 1rem;
-    right: 1rem;
+    left: 13rem;
     background: rgba(0, 0, 0, 0.8);
     color: #64ffda;
     border: 1px solid rgba(100, 255, 218, 0.3);
@@ -977,7 +977,7 @@ kbd {
 .energy-toggle {
     position: fixed;
     bottom: 1rem;
-    right: 13rem;
+    left: 1rem;
     background: rgba(0, 0, 0, 0.8);
     color: #ff6b6b;
     border: 1px solid rgba(255, 107, 107, 0.3);
@@ -1064,14 +1064,14 @@ kbd {
     /* Responsive adjustments for toggle buttons */
     .performance-toggle {
         bottom: 0.5rem;
-        right: 0.5rem;
+        left: 9rem;
         padding: 0.4rem 0.8rem;
         font-size: 0.8rem;
     }
     
     .energy-toggle {
         bottom: 0.5rem;
-        right: 9rem;
+        left: 0.5rem;
         padding: 0.4rem 0.8rem;
         font-size: 0.8rem;
     }
@@ -1085,11 +1085,11 @@ kbd {
 
 @media (max-width: 480px) {
     .performance-toggle {
-        right: 0.25rem;
+        left: 7rem;
     }
     
     .energy-toggle {
-        right: 7rem;
+        left: 0.25rem;
     }
     
     .performance-toggle i,
