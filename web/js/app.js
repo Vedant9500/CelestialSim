@@ -102,6 +102,8 @@ class NBodyApp {
         this.ui.onFileLoad = (file) => this.onFileLoad(file);
         this.ui.onKeyDown = (event) => this.onKeyDown(event);
         this.ui.onPerformanceSettingChange = (setting, value) => this.onPerformanceSettingChange(setting, value);
+        this.ui.onCollisionTypeChange = (type) => this.onCollisionTypeChange(type);
+        this.ui.onRestitutionChange = (value) => this.onRestitutionChange(value);
     }
 
     setupCanvas() {
@@ -495,6 +497,9 @@ class NBodyApp {
                     this.updateOrbitPreview(this.mousePosition);
                 }
                 break;
+            case 'show-collision-bounds':
+                this.renderer.setShowCollisionBounds(checked);
+                break;
             case 'adaptive-timestep':
                 this.physics.setConfiguration({ adaptiveTimeStep: checked });
                 break;
@@ -502,6 +507,14 @@ class NBodyApp {
                 this.setWebWorkersEnabled(checked);
                 break;
         }
+    }
+    
+    onCollisionTypeChange(type) {
+        this.physics.setCollisionType(type);
+    }
+    
+    onRestitutionChange(value) {
+        this.physics.setRestitutionCoefficient(value);
     }
 
     onColorChange(color) {

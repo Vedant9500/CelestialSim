@@ -13,6 +13,17 @@ const PHYSICS_CONSTANTS = {
     // Collision detection threshold
     COLLISION_THRESHOLD: 15.0,
     
+    // Collision types
+    COLLISION_TYPE: {
+        INELASTIC: 'inelastic',  // Bodies merge (current behavior)
+        ELASTIC: 'elastic'       // Bodies bounce off each other
+    },
+    
+    // Collision physics
+    RESTITUTION_COEFFICIENT: 0.7,  // For elastic collisions (0 = inelastic, 1 = perfectly elastic)
+    MIN_RESTITUTION: 0.1,
+    MAX_RESTITUTION: 0.95,  // Cap at 0.95 to prevent infinite energy gain
+    
     // Time stepping
     FIXED_TIME_STEP: 1.0 / 60.0, // 60 FPS physics
     MAX_TIME_STEP: 1.0 / 30.0,

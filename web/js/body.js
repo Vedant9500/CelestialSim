@@ -22,6 +22,13 @@ class Body {
         this.fixed = false; // Can be set to true to make immovable
         this.lastPosition = position.clone();
         
+        // Collision properties
+        this.collisionCooldowns = new Map(); // Time-based cooldowns with specific bodies
+        this.lastCollisionPartner = null; // Prevent immediate re-collision
+        this.inCollision = false; // Track if currently in collision state
+        this.collisionTime = 0; // How long in collision
+        this.hasCollidedThisFrame = false; // Flag for current frame
+        
         // Energy tracking
         this.kineticEnergy = 0;
         this.potentialEnergy = 0;
@@ -91,6 +98,12 @@ class Body {
         // Calculate kinetic energy
         this.kineticEnergy = 0.5 * this.mass * this.velocity.magnitudeSquared();
 
+        // Update collision cooldowns (time-based)
+        this.updateCollisionCooldowns(deltaTime);
+        
+        // Reset frame-based collision flag
+        this.hasCollidedThisFrame = false;
+
         // Add to trail
         this.addToTrail();
 
@@ -111,6 +124,13 @@ class Body {
         this.position.addMut(this.velocity.multiply(deltaTime));
 
         this.kineticEnergy = 0.5 * this.mass * this.velocity.magnitudeSquared();
+        
+        // Update collision cooldowns (time-based)
+        this.updateCollisionCooldowns(deltaTime);
+        
+        // Reset frame-based collision flag
+        this.hasCollidedThisFrame = false;
+        
         this.addToTrail();
         this.updateVisualEffects(deltaTime);
         this.resetForce();
@@ -344,5 +364,30 @@ class Body {
             isbound: specificEnergy < 0,
             period: specificEnergy < 0 ? 2 * Math.PI * Math.sqrt(Math.pow(semiMajorAxis, 3) / mu) : Infinity
         };
+    }
+
+    // Collision cooldown management methods
+    setCollisionCooldownWith(otherBody, cooldownTime) {
+        this.collisionCooldowns.set(otherBody.id, cooldownTime);
+    }
+
+    isInCollisionCooldownWith(otherBody) {
+        return this.collisionCooldowns.has(otherBody.id) && this.collisionCooldowns.get(otherBody.id) > 0;
+    }
+
+    updateCollisionCooldowns(deltaTime) {
+        // Update all cooldown timers
+        for (const [bodyId, cooldownTime] of this.collisionCooldowns.entries()) {
+            const newCooldownTime = Math.max(0, cooldownTime - deltaTime);
+            if (newCooldownTime <= 0) {
+                this.collisionCooldowns.delete(bodyId);
+            } else {
+                this.collisionCooldowns.set(bodyId, newCooldownTime);
+            }
+        }
+    }
+
+    clearAllCollisionCooldowns() {
+        this.collisionCooldowns.clear();
     }
 }

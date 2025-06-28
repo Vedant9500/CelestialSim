@@ -21,6 +21,7 @@ class Renderer {
         this.showForces = false;
         this.showInfo = true;
         this.showCenterOfMass = false;
+        this.showCollisionBounds = false; // Debug collision boundaries
         
         // Performance settings
         this.maxTrailPoints = 100;
@@ -346,6 +347,11 @@ class Renderer {
         // Mass label for large bodies
         if (radius > 15 && this.camera.zoom > 0.5) {
             this.drawMassLabel(body);
+        }
+        
+        // Collision bounds visualization (debug feature)
+        if (this.showCollisionBounds) {
+            this.drawCollisionBounds(body);
         }
     }
 
@@ -1203,6 +1209,10 @@ class Renderer {
         this.showCenterOfMass = show;
     }
 
+    setShowCollisionBounds(show) {
+        this.showCollisionBounds = show;
+    }
+    
     toggleAntiAliasing() {
         this.antiAliasing = !this.antiAliasing;
         this.ctx.imageSmoothingEnabled = this.antiAliasing;
@@ -1484,5 +1494,19 @@ class Renderer {
         const dx = point.x - xx;
         const dy = point.y - yy;
         return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    drawCollisionBounds(body) {
+        // Draw the actual collision boundary (surface of the circle)
+        this.ctx.strokeStyle = 'rgba(255, 255, 0, 0.6)'; // Yellow for visibility
+        this.ctx.lineWidth = 1 / this.camera.zoom;
+        this.ctx.setLineDash([5 / this.camera.zoom, 5 / this.camera.zoom]);
+        
+        this.ctx.beginPath();
+        this.ctx.arc(body.position.x, body.position.y, body.radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+        
+        // Reset line dash
+        this.ctx.setLineDash([]);
     }
 }

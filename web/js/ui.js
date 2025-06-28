@@ -20,6 +20,7 @@ class UIManager {
         this.initializeSliders();
         this.initializeButtons();
         this.initializeCheckboxes();
+        this.initializeCollisionControls();
         this.initializeColorPicker();
         this.initializeModal();
         this.initializeModeButtons();
@@ -28,6 +29,7 @@ class UIManager {
         this.setupEventListeners();
         this.initializeTooltips();
         this.initializeEnergyChart();
+        this.initializeCollisionControls();
     }
 
     setRenderer(renderer) {
@@ -130,7 +132,7 @@ class UIManager {
     initializeCheckboxes() {
         const checkboxIds = [
             'collision-enabled', 'show-trails', 'show-grid', 'show-forces', 'long-term-preview',
-            'adaptive-timestep', 'web-workers'
+            'show-collision-bounds', 'adaptive-timestep', 'web-workers'
         ];
 
         checkboxIds.forEach(id => {
@@ -1142,5 +1144,53 @@ class UIManager {
     // Reinitialize tooltips (useful after dynamic content changes)
     reinitializeTooltips() {
         this.initializeTooltips();
+    }
+
+    initializeCollisionControls() {
+        // Collision type dropdown
+        const collisionTypeSelect = document.getElementById('collision-type');
+        if (collisionTypeSelect) {
+            collisionTypeSelect.addEventListener('change', (e) => {
+                this.onCollisionTypeChange(e.target.value);
+                this.toggleRestitutionControl(e.target.value);
+            });
+        }
+        
+        // Restitution coefficient slider
+        const restitutionSlider = document.getElementById('restitution-coefficient');
+        const restitutionValue = document.getElementById('restitution-coefficient-value');
+        if (restitutionSlider && restitutionValue) {
+            restitutionSlider.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                restitutionValue.textContent = value.toFixed(2);
+                this.onRestitutionChange(value);
+            });
+            // Initialize display value
+            restitutionValue.textContent = restitutionSlider.value;
+        }
+        
+        // Initialize restitution control visibility
+        this.toggleRestitutionControl('inelastic');
+        
+        // Set initial restitution value
+        const restitutionValueDisplay = document.getElementById('restitution-coefficient-value');
+        if (restitutionValueDisplay) {
+            restitutionValueDisplay.textContent = '0.70';
+        }
+    }
+    
+    toggleRestitutionControl(collisionType) {
+        const restitutionGroup = document.getElementById('restitution-group');
+        if (restitutionGroup) {
+            restitutionGroup.style.display = collisionType === 'elastic' ? 'block' : 'none';
+        }
+    }
+    
+    onCollisionTypeChange(type) {
+        // Override in main app
+    }
+    
+    onRestitutionChange(value) {
+        // Override in main app
     }
 }

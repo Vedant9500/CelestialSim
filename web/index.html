@@ -116,11 +116,28 @@
                     
                     <div class="checkbox-group">
                         <label class="checkbox-label"
-                               data-tooltip="When enabled, bodies will merge when they get very close together, conserving mass and momentum. Realistic for celestial body interactions.">
+                               data-tooltip="When enabled, bodies will interact when they get very close together. Choose collision type below.">
                             <input type="checkbox" id="collision-enabled" checked>
                             <span class="checkmark"></span>
                             Enable Collisions
                         </label>
+                        
+                        <div class="setting-group">
+                            <label for="collision-type">Collision Type:</label>
+                            <select id="collision-type" class="setting-select"
+                                    data-tooltip="Inelastic: Bodies merge together when they collide (realistic for celestial bodies). Elastic: Bodies bounce off each other like billiard balls.">
+                                <option value="inelastic">Inelastic (Merge)</option>
+                                <option value="elastic">Elastic (Bounce)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group" id="restitution-group" style="display: none;">
+                            <label for="restitution-coefficient">Bounciness:</label>
+                            <input type="range" id="restitution-coefficient" class="setting-slider" min="0.1" max="0.95" step="0.05" value="0.7"
+                                   data-tooltip="Controls how bouncy elastic collisions are. 0.1 = very little bounce, 0.95 = nearly perfectly elastic. Higher values may cause instability.">
+                            <span id="restitution-coefficient-value" class="setting-value">0.7</span>
+                        </div>
+                        
                         <label class="checkbox-label"
                                data-tooltip="Shows the path history of each body as colored lines. Helps visualize orbital patterns and trajectories over time.">
                             <input type="checkbox" id="show-trails" checked>
@@ -144,6 +161,12 @@
                             <input type="checkbox" id="long-term-preview">
                             <span class="checkmark"></span>
                             Look Far Ahead
+                        </label>
+                        <label class="checkbox-label"
+                               data-tooltip="Debug feature: Shows the exact collision detection boundaries around each body as yellow dashed circles.">
+                            <input type="checkbox" id="show-collision-bounds">
+                            <span class="checkmark"></span>
+                            Show Collision Bounds (Debug)
                         </label>
                     </div>
                 </div>
