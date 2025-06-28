@@ -878,6 +878,15 @@ class NBodyApp {
         if (this.selectedBody) {
             const index = this.bodies.indexOf(this.selectedBody);
             if (index !== -1) {
+                const removedBody = this.selectedBody;
+                
+                // Clean up collision cooldowns for all remaining bodies
+                this.bodies.forEach(body => {
+                    if (body !== removedBody) {
+                        body.collisionCooldowns.delete(removedBody.id);
+                    }
+                });
+                
                 this.bodies.splice(index, 1);
                 this.selectedBody = null;
                 this.updateDynamicReference(); // Update reference panel after deletion

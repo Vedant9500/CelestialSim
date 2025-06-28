@@ -272,7 +272,7 @@ class PhysicsEngine {
 
     // Limit velocities to prevent numerical instability
     limitVelocities(bodies) {
-        const maxVelocity = 500; // Maximum allowed velocity magnitude
+        const maxVelocity = PHYSICS_CONSTANTS.MAX_VELOCITY_LIMIT;
         bodies.forEach(body => {
             const velocityMagnitude = body.velocity.magnitude();
             if (velocityMagnitude > maxVelocity) {
@@ -329,7 +329,7 @@ class PhysicsEngine {
                     // Only resolve if objects are approaching (dvn < 0)
                     if (dvn < -0.01) { // Small threshold to prevent micro-corrections
                         // Separate bodies first (single-frame correction)
-                        const overlap = collisionDistance - distance + 0.1; // Small safety margin
+                        const overlap = collisionDistance - distance + PHYSICS_CONSTANTS.COLLISION_SAFETY_MARGIN;
                         const totalMass = body1.mass + body2.mass;
                         const sep1 = overlap * body2.mass / totalMass;
                         const sep2 = overlap * body1.mass / totalMass;
@@ -349,8 +349,7 @@ class PhysicsEngine {
                             body2.lastPosition.y += sep2 * ny;
                         }
                         
-                        // Calculate reduced mass and collision impulse
-                        const reducedMass = (body1.mass * body2.mass) / totalMass;
+                        // Calculate collision impulse using proper physics
                         const impulseStrength = -(1 + this.restitutionCoefficient) * dvn;
                         
                         // Apply impulse (conservation of momentum)
@@ -365,7 +364,7 @@ class PhysicsEngine {
                         // Add tangential friction for more realistic behavior
                         const dvt_x = dvx - dvn * nx; // Tangential relative velocity
                         const dvt_y = dvy - dvn * ny;
-                        const friction = 0.1; // Friction coefficient
+                        const friction = PHYSICS_CONSTANTS.COLLISION_FRICTION;
                         const frictionImpulse = friction * Math.abs(impulseStrength);
                         const tangentLength = Math.sqrt(dvt_x * dvt_x + dvt_y * dvt_y);
                         
@@ -380,8 +379,8 @@ class PhysicsEngine {
                         }
                         
                         // Set mutual collision cooldown
-                        body1.setCollisionCooldownWith(body2, 0.1); // 0.1 seconds
-                        body2.setCollisionCooldownWith(body1, 0.1);
+                        body1.setCollisionCooldownWith(body2, PHYSICS_CONSTANTS.COLLISION_COOLDOWN_TIME);
+                        body2.setCollisionCooldownWith(body1, PHYSICS_CONSTANTS.COLLISION_COOLDOWN_TIME);
                         
                         // Mark bodies as having collided this frame
                         body1.hasCollidedThisFrame = true;
@@ -430,7 +429,16 @@ class PhysicsEngine {
         
         // Remove collided bodies (in reverse order to maintain indices)
         const indicesToRemove = Array.from(bodiesToRemove).sort((a, b) => b - a);
-        indicesToRemove.forEach(index => bodies.splice(index, 1));
+        indicesToRemove.forEach(index => {
+            const removedBody = bodies[index];
+            // Clean up collision cooldowns for remaining bodies
+            bodies.forEach(body => {
+                if (body !== removedBody) {
+                    body.collisionCooldowns.delete(removedBody.id);
+                }
+            });
+            bodies.splice(index, 1);
+        });
         
         // Add merged bodies
         bodies.push(...bodiesToAdd);
