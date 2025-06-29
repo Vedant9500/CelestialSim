@@ -294,11 +294,20 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
     font-size: 0.85rem;
     min-height: 70px;
+    max-height: 70px;
     position: relative;
     overflow: hidden;
+    text-align: center;
+}
+
+.toolbar-btn span {
+    white-space: nowrap;
+    font-weight: 600;
+    line-height: 1;
 }
 
 .toolbar-btn::before {
@@ -319,6 +328,7 @@ body {
 .toolbar-btn i {
     font-size: 1.4rem;
     transition: transform 0.3s ease;
+    line-height: 1;
 }
 
 .toolbar-btn:hover i {
@@ -1054,17 +1064,19 @@ body {
 .performance-panel,
 .energy-panel {
     position: fixed;
-    bottom: 4rem; /* Position above the toggle buttons */
-    background: rgba(12, 12, 12, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    backdrop-filter: blur(15px);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(10, 10, 20, 0.95) 100%);
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    border-radius: 15px;
+    backdrop-filter: blur(25px);
     z-index: 500;
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
-    transform: translateY(100%) translateY(1rem); /* Start off-screen */
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translateY(100%) translateY(1rem);
     opacity: 0;
-    display: block; /* Use display block and transform for animation */
+    display: block;
     pointer-events: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
 .reference-panel.show,
@@ -1073,22 +1085,179 @@ body {
     transform: translateY(0);
     opacity: 1;
     pointer-events: auto;
+    box-shadow: 0 20px 60px rgba(100, 255, 218, 0.2);
 }
 
 .reference-panel {
     left: 1rem;
-    width: 350px;
+    bottom: 4rem;
+    width: 380px;
 }
 
 .performance-panel {
     right: 1rem;
+    bottom: 4rem;
     width: 320px;
 }
 
 .energy-panel {
-    right: 1rem; /* Align with performance panel */
-    bottom: calc(4rem + 20px); /* Position above performance panel */
-    /* Adjust positioning logic as needed */
+    right: 340px; /* Position to the left of performance panel */
+    bottom: 4rem;
+    width: 300px;
+}
+
+/* Panel Headers */
+.panel-header {
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid rgba(100, 255, 218, 0.2);
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.1) 0%, rgba(187, 134, 252, 0.1) 100%);
+    border-radius: 13px 13px 0 0;
+    position: relative;
+}
+
+.panel-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #64ffda, #bb86fc);
+    border-radius: 13px 13px 0 0;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #64ffda;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.panel-header h3 i {
+    font-size: 1rem;
+    padding: 0.4rem;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(187, 134, 252, 0.2));
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.3);
+}
+
+.panel-content {
+    padding: 1.5rem;
+    max-height: calc(70vh - 80px);
+    overflow-y: auto;
+}
+
+.panel-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #64ffda, #bb86fc);
+    border-radius: 3px;
+}
+
+/* Reference Panel Specific Styles */
+.reference-content {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.reference-content h4 {
+    color: #64ffda;
+    margin: 1.5rem 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.reference-content h4:first-child {
+    margin-top: 0;
+}
+
+.reference-content p {
+    color: #e0e0e0;
+    margin-bottom: 0.75rem;
+}
+
+.reference-content strong {
+    color: #64ffda;
+    font-weight: 600;
+}
+
+.reference-content code {
+    background: rgba(100, 255, 218, 0.1);
+    color: #64ffda;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+}
+
+/* Performance Panel Styles */
+.performance-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.performance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(100, 255, 218, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.performance-label {
+    font-size: 0.85rem;
+    color: #b0b0b0;
+    font-weight: 500;
+}
+
+.performance-value {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: #64ffda;
+    font-size: 0.9rem;
+}
+
+/* Energy Panel Styles */
+.energy-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.energy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(187, 134, 252, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(187, 134, 252, 0.2);
+}
+
+.energy-label {
+    font-size: 0.85rem;
+    color: #b0b0b0;
+    font-weight: 500;
+}
+
+.energy-value {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: #bb86fc;
+    font-size: 0.9rem;
 }
 
 /* Toggle Buttons for Floating Panels */
@@ -1097,15 +1266,64 @@ body {
 .reference-toggle {
     position: fixed;
     bottom: 1rem;
-    padding: 0.6rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.8);
+    padding: 0.75rem 1.25rem;
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(10, 10, 20, 0.9) 100%);
     color: #ffffff;
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 501; /* Above panels */
-    backdrop-filter: blur(5px);
+    z-index: 501;
+    backdrop-filter: blur(15px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.performance-toggle:hover,
+.energy-toggle:hover,
+.reference-toggle:hover {
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.15) 0%, rgba(187, 134, 252, 0.15) 100%);
+    border-color: #64ffda;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.3);
+}
+
+.performance-toggle.active,
+.energy-toggle.active,
+.reference-toggle.active {
+    background: linear-gradient(135deg, #64ffda 0%, #4ecdc4 100%);
+    color: #000000;
+    border-color: #64ffda;
+    box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);
+}
+
+.performance-toggle i,
+.energy-toggle i,
+.reference-toggle i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.performance-toggle.active i,
+.energy-toggle.active i,
+.reference-toggle.active i {
+    transform: scale(1.1);
+}
+
+.reference-toggle {
+    left: 1rem;
+}
+
+.performance-toggle {
+    right: 1rem;
+}
+
+.energy-toggle {
+    right: 140px; /* Position to the left of performance toggle */
 }
 
 .performance-toggle:hover,
@@ -1209,6 +1427,7 @@ body {
     
     .toolbar-btn {
         min-height: 55px;
+        max-height: 55px;
         padding: 0.6rem 0.8rem;
         font-size: 0.75rem;
     }
@@ -1219,6 +1438,38 @@ body {
     
     .stat-value {
         font-size: 1.1rem;
+    }
+    
+    /* Mobile panel adjustments */
+    .reference-panel {
+        left: 0.5rem;
+        right: 0.5rem;
+        width: auto;
+        bottom: 5rem;
+    }
+    
+    .performance-panel {
+        right: 0.5rem;
+        width: 280px;
+        bottom: 5rem;
+    }
+    
+    .energy-panel {
+        right: 0.5rem;
+        width: 280px;
+        bottom: 28rem; /* Stack above performance panel */
+    }
+    
+    .performance-toggle,
+    .energy-toggle,
+    .reference-toggle {
+        bottom: 0.5rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .energy-toggle {
+        right: 120px;
     }
 }
 
@@ -1245,6 +1496,7 @@ body {
     .toolbar-btn {
         flex-direction: row;
         min-height: 45px;
+        max-height: 45px;
         gap: 0.5rem;
         padding: 0.5rem 0.75rem;
     }
@@ -1304,5 +1556,40 @@ body {
         width: 70px;
         padding: 0.4rem 0.6rem;
         font-size: 0.8rem;
+    }
+    
+    /* Small screen panel adjustments */
+    .reference-panel,
+    .performance-panel,
+    .energy-panel {
+        left: 0.25rem;
+        right: 0.25rem;
+        width: auto;
+        bottom: 5rem;
+        max-height: 60vh;
+    }
+    
+    .energy-panel {
+        bottom: calc(100vh - 200px); /* Position above performance when both open */
+    }
+    
+    .performance-toggle,
+    .energy-toggle,
+    .reference-toggle {
+        bottom: 0.25rem;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.75rem;
+    }
+    
+    .reference-toggle {
+        left: 0.25rem;
+    }
+    
+    .performance-toggle {
+        right: 0.25rem;
+    }
+    
+    .energy-toggle {
+        right: 100px;
     }
 }

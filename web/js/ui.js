@@ -747,18 +747,18 @@ class UIManager {
         const button = this.buttons.get('play-pause');
         if (button) {
             const icon = button.querySelector('i');
-            const text = button.childNodes[button.childNodes.length - 1];
+            const span = button.querySelector('span');
             
             if (isPlaying && !isPaused) {
                 icon.className = 'fas fa-pause';
-                text.textContent = ' Pause';
-                button.classList.remove('primary-btn');
-                button.classList.add('secondary-btn');
+                span.textContent = 'Pause';
+                button.classList.remove('primary');
+                button.classList.add('secondary');
             } else {
                 icon.className = 'fas fa-play';
-                text.textContent = ' Start';
-                button.classList.remove('secondary-btn');
-                button.classList.add('primary-btn');
+                span.textContent = 'Start';
+                button.classList.remove('secondary');
+                button.classList.add('primary');
             }
         }
     }
