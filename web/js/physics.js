@@ -313,13 +313,20 @@ class PhysicsEngine {
                 // Calculate collision distance (when surfaces touch)
                 const collisionDistance = body1.radius + body2.radius;
                 
-                // Check if collision is occurring
-                if (distance < collisionDistance && distance > 0.001) {
-                    processedPairs.add(pairKey);
-                    
-                    // Calculate collision normal
-                    const nx = dx / distance;
-                    const ny = dy / distance;
+                // Enhanced collision detection - check for fast-moving objects
+                const relativeVelocity = body1.velocity.subtract(body2.velocity);
+                const relativeSpeed = relativeVelocity.magnitude();
+                const maxSafeDistance = collisionDistance + relativeSpeed * this.fixedTimeStep;
+                
+                // Check if collision is occurring or will occur this frame
+                if (distance < maxSafeDistance && distance > 0.001) {
+                    // Only process if actually colliding (not just predicted)
+                    if (distance < collisionDistance) {
+                        processedPairs.add(pairKey);
+                        
+                        // Calculate collision normal
+                        const nx = dx / distance;
+                        const ny = dy / distance;
                     
                     // Calculate relative velocity
                     const dvx = body2.velocity.x - body1.velocity.x;
@@ -328,38 +335,49 @@ class PhysicsEngine {
                     
                     // Only resolve if objects are approaching (dvn < 0)
                     if (dvn < -0.01) { // Small threshold to prevent micro-corrections
-                        // Separate bodies first (single-frame correction)
-                        const overlap = collisionDistance - distance + PHYSICS_CONSTANTS.COLLISION_SAFETY_MARGIN;
-                        const totalMass = body1.mass + body2.mass;
-                        const sep1 = overlap * body2.mass / totalMass;
-                        const sep2 = overlap * body1.mass / totalMass;
                         
-                        body1.position.x -= sep1 * nx;
-                        body1.position.y -= sep1 * ny;
-                        body2.position.x += sep2 * nx;
-                        body2.position.y += sep2 * ny;
-                        
-                        // Update lastPosition for Verlet consistency
-                        if (body1.lastPosition) {
-                            body1.lastPosition.x -= sep1 * nx;
-                            body1.lastPosition.y -= sep1 * ny;
+                        // Energy and momentum validation (debug mode)
+                        const debugCollisions = false; // Set to true for debugging
+                        let energyBefore, momentumBefore;
+                        if (debugCollisions) {
+                            energyBefore = this.calculateKineticEnergySubset([body1, body2]);
+                            momentumBefore = this.calculateMomentumSubset([body1, body2]);
                         }
-                        if (body2.lastPosition) {
-                            body2.lastPosition.x += sep2 * nx;
-                            body2.lastPosition.y += sep2 * ny;
+                        // Separate bodies with improved stability
+                        const overlap = collisionDistance - distance;
+                        if (overlap > 0) {
+                            // Use a percentage correction to avoid over-correction
+                            const correctionPercent = 0.8; // Correct 80% of overlap per frame
+                            const correctionAmount = overlap * correctionPercent + PHYSICS_CONSTANTS.COLLISION_SAFETY_MARGIN;
+                            const totalMass = body1.mass + body2.mass;
+                            const sep1 = correctionAmount * body2.mass / totalMass;
+                            const sep2 = correctionAmount * body1.mass / totalMass;
+                            
+                            body1.position.x -= sep1 * nx;
+                            body1.position.y -= sep1 * ny;
+                            body2.position.x += sep2 * nx;
+                            body2.position.y += sep2 * ny;
+                            
+                            // Update lastPosition for Verlet consistency
+                            if (body1.lastPosition) {
+                                body1.lastPosition.x -= sep1 * nx;
+                                body1.lastPosition.y -= sep1 * ny;
+                            }
+                            if (body2.lastPosition) {
+                                body2.lastPosition.x += sep2 * nx;
+                                body2.lastPosition.y += sep2 * ny;
+                            }
                         }
                         
-                        // Calculate collision impulse using proper physics
-                        const impulseStrength = -(1 + this.restitutionCoefficient) * dvn;
+                        // Calculate collision impulse using correct physics formula
+                        // J = -(1 + e) * vrel_n / (1/m1 + 1/m2)
+                        const impulseStrength = -(1 + this.restitutionCoefficient) * dvn / (1/body1.mass + 1/body2.mass);
                         
-                        // Apply impulse (conservation of momentum)
-                        const impulse1 = impulseStrength * body2.mass / totalMass;
-                        const impulse2 = impulseStrength * body1.mass / totalMass;
-                        
-                        body1.velocity.x -= impulse1 * nx;
-                        body1.velocity.y -= impulse1 * ny;
-                        body2.velocity.x += impulse2 * nx;
-                        body2.velocity.y += impulse2 * ny;
+                        // Apply impulse correctly (F*dt = m*dv, so dv = F*dt/m)
+                        body1.velocity.x -= impulseStrength * nx / body1.mass;
+                        body1.velocity.y -= impulseStrength * ny / body1.mass;
+                        body2.velocity.x += impulseStrength * nx / body2.mass;
+                        body2.velocity.y += impulseStrength * ny / body2.mass;
                         
                         // Add tangential friction for more realistic behavior
                         const dvt_x = dvx - dvn * nx; // Tangential relative velocity
@@ -378,14 +396,31 @@ class PhysicsEngine {
                             body2.velocity.y -= frictionImpulse * ty * body1.mass / totalMass;
                         }
                         
-                        // Set mutual collision cooldown
-                        body1.setCollisionCooldownWith(body2, PHYSICS_CONSTANTS.COLLISION_COOLDOWN_TIME);
-                        body2.setCollisionCooldownWith(body1, PHYSICS_CONSTANTS.COLLISION_COOLDOWN_TIME);
+                        // Set adaptive collision cooldown based on collision intensity
+                        const relativeSpeed = Math.sqrt(dvx * dvx + dvy * dvy);
+                        const baseCooldown = PHYSICS_CONSTANTS.COLLISION_COOLDOWN_TIME;
+                        const adaptiveCooldown = Math.min(baseCooldown * 2, baseCooldown + relativeSpeed * 0.01);
+                        
+                        body1.setCollisionCooldownWith(body2, adaptiveCooldown);
+                        body2.setCollisionCooldownWith(body1, adaptiveCooldown);
                         
                         // Mark bodies as having collided this frame
                         body1.hasCollidedThisFrame = true;
                         body2.hasCollidedThisFrame = true;
+                        
+                        // Validate conservation laws (debug mode)
+                        if (debugCollisions) {
+                            const energyAfter = this.calculateKineticEnergySubset([body1, body2]);
+                            const momentumAfter = this.calculateMomentumSubset([body1, body2]);
+                            const energyLoss = energyBefore - energyAfter;
+                            const momentumError = momentumBefore.subtract(momentumAfter).magnitude();
+                            
+                            if (Math.abs(energyLoss) > 0.01 || momentumError > 0.01) {
+                                console.warn(`Collision conservation violation: Energy loss: ${energyLoss.toFixed(3)}, Momentum error: ${momentumError.toFixed(3)}`);
+                            }
+                        }
                     }
+                    } // Close the distance check
                 }
             }
         }
@@ -732,5 +767,19 @@ class PhysicsEngine {
         if (this.energyHistory.length > this.maxEnergyHistory) {
             this.energyHistory.shift();
         }
+    }
+
+    // Calculate kinetic energy for a subset of bodies (for collision validation)
+    calculateKineticEnergySubset(bodies) {
+        return bodies.reduce((total, body) => {
+            return total + 0.5 * body.mass * body.velocity.magnitudeSquared();
+        }, 0);
+    }
+
+    // Calculate momentum for a subset of bodies (for collision validation)
+    calculateMomentumSubset(bodies) {
+        return bodies.reduce((momentum, body) => {
+            return momentum.add(body.velocity.multiply(body.mass));
+        }, new Vector2D(0, 0));
     }
 }

@@ -23,6 +23,10 @@ const PHYSICS_CONSTANTS = {
     RESTITUTION_COEFFICIENT: 0.7,  // For elastic collisions (0 = inelastic, 1 = perfectly elastic)
     MIN_RESTITUTION: 0.1,
     MAX_RESTITUTION: 0.95,  // Cap at 0.95 to prevent infinite energy gain
+    COLLISION_FRICTION: 0.1,  // Tangential friction coefficient
+    COLLISION_SAFETY_MARGIN: 0.1,  // Small margin to prevent interpenetration
+    COLLISION_COOLDOWN_TIME: 0.1,  // Base cooldown time in seconds
+    MAX_VELOCITY_LIMIT: 500,  // Maximum velocity to prevent numerical instability
     COLLISION_COOLDOWN_TIME: 0.1,  // Seconds between collisions with same body
     COLLISION_FRICTION: 0.1,        // Tangential friction coefficient
     COLLISION_SAFETY_MARGIN: 0.1,   // Additional separation distance
