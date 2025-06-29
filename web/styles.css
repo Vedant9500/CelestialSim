@@ -1301,9 +1301,9 @@ body {
 .reference-toggle {
     position: fixed;
     bottom: 1rem;
-    padding: 0.75rem 1.25rem;
+    padding: 0.6rem 1rem;
     border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 10px;
+    border-radius: 8px;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(10, 10, 20, 0.9) 100%);
     color: #ffffff;
     cursor: pointer;
@@ -1312,10 +1312,14 @@ body {
     backdrop-filter: blur(15px);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
+    gap: 0.4rem;
+    font-size: 0.8rem;
     font-weight: 600;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+    min-width: 80px;
+    text-align: center;
+    justify-content: center;
 }
 
 .performance-toggle:hover,
@@ -1323,7 +1327,7 @@ body {
 .reference-toggle:hover {
     background: linear-gradient(135deg, rgba(100, 255, 218, 0.15) 0%, rgba(187, 134, 252, 0.15) 100%);
     border-color: #64ffda;
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.02);
     box-shadow: 0 6px 20px rgba(100, 255, 218, 0.3);
 }
 
@@ -1358,7 +1362,7 @@ body {
 }
 
 .energy-toggle {
-    right: 160px; /* Increased spacing to prevent overlap */
+    right: 200px; /* Increased spacing to prevent overlap */
 }
 
 .performance-toggle:hover,
@@ -1374,14 +1378,6 @@ body {
     background: #64ffda;
     color: #000;
     border-color: #64ffda;
-}
-
-.performance-toggle {
-    right: 1rem;
-}
-
-.energy-toggle {
-    right: 150px; /* Adjust based on performance button width */
 }
 
 .reference-toggle {
@@ -1623,7 +1619,7 @@ body {
     }
     
     .energy-toggle {
-        right: 120px;
+        right: 170px;
     }
 }
 
@@ -1744,6 +1740,6 @@ body {
     }
     
     .energy-toggle {
-        right: 100px;
+        right: 140px;
     }
 }
