@@ -221,7 +221,7 @@ body {
 
 /* Control Panel */
 .control-panel {
-    width: 350px;
+    width: 320px;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.98) 0%, rgba(10, 10, 20, 0.98) 100%);
     border-left: 2px solid rgba(100, 255, 218, 0.3);
     overflow: hidden;
@@ -271,23 +271,23 @@ body {
 .control-toolbar {
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(10, 10, 20, 0.95) 100%);
     border-bottom: 1px solid rgba(100, 255, 218, 0.2);
-    padding: 1.25rem;
+    padding: 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.75rem;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .toolbar-group {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .toolbar-btn {
     flex: 1;
-    padding: 0.8rem 1rem;
+    padding: 0.6rem 0.75rem;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -295,10 +295,10 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    min-height: 70px;
-    max-height: 70px;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    min-height: 55px;
+    max-height: 55px;
     position: relative;
     overflow: hidden;
     text-align: center;
@@ -308,6 +308,7 @@ body {
     white-space: nowrap;
     font-weight: 600;
     line-height: 1;
+    font-size: 0.7rem;
 }
 
 .toolbar-btn::before {
@@ -326,7 +327,7 @@ body {
 }
 
 .toolbar-btn i {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     transition: transform 0.3s ease;
     line-height: 1;
 }
@@ -377,8 +378,8 @@ body {
     justify-content: space-around;
     background: linear-gradient(135deg, rgba(100, 255, 218, 0.1) 0%, rgba(187, 134, 252, 0.1) 100%);
     border: 1px solid rgba(100, 255, 218, 0.2);
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 8px;
+    padding: 0.6rem;
     backdrop-filter: blur(10px);
 }
 
@@ -386,17 +387,17 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.25rem;
     position: relative;
 }
 
 .stat-item::after {
     content: '';
     position: absolute;
-    bottom: -5px;
+    bottom: -3px;
     left: 50%;
     transform: translateX(-50%);
-    width: 20px;
+    width: 16px;
     height: 2px;
     background: linear-gradient(90deg, #64ffda, #bb86fc);
     border-radius: 1px;
@@ -404,18 +405,18 @@ body {
 }
 
 .stat-value {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #64ffda;
     font-family: 'Courier New', monospace;
-    text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+    text-shadow: 0 0 8px rgba(100, 255, 218, 0.3);
 }
 
 .stat-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     color: #b8b8b8;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     font-weight: 500;
 }
 
@@ -447,7 +448,7 @@ body {
 
 .tab-btn {
     flex: 1;
-    padding: 1rem 0.75rem;
+    padding: 0.6rem 0.4rem;
     border: none;
     background: transparent;
     color: #888888;
@@ -456,12 +457,13 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
+    gap: 0.3rem;
+    font-size: 0.7rem;
     font-weight: 500;
     border-bottom: 3px solid transparent;
     position: relative;
     overflow: hidden;
+    min-height: 60px;
 }
 
 .tab-btn::before {
@@ -477,7 +479,7 @@ body {
 }
 
 .tab-btn i {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     transition: all 0.3s ease;
     z-index: 1;
     position: relative;
@@ -487,6 +489,9 @@ body {
     z-index: 1;
     position: relative;
     transition: all 0.3s ease;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .tab-btn:hover {
@@ -499,7 +504,7 @@ body {
 }
 
 .tab-btn:hover i {
-    transform: scale(1.1);
+    transform: scale(1.05);
     color: #64ffda;
 }
 
@@ -516,7 +521,7 @@ body {
 
 .tab-btn.active i {
     color: #64ffda;
-    text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+    text-shadow: 0 0 8px rgba(100, 255, 218, 0.5);
 }
 
 .tab-content {
@@ -554,12 +559,12 @@ body {
 
 /* Enhanced Panel Sections */
 .panel-section {
-    padding: 1.5rem;
+    padding: 1rem;
     border-bottom: 1px solid rgba(100, 255, 218, 0.1);
     position: relative;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(100, 255, 218, 0.01) 100%);
-    margin-bottom: 0.5rem;
-    border-radius: 8px;
+    margin-bottom: 0.25rem;
+    border-radius: 6px;
     transition: all 0.3s ease;
 }
 
@@ -574,15 +579,15 @@ body {
 }
 
 .panel-section h3 {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.75rem;
     color: #64ffda;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.6rem;
     position: relative;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.4rem;
 }
 
 .panel-section h3::after {
@@ -590,18 +595,18 @@ body {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 40px;
+    width: 30px;
     height: 2px;
     background: linear-gradient(90deg, #64ffda, #bb86fc);
     border-radius: 1px;
 }
 
 .panel-section h3 i {
-    font-size: 1rem;
-    padding: 0.4rem;
+    font-size: 0.8rem;
+    padding: 0.3rem;
     background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(187, 134, 252, 0.2));
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.3);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(100, 255, 218, 0.3);
 }
 
 /* Info Grid Layout */
@@ -635,14 +640,14 @@ body {
 .preset-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    padding: 0.5rem;
+    gap: 0.6rem;
+    padding: 0.25rem;
 }
 
 .preset-btn {
-    padding: 1.25rem;
+    padding: 0.75rem;
     border: 2px solid rgba(100, 255, 218, 0.2);
-    border-radius: 12px;
+    border-radius: 8px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(100, 255, 218, 0.05) 100%);
     color: #ffffff;
     cursor: pointer;
@@ -650,10 +655,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     text-align: center;
     position: relative;
     overflow: hidden;
+    min-height: 60px;
 }
 
 .preset-btn::before {
@@ -680,7 +686,7 @@ body {
 }
 
 .preset-btn i {
-    font-size: 2rem;
+    font-size: 1.4rem;
     color: #64ffda;
     transition: all 0.3s ease;
     z-index: 1;
@@ -688,7 +694,7 @@ body {
 }
 
 .preset-btn span {
-    font-size: 0.85rem;
+    font-size: 0.7rem;
     font-weight: 600;
     z-index: 1;
     position: relative;
@@ -699,17 +705,17 @@ body {
 .preset-btn:hover {
     background: linear-gradient(135deg, rgba(100, 255, 218, 0.15) 0%, rgba(187, 134, 252, 0.15) 100%);
     border-color: #64ffda;
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(100, 255, 218, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.3);
 }
 
 .preset-btn:hover i {
-    transform: scale(1.2) rotate(5deg);
-    text-shadow: 0 0 20px rgba(100, 255, 218, 0.8);
+    transform: scale(1.15) rotate(3deg);
+    text-shadow: 0 0 15px rgba(100, 255, 218, 0.8);
 }
 
 .preset-btn:active {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 /* Velocity Controls Enhancement */
@@ -754,19 +760,19 @@ body {
 
 /* Form Controls */
 .slider-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     position: relative;
 }
 
 .slider-group:last-of-type {
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
 }
 
 .slider-group label {
     display: block;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     color: #e0e0e0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -775,10 +781,10 @@ body {
 .slider-input-group {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     background: rgba(255, 255, 255, 0.05);
-    padding: 0.75rem;
-    border-radius: 10px;
+    padding: 0.5rem;
+    border-radius: 8px;
     border: 1px solid rgba(100, 255, 218, 0.2);
     transition: all 0.3s ease;
 }
@@ -790,8 +796,8 @@ body {
 
 .slider-group input[type="range"] {
     flex: 1;
-    height: 8px;
-    border-radius: 4px;
+    height: 6px;
+    border-radius: 3px;
     background: linear-gradient(90deg, rgba(100, 255, 218, 0.2), rgba(100, 255, 218, 0.5));
     outline: none;
     -webkit-appearance: none;
@@ -802,38 +808,38 @@ body {
 .slider-group input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: linear-gradient(135deg, #64ffda, #4ecdc4);
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.4);
+    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.4);
     transition: all 0.3s ease;
 }
 
 .slider-group input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.6);
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.6);
 }
 
 .slider-group input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: linear-gradient(135deg, #64ffda, #4ecdc4);
     cursor: pointer;
     border: none;
-    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.4);
+    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.4);
 }
 
 .direct-input {
-    width: 80px;
-    padding: 0.5rem 0.75rem;
+    width: 70px;
+    padding: 0.4rem 0.6rem;
     background: rgba(0, 0, 0, 0.4);
     border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 8px;
+    border-radius: 6px;
     color: #64ffda;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-align: center;
     transition: all 0.3s ease;
@@ -844,8 +850,8 @@ body {
     outline: none;
     border-color: #64ffda;
     background: rgba(100, 255, 218, 0.1);
-    box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
-    transform: scale(1.05);
+    box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
+    transform: scale(1.03);
 }
 
 .direct-input::-webkit-outer-spin-button,
@@ -864,19 +870,22 @@ body {
 .checkbox-group {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.6rem;
     cursor: pointer;
-    padding: 0.75rem;
-    border-radius: 8px;
+    padding: 0.5rem;
+    border-radius: 6px;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid transparent;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    min-height: 32px;
 }
 
 .checkbox-label:hover {
@@ -889,24 +898,27 @@ body {
 }
 
 .checkmark {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 4px;
+    border-radius: 3px;
     position: relative;
     transition: all 0.3s ease;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .checkmark:after {
     content: "";
     position: absolute;
     display: none;
-    left: 6px;
-    top: 2px;
-    width: 6px;
-    height: 12px;
+    left: 5px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
     border: solid #000;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
@@ -915,7 +927,7 @@ body {
 .checkbox-label input[type="checkbox"]:checked + .checkmark {
     background: linear-gradient(135deg, #64ffda, #4ecdc4);
     border-color: #64ffda;
-    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.4);
+    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.4);
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkmark:after {
@@ -986,7 +998,7 @@ body {
     grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(100, 255, 218, 0.05) 100%);
     border-radius: 10px;
     border: 1px solid rgba(100, 255, 218, 0.2);
 }
@@ -999,18 +1011,41 @@ body {
     transition: all 0.3s ease;
     border: 3px solid transparent;
     position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .color-option:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .color-option.active {
     border-color: #64ffda;
     box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.3);
-    transform: scale(1.15);
+    transform: scale(1.2);
 }
+
+.color-option.active::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Define color styles for each option */
+.color-option[data-color="#ff4757"] { background-color: #ff4757; }
+.color-option[data-color="#2ed573"] { background-color: #2ed573; }
+.color-option[data-color="#1e90ff"] { background-color: #1e90ff; }
+.color-option[data-color="#ffa502"] { background-color: #ffa502; }
+.color-option[data-color="#ff6b9d"] { background-color: #ff6b9d; }
+.color-option[data-color="#a4b0be"] { background-color: #a4b0be; }
+.color-option[data-color="#8e44ad"] { background-color: #8e44ad; }
+.color-option[data-color="#f39c12"] { background-color: #f39c12; }
 
 /* Setting Groups */
 .setting-group {
@@ -1323,7 +1358,7 @@ body {
 }
 
 .energy-toggle {
-    right: 140px; /* Position to the left of performance toggle */
+    right: 160px; /* Increased spacing to prevent overlap */
 }
 
 .performance-toggle:hover,
@@ -1353,30 +1388,149 @@ body {
     left: 1rem;
 }
 
+/* Tools Tab Specific Styles */
+.tools-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tool-btn {
+    padding: 0.75rem;
+    border: 2px solid rgba(100, 255, 218, 0.2);
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(100, 255, 218, 0.05) 100%);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-height: 60px;
+    justify-content: center;
+}
+
+.tool-btn:hover {
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.15) 0%, rgba(187, 134, 252, 0.15) 100%);
+    border-color: #64ffda;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+}
+
+.tool-btn:active {
+    transform: translateY(0);
+}
+
+.tool-btn i {
+    font-size: 1.2rem;
+    color: #64ffda;
+    transition: all 0.3s ease;
+}
+
+.tool-btn:hover i {
+    transform: scale(1.1);
+    text-shadow: 0 0 8px rgba(100, 255, 218, 0.5);
+}
+
+.tool-btn span {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-size: 0.7rem;
+}
+
+.tool-btn-wide {
+    width: 100%;
+    padding: 0.6rem;
+    border: 2px solid rgba(100, 255, 218, 0.2);
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(100, 255, 218, 0.05) 100%);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: 40px;
+    margin-bottom: 0.75rem;
+}
+
+.tool-btn-wide:hover {
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.15) 0%, rgba(187, 134, 252, 0.15) 100%);
+    border-color: #64ffda;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+}
+
+.tool-btn-wide:active {
+    transform: translateY(0);
+}
+
+.tool-btn-wide i {
+    font-size: 1rem;
+    color: #64ffda;
+    transition: all 0.3s ease;
+}
+
+.tool-btn-wide:hover i {
+    transform: scale(1.1);
+    text-shadow: 0 0 8px rgba(100, 255, 218, 0.5);
+}
+
+.tool-btn-wide span {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* Active states for toggle buttons */
+.tool-btn.active,
+.tool-btn-wide.active {
+    background: linear-gradient(135deg, #64ffda 0%, #4ecdc4 100%);
+    color: #000000;
+    border-color: #64ffda;
+    box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);
+}
+
+.tool-btn.active i,
+.tool-btn-wide.active i {
+    color: #000000;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .control-panel {
-        width: 320px;
+        width: 300px;
     }
     
     .toolbar-btn {
-        min-height: 60px;
-        font-size: 0.8rem;
-        padding: 0.7rem 0.9rem;
+        min-height: 50px;
+        max-height: 50px;
+        font-size: 0.7rem;
+        padding: 0.5rem 0.7rem;
     }
     
     .preset-grid {
         grid-template-columns: 1fr;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
     
     .info-grid {
         grid-template-columns: 1fr;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
     
     .panel-section {
-        padding: 1.25rem;
+        padding: 0.75rem;
     }
 }
 
