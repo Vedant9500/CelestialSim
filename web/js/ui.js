@@ -20,16 +20,15 @@ class UIManager {
         this.initializeSliders();
         this.initializeButtons();
         this.initializeCheckboxes();
-        this.initializeCollisionControls();
         this.initializeColorPicker();
         this.initializeModal();
         this.initializeModeButtons();
+        this.initializeTabs();
         this.initializePerformanceControls();
         this.initializeEnergyChart();
+        this.initializeCollisionControls();
         this.setupEventListeners();
         this.initializeTooltips();
-        this.initializeEnergyChart();
-        this.initializeCollisionControls();
     }
 
     setRenderer(renderer) {
@@ -127,6 +126,76 @@ class UIManager {
                 this.onPresetSelect(preset);
             });
         });
+
+        // Add shortcuts button handler
+        const showShortcutsBtn = document.getElementById('show-shortcuts');
+        if (showShortcutsBtn) {
+            showShortcutsBtn.addEventListener('click', () => this.showModal());
+        }
+
+        // Add placeholder handlers for debug and performance buttons
+        const debugBtn = document.getElementById('debug-mode');
+        const performanceBtn = document.getElementById('performance-mode');
+        
+        if (debugBtn) {
+            debugBtn.addEventListener('click', () => {
+                // Toggle debug mode - placeholder for future implementation
+                debugBtn.classList.toggle('active');
+                console.log('Debug mode toggled');
+            });
+        }
+        
+        if (performanceBtn) {
+            performanceBtn.addEventListener('click', () => {
+                // Toggle performance mode - placeholder for future implementation
+                performanceBtn.classList.toggle('active');
+                console.log('Performance mode toggled');
+            });
+        }
+    }
+
+    initializeCollisionControls() {
+        const collisionEnabled = document.getElementById('collision-enabled');
+        const collisionType = document.getElementById('collision-type');
+        const restitutionGroup = document.getElementById('restitution-group');
+        const restitutionSlider = document.getElementById('restitution-coefficient');
+        const restitutionValue = document.getElementById('restitution-coefficient-value');
+
+        const updateRestitutionVisibility = () => {
+            const isEnabled = collisionEnabled ? collisionEnabled.checked : false;
+            const type = collisionType ? collisionType.value : 'inelastic';
+            if (restitutionGroup) {
+                restitutionGroup.style.display = (isEnabled && type === 'elastic') ? 'block' : 'none';
+            }
+        };
+
+        if (collisionType) {
+            collisionType.addEventListener('change', (e) => {
+                this.onCollisionTypeChange(e.target.value);
+                updateRestitutionVisibility();
+            });
+        }
+
+        if (restitutionSlider && restitutionValue) {
+            restitutionSlider.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                restitutionValue.textContent = value.toFixed(2);
+                this.onRestitutionChange(value);
+            });
+        }
+
+        if (collisionEnabled) {
+            collisionEnabled.addEventListener('change', (e) => {
+                const isEnabled = e.target.checked;
+                if (collisionType) collisionType.disabled = !isEnabled;
+                if (restitutionSlider) restitutionSlider.disabled = !isEnabled;
+                this.onCheckboxChange('collision-enabled', isEnabled);
+                updateRestitutionVisibility();
+            });
+        }
+
+        // Initial state
+        updateRestitutionVisibility();
     }
 
     initializeCheckboxes() {
@@ -171,6 +240,9 @@ class UIManager {
             manualModeBtn.classList.toggle('active', !this.orbitMode);
             orbitModeBtn.classList.toggle('active', this.orbitMode);
         }
+        
+        // Update velocity controls styling
+        this.updateModeControls();
         
         // Disable velocity sliders in orbit mode
         const velocityXSlider = this.sliders.get('velocity-x');
@@ -229,6 +301,12 @@ class UIManager {
         const modal = document.getElementById('shortcuts-modal');
         const closeBtn = modal.querySelector('.close-modal');
         
+        // Ensure modal is hidden on load
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+        }
+        
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 this.hideModal();
@@ -265,6 +343,35 @@ class UIManager {
                 }
             }
         });
+    }
+
+    initializeTabs() {
+        const tabContainer = document.querySelector('.tab-container');
+        if (!tabContainer) return;
+
+        const tabButtons = tabContainer.querySelectorAll('.tab-btn');
+        const tabPanels = tabContainer.querySelectorAll('.tab-panel');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Deactivate all buttons and panels
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanels.forEach(panel => panel.classList.remove('active'));
+
+                // Activate clicked button and corresponding panel
+                button.classList.add('active');
+                const tabName = button.dataset.tab;
+                const targetPanel = document.getElementById(`${tabName}-tab`);
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                }
+            });
+        });
+
+        // Ensure the first tab is active by default
+        if (tabButtons.length > 0 && !tabContainer.querySelector('.tab-btn.active')) {
+            tabButtons[0].click();
+        }
     }
 
     initializePerformanceControls() {
@@ -305,6 +412,16 @@ class UIManager {
     }
 
     // Panel toggle methods
+    toggleReferencePanel() {
+        const panel = document.getElementById('reference-panel');
+        const button = document.getElementById('reference-toggle');
+        if (panel && button) {
+            panel.classList.toggle('show');
+            button.classList.toggle('active');
+            this.referenceShown = panel.classList.contains('show');
+        }
+    }
+
     togglePerformancePanel() {
         const panel = document.getElementById('performance-panel');
         const button = document.getElementById('performance-toggle');
@@ -600,6 +717,14 @@ class UIManager {
 
     onKeyDown(event) {
         // Key pressed - override in main app
+    }
+
+    onCollisionTypeChange(type) {
+        // To be overridden by the main application
+    }
+
+    onRestitutionChange(value) {
+        // To be overridden by the main application
     }
 
     // UI update methods
@@ -1147,50 +1272,46 @@ class UIManager {
     }
 
     initializeCollisionControls() {
-        // Collision type dropdown
-        const collisionTypeSelect = document.getElementById('collision-type');
-        if (collisionTypeSelect) {
-            collisionTypeSelect.addEventListener('change', (e) => {
-                this.onCollisionTypeChange(e.target.value);
-                this.toggleRestitutionControl(e.target.value);
-            });
-        }
-        
-        // Restitution coefficient slider
+        const collisionEnabled = document.getElementById('collision-enabled');
+        const collisionType = document.getElementById('collision-type');
+        const restitutionGroup = document.getElementById('restitution-group');
         const restitutionSlider = document.getElementById('restitution-coefficient');
         const restitutionValue = document.getElementById('restitution-coefficient-value');
+
+        const updateRestitutionVisibility = () => {
+            const isEnabled = collisionEnabled ? collisionEnabled.checked : false;
+            const type = collisionType ? collisionType.value : 'inelastic';
+            if (restitutionGroup) {
+                restitutionGroup.style.display = (isEnabled && type === 'elastic') ? 'block' : 'none';
+            }
+        };
+
+        if (collisionType) {
+            collisionType.addEventListener('change', (e) => {
+                this.onCollisionTypeChange(e.target.value);
+                updateRestitutionVisibility();
+            });
+        }
+
         if (restitutionSlider && restitutionValue) {
             restitutionSlider.addEventListener('input', (e) => {
                 const value = parseFloat(e.target.value);
                 restitutionValue.textContent = value.toFixed(2);
                 this.onRestitutionChange(value);
             });
-            // Initialize display value
-            restitutionValue.textContent = restitutionSlider.value;
         }
-        
-        // Initialize restitution control visibility
-        this.toggleRestitutionControl('inelastic');
-        
-        // Set initial restitution value
-        const restitutionValueDisplay = document.getElementById('restitution-coefficient-value');
-        if (restitutionValueDisplay) {
-            restitutionValueDisplay.textContent = '0.70';
+
+        if (collisionEnabled) {
+            collisionEnabled.addEventListener('change', (e) => {
+                const isEnabled = e.target.checked;
+                if (collisionType) collisionType.disabled = !isEnabled;
+                if (restitutionSlider) restitutionSlider.disabled = !isEnabled;
+                this.onCheckboxChange('collision-enabled', isEnabled);
+                updateRestitutionVisibility();
+            });
         }
-    }
-    
-    toggleRestitutionControl(collisionType) {
-        const restitutionGroup = document.getElementById('restitution-group');
-        if (restitutionGroup) {
-            restitutionGroup.style.display = collisionType === 'elastic' ? 'block' : 'none';
-        }
-    }
-    
-    onCollisionTypeChange(type) {
-        // Override in main app
-    }
-    
-    onRestitutionChange(value) {
-        // Override in main app
+
+        // Initial state
+        updateRestitutionVisibility();
     }
 }

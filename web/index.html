@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CelestialSim - Interactive Physics Simulator</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -69,263 +69,353 @@
 
             <!-- Control Panel -->
             <aside class="control-panel">
-                <div class="panel-section">
-                    <h3><i class="fas fa-play-circle"></i> Simulation Control</h3>
-                    <div class="control-group">
-                        <button id="play-pause" class="primary-btn">
-                            <i class="fas fa-play"></i> Start
+                <!-- Main Control Toolbar -->
+                <div class="control-toolbar">
+                    <div class="toolbar-group">
+                        <button id="play-pause" class="toolbar-btn primary">
+                            <i class="fas fa-play"></i>
+                            <span>Start</span>
                         </button>
-                        <button id="reset" class="secondary-btn">
-                            <i class="fas fa-undo"></i> Reset
+                        <button id="reset" class="toolbar-btn secondary">
+                            <i class="fas fa-undo"></i>
+                            <span>Reset</span>
                         </button>
-                        <button id="clear" class="danger-btn">
-                            <i class="fas fa-trash"></i> Clear
-                        </button>
-                    </div>
-                </div>
-
-                <div class="panel-section">
-                    <h3><i class="fas fa-sliders-h"></i> Physics Settings</h3>
-                    
-                    <div class="slider-group">
-                        <label for="gravity-strength">Gravity Strength</label>
-                        <div class="slider-input-group">
-                            <input type="range" id="gravity-strength" min="0.1" max="3.0" step="0.1" value="1.0"
-                                   data-tooltip="Multiplier for gravitational force strength. 1.0 = realistic physics, higher values = stronger gravity and faster orbits, lower values = weaker gravity and slower motion.">
-                            <input type="number" id="gravity-strength-input" min="0.01" max="50" step="0.1" value="1.0" class="direct-input">
-                        </div>
-                    </div>
-                    
-                    <div class="slider-group">
-                        <label for="time-scale">Time Scale</label>
-                        <div class="slider-input-group">
-                            <input type="range" id="time-scale" min="0.1" max="3.0" step="0.1" value="1.0"
-                                   data-tooltip="Controls simulation speed. 1.0 = normal time, higher values = faster simulation time passage, lower values = slower motion for detailed observation.">
-                            <input type="number" id="time-scale-input" min="0.01" max="10" step="0.1" value="1.0" class="direct-input">
-                        </div>
-                    </div>
-                    
-                    <div class="slider-group">
-                        <label for="prediction-depth">Prediction Depth</label>
-                        <div class="slider-input-group">
-                            <input type="range" id="prediction-depth" min="100" max="10000" step="200" value="1000"
-                                   data-tooltip="How far ahead to predict orbital paths when placing bodies. Higher values show longer orbital predictions but may be slower to compute.">
-                            <input type="number" id="prediction-depth-input" min="50" max="20000" step="100" value="1000" class="direct-input">
-                        </div>
-                    </div>
-                    
-                    <div class="checkbox-group">
-                        <label class="checkbox-label"
-                               data-tooltip="When enabled, bodies will interact when they get very close together. Choose collision type below.">
-                            <input type="checkbox" id="collision-enabled" checked>
-                            <span class="checkmark"></span>
-                            Enable Collisions
-                        </label>
-                        
-                        <div class="setting-group">
-                            <label for="collision-type">Collision Type:</label>
-                            <select id="collision-type" class="setting-select"
-                                    data-tooltip="Inelastic: Bodies merge together when they collide (realistic for celestial bodies). Elastic: Bodies bounce off each other like billiard balls.">
-                                <option value="inelastic">Inelastic (Merge)</option>
-                                <option value="elastic">Elastic (Bounce)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-group" id="restitution-group" style="display: none;">
-                            <label for="restitution-coefficient">Bounciness:</label>
-                            <input type="range" id="restitution-coefficient" class="setting-slider" min="0.1" max="0.95" step="0.05" value="0.7"
-                                   data-tooltip="Controls how bouncy elastic collisions are. 0.1 = very little bounce, 0.95 = nearly perfectly elastic. Higher values may cause instability.">
-                            <span id="restitution-coefficient-value" class="setting-value">0.7</span>
-                        </div>
-                        
-                        <label class="checkbox-label"
-                               data-tooltip="Shows the path history of each body as colored lines. Helps visualize orbital patterns and trajectories over time.">
-                            <input type="checkbox" id="show-trails" checked>
-                            <span class="checkmark"></span>
-                            Show Trails
-                        </label>
-                        <label class="checkbox-label"
-                               data-tooltip="Displays a reference grid to help judge distances and scale in the simulation space.">
-                            <input type="checkbox" id="show-grid" checked>
-                            <span class="checkmark"></span>
-                            Show Grid
-                        </label>
-                        <label class="checkbox-label"
-                               data-tooltip="Shows arrows indicating the gravitational force direction and magnitude acting on each body. Useful for understanding physics but may impact performance with many bodies.">
-                            <input type="checkbox" id="show-forces">
-                            <span class="checkmark"></span>
-                            Show Force Vectors
-                        </label>
-                        <label class="checkbox-label"
-                               data-tooltip="When placing bodies in orbit mode, shows a long-term orbital prediction to visualize the complete orbital path. May be slow with complex systems.">
-                            <input type="checkbox" id="long-term-preview">
-                            <span class="checkmark"></span>
-                            Look Far Ahead
-                        </label>
-                        <label class="checkbox-label"
-                               data-tooltip="Debug feature: Shows the exact collision detection boundaries around each body as yellow dashed circles.">
-                            <input type="checkbox" id="show-collision-bounds">
-                            <span class="checkmark"></span>
-                            Show Collision Bounds (Debug)
-                        </label>
-                    </div>
-                </div>
-
-                <div class="panel-section">
-                    <h3><i class="fas fa-plus-circle"></i> Add Bodies</h3>
-                    
-                    <div class="mode-selection">
-                        <button id="manual-mode" class="mode-btn active"
-                                data-tooltip="Place bodies with custom velocities you set using the sliders below. Full control over initial conditions.">
-                            <i class="fas fa-hand-pointer"></i> Manual
-                        </button>
-                        <button id="orbit-mode" class="mode-btn"
-                                data-tooltip="Automatically calculates orbital velocity to orbit the nearest existing body. Creates realistic planetary systems and stable orbits.">
-                            <i class="fas fa-satellite"></i> Orbit
+                        <button id="clear" class="toolbar-btn danger">
+                            <i class="fas fa-trash"></i>
+                            <span>Clear</span>
                         </button>
                     </div>
-                    
-                    <div class="slider-group">
-                        <label for="body-mass">Mass</label>
-                        <div class="slider-input-group">
-                            <input type="range" id="body-mass" min="1" max="200" step="1" value="50"
-                                   data-tooltip="Mass of new bodies you create. Higher mass = stronger gravitational attraction and larger visual size. Affects orbital dynamics and collision behavior.">
-                            <input type="number" id="body-mass-input" min="1" max="10000" step="1" value="50" class="direct-input">
+                    <div class="quick-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="body-count-toolbar">0</span>
+                            <span class="stat-label">Bodies</span>
                         </div>
-                    </div>
-                    
-                    <div class="slider-group">
-                        <label for="velocity-x">Velocity X</label>
-                        <div class="slider-input-group">
-                            <input type="range" id="velocity-x" min="-50" max="50" step="1" value="0"
-                                   data-tooltip="Initial horizontal velocity for new bodies in manual mode. Positive = rightward motion, negative = leftward motion. Used only when not in orbit mode.">
-                            <input type="number" id="velocity-x-input" min="-1000" max="1000" step="1" value="0" class="direct-input">
-                        </div>
-                    </div>
-                    
-                    <div class="slider-group">
-                        <label for="velocity-y">Velocity Y</label>
-                        <div class="slider-input-group">
-                            <input type="range" id="velocity-y" min="-50" max="50" step="1" value="0"
-                                   data-tooltip="Initial vertical velocity for new bodies in manual mode. Positive = upward motion, negative = downward motion. Used only when not in orbit mode.">
-                            <input type="number" id="velocity-y-input" min="-1000" max="1000" step="1" value="0" class="direct-input">
-                        </div>
-                    </div>
-                    
-                    <div class="slider-group">
-                        <label for="trail-length">Trail Length</label>
-                        <div class="slider-input-group">
-                            <input type="range" id="trail-length" min="0" max="100" step="1" value="50"
-                                   data-tooltip="Number of previous positions to display as a trail behind each body. Higher values show longer orbital history but may impact performance with many bodies.">
-                            <input type="number" id="trail-length-input" min="0" max="1000" step="1" value="50" class="direct-input">
-                        </div>
-                    </div>
-                    
-                    <div class="color-picker-group">
-                        <label>Body Color</label>
-                        <div class="color-picker">
-                            <div class="color-option active" data-color="#ff4757"></div>
-                            <div class="color-option" data-color="#2ed573"></div>
-                            <div class="color-option" data-color="#1e90ff"></div>
-                            <div class="color-option" data-color="#ffa502"></div>
-                            <div class="color-option" data-color="#ff6b9d"></div>
-                            <div class="color-option" data-color="#a4b0be"></div>
-                            <div class="color-option" data-color="#8e44ad"></div>
-                            <div class="color-option" data-color="#f39c12"></div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="fps-toolbar">60</span>
+                            <span class="stat-label">FPS</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="panel-section">
-                    <h3><i class="fas fa-layer-group"></i> Presets</h3>
-                    <div class="preset-buttons">
-                        <button class="preset-btn" data-preset="solar-system"
-                                data-tooltip="Creates a realistic solar system with the Sun, Earth, Mars, and Jupiter in proper orbits and scales.">
-                            <i class="fas fa-sun"></i> Solar System
+                <!-- Tabbed Content -->
+                <div class="tab-container">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" data-tab="physics">
+                            <i class="fas fa-atom"></i>
+                            <span>Physics</span>
                         </button>
-                        <button class="preset-btn" data-preset="binary-stars"
-                                data-tooltip="Two massive stars orbiting each other with smaller planets, demonstrating complex gravitational dynamics.">
-                            <i class="fas fa-star"></i> Binary Stars
+                        <button class="tab-btn" data-tab="bodies">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Bodies</span>
                         </button>
-                        <button class="preset-btn" data-preset="galaxy"
-                                data-tooltip="Spiral galaxy formation with a central massive black hole and many orbiting stars showing galactic rotation.">
-                            <i class="fas fa-compact-disc"></i> Galaxy
+                        <button class="tab-btn" data-tab="view">
+                            <i class="fas fa-eye"></i>
+                            <span>View</span>
                         </button>
-                        <button class="preset-btn" data-preset="chaos"
-                                data-tooltip="Random collection of bodies with various masses and velocities to explore chaotic gravitational interactions.">
-                            <i class="fas fa-random"></i> Chaos
+                        <button class="tab-btn" data-tab="tools">
+                            <i class="fas fa-tools"></i>
+                            <span>Tools</span>
                         </button>
                     </div>
-                </div>
 
-                <div class="panel-section">
-                    <h3><i class="fas fa-save"></i> Data</h3>
-                    <div class="control-group">
-                        <button id="save-config" class="secondary-btn"
-                                data-tooltip="Download current simulation state (all bodies, positions, velocities) as a JSON file that can be loaded later.">
-                            <i class="fas fa-download"></i> Save
-                        </button>
-                        <button id="load-config" class="secondary-btn"
-                                data-tooltip="Load a previously saved simulation state from a JSON file. Will replace current bodies with saved configuration.">
-                            <i class="fas fa-upload"></i> Load
-                        </button>
-                        <input type="file" id="file-input" accept=".json" style="display: none;">
-                    </div>
-                    <button id="export-video" class="secondary-btn full-width"
-                            data-tooltip="Records the simulation as an animated GIF or video file. Note: This may impact performance during recording and requires a modern browser.">
-                        <i class="fas fa-video"></i> Export Video
-                    </button>
-                </div>
+                    <div class="tab-content">
+                        <!-- Physics Tab -->
+                        <div class="tab-panel active" id="physics-tab">
+                            <div class="panel-section">
+                                <h3><i class="fas fa-sliders-h"></i> Physics Settings</h3>
+                                
+                                <div class="slider-group">
+                                    <label for="gravity-strength">Gravity Strength</label>
+                                    <div class="slider-input-group">
+                                        <input type="range" id="gravity-strength" min="0.1" max="3.0" step="0.1" value="1.0"
+                                               data-tooltip="Multiplier for gravitational force strength. 1.0 = realistic physics, higher values = stronger gravity and faster orbits, lower values = weaker gravity and slower motion.">
+                                        <input type="number" id="gravity-strength-input" min="0.01" max="50" step="0.1" value="1.0" class="direct-input">
+                                    </div>
+                                </div>
+                                
+                                <div class="slider-group">
+                                    <label for="time-scale">Time Scale</label>
+                                    <div class="slider-input-group">
+                                        <input type="range" id="time-scale" min="0.1" max="3.0" step="0.1" value="1.0"
+                                               data-tooltip="Controls simulation speed. 1.0 = normal time, higher values = faster simulation time passage, lower values = slower motion for detailed observation.">
+                                        <input type="number" id="time-scale-input" min="0.01" max="10" step="0.1" value="1.0" class="direct-input">
+                                    </div>
+                                </div>
+                                
+                                <div class="slider-group">
+                                    <label for="prediction-depth">Prediction Depth</label>
+                                    <div class="slider-input-group">
+                                        <input type="range" id="prediction-depth" min="100" max="10000" step="200" value="1000"
+                                               data-tooltip="How far ahead to predict orbital paths when placing bodies. Higher values show longer orbital predictions but may be slower to compute.">
+                                        <input type="number" id="prediction-depth-input" min="50" max="20000" step="100" value="1000" class="direct-input">
+                                    </div>
+                                </div>
+                            </div>
 
-                <div class="panel-section">
-                    <h3><i class="fas fa-info-circle"></i> Information</h3>
-                    <div class="info-display">
-                        <div class="info-item">
-                            <span class="info-label">Bodies:</span>
-                            <span id="body-count">0</span>
+                            <div class="panel-section">
+                                <h3><i class="fas fa-bullseye"></i> Collision Settings</h3>
+                                
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label"
+                                           data-tooltip="When enabled, bodies will interact when they get very close together. Choose collision type below.">
+                                        <input type="checkbox" id="collision-enabled" checked>
+                                        <span class="checkmark"></span>
+                                        Enable Collisions
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-group">
+                                    <label for="collision-type">Collision Type:</label>
+                                    <select id="collision-type" class="setting-select"
+                                            data-tooltip="Inelastic: Bodies merge together when they collide (realistic for celestial bodies). Elastic: Bodies bounce off each other like billiard balls.">
+                                        <option value="inelastic">Inelastic (Merge)</option>
+                                        <option value="elastic">Elastic (Bounce)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="setting-group" id="restitution-group" style="display: none;">
+                                    <label for="restitution-coefficient">Bounciness:</label>
+                                    <input type="range" id="restitution-coefficient" class="setting-slider" min="0.1" max="0.95" step="0.05" value="0.7"
+                                           data-tooltip="Controls how bouncy elastic collisions are. 0.1 = very little bounce, 0.95 = nearly perfectly elastic. Higher values may cause instability.">
+                                    <span id="restitution-coefficient-value" class="setting-value">0.7</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Total Mass:</span>
-                            <span id="total-mass">0</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Kinetic Energy:</span>
-                            <span id="kinetic-energy">0</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Potential Energy:</span>
-                            <span id="potential-energy">0</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Mouse Position:</span>
-                            <span id="mouse-position">(0, 0)</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Selected Body Info -->
-                <div id="selected-body-panel" class="panel-section" style="display: none;">
-                    <h3><i class="fas fa-crosshairs"></i> Selected Body</h3>
-                    <div class="selected-body-info">
-                        <div class="info-item">
-                            <span class="info-label">Mass:</span>
-                            <span id="selected-mass">0</span>
+                        <!-- Bodies Tab -->
+                        <div class="tab-panel" id="bodies-tab">
+                            <div class="panel-section">
+                                <h3><i class="fas fa-plus-circle"></i> Add Bodies</h3>
+                                
+                                <div class="mode-selection">
+                                    <button id="manual-mode" class="mode-btn active"
+                                            data-tooltip="Place bodies with custom velocities you set using the sliders below. Full control over initial conditions.">
+                                        <i class="fas fa-hand-pointer"></i> Manual
+                                    </button>
+                                    <button id="orbit-mode" class="mode-btn"
+                                            data-tooltip="Automatically calculates orbital velocity to orbit the nearest existing body. Creates realistic planetary systems and stable orbits.">
+                                        <i class="fas fa-satellite"></i> Orbit
+                                    </button>
+                                </div>
+                                
+                                <div class="slider-group">
+                                    <label for="body-mass">Mass</label>
+                                    <div class="slider-input-group">
+                                        <input type="range" id="body-mass" min="1" max="200" step="1" value="50"
+                                               data-tooltip="Mass of new bodies you create. Higher mass = stronger gravitational attraction and larger visual size. Affects orbital dynamics and collision behavior.">
+                                        <input type="number" id="body-mass-input" min="1" max="10000" step="1" value="50" class="direct-input">
+                                    </div>
+                                </div>
+                                
+                                <div class="velocity-controls" id="velocity-controls">
+                                    <div class="slider-group">
+                                        <label for="velocity-x">Velocity X</label>
+                                        <div class="slider-input-group">
+                                            <input type="range" id="velocity-x" min="-50" max="50" step="1" value="0"
+                                                   data-tooltip="Initial horizontal velocity for new bodies in manual mode. Positive = rightward motion, negative = leftward motion. Used only when not in orbit mode.">
+                                            <input type="number" id="velocity-x-input" min="-1000" max="1000" step="1" value="0" class="direct-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="slider-group">
+                                        <label for="velocity-y">Velocity Y</label>
+                                        <div class="slider-input-group">
+                                            <input type="range" id="velocity-y" min="-50" max="50" step="1" value="0"
+                                                   data-tooltip="Initial vertical velocity for new bodies in manual mode. Positive = upward motion, negative = downward motion. Used only when not in orbit mode.">
+                                            <input type="number" id="velocity-y-input" min="-1000" max="1000" step="1" value="0" class="direct-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="color-picker-group">
+                                    <label>Body Color</label>
+                                    <div class="color-picker">
+                                        <div class="color-option active" data-color="#ff4757"></div>
+                                        <div class="color-option" data-color="#2ed573"></div>
+                                        <div class="color-option" data-color="#1e90ff"></div>
+                                        <div class="color-option" data-color="#ffa502"></div>
+                                        <div class="color-option" data-color="#ff6b9d"></div>
+                                        <div class="color-option" data-color="#a4b0be"></div>
+                                        <div class="color-option" data-color="#8e44ad"></div>
+                                        <div class="color-option" data-color="#f39c12"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3><i class="fas fa-layer-group"></i> Presets</h3>
+                                <div class="preset-grid">
+                                    <button class="preset-btn" data-preset="solar-system"
+                                            data-tooltip="Creates a realistic solar system with the Sun, Earth, Mars, and Jupiter in proper orbits and scales.">
+                                        <i class="fas fa-sun"></i>
+                                        <span>Solar System</span>
+                                    </button>
+                                    <button class="preset-btn" data-preset="binary-stars"
+                                            data-tooltip="Two massive stars orbiting each other with smaller planets, demonstrating complex gravitational dynamics.">
+                                        <i class="fas fa-star"></i>
+                                        <span>Binary Stars</span>
+                                    </button>
+                                    <button class="preset-btn" data-preset="galaxy"
+                                            data-tooltip="Spiral galaxy formation with a central massive black hole and many orbiting stars showing galactic rotation.">
+                                        <i class="fas fa-compact-disc"></i>
+                                        <span>Galaxy</span>
+                                    </button>
+                                    <button class="preset-btn" data-preset="chaos"
+                                            data-tooltip="Random collection of bodies with various masses and velocities to explore chaotic gravitational interactions.">
+                                        <i class="fas fa-random"></i>
+                                        <span>Chaos</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Position:</span>
-                            <span id="selected-position">(0, 0)</span>
+
+                        <!-- View Tab -->
+                        <div class="tab-panel" id="view-tab">
+                            <div class="panel-section">
+                                <h3><i class="fas fa-eye"></i> Visual Options</h3>
+                                
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label"
+                                           data-tooltip="Shows the path history of each body as colored lines. Helps visualize orbital patterns and trajectories over time.">
+                                        <input type="checkbox" id="show-trails" checked>
+                                        <span class="checkmark"></span>
+                                        Show Trails
+                                    </label>
+                                    <label class="checkbox-label"
+                                           data-tooltip="Displays a reference grid to help judge distances and scale in the simulation space.">
+                                        <input type="checkbox" id="show-grid" checked>
+                                        <span class="checkmark"></span>
+                                        Show Grid
+                                    </label>
+                                    <label class="checkbox-label"
+                                           data-tooltip="Shows arrows indicating the gravitational force direction and magnitude acting on each body. Useful for understanding physics but may impact performance with many bodies.">
+                                        <input type="checkbox" id="show-forces">
+                                        <span class="checkmark"></span>
+                                        Show Force Vectors
+                                    </label>
+                                    <label class="checkbox-label"
+                                           data-tooltip="When placing bodies in orbit mode, shows a long-term orbital prediction to visualize the complete orbital path. May be slow with complex systems.">
+                                        <input type="checkbox" id="long-term-preview">
+                                        <span class="checkmark"></span>
+                                        Look Far Ahead
+                                    </label>
+                                    <label class="checkbox-label"
+                                           data-tooltip="Debug feature: Shows the exact collision detection boundaries around each body as yellow dashed circles.">
+                                        <input type="checkbox" id="show-collision-bounds">
+                                        <span class="checkmark"></span>
+                                        Show Collision Bounds (Debug)
+                                    </label>
+                                </div>
+                                
+                                <div class="slider-group">
+                                    <label for="trail-length">Trail Length</label>
+                                    <div class="slider-input-group">
+                                        <input type="range" id="trail-length" min="0" max="100" step="1" value="50"
+                                               data-tooltip="Number of previous positions to display as a trail behind each body. Higher values show longer orbital history but may impact performance with many bodies.">
+                                        <input type="number" id="trail-length-input" min="0" max="1000" step="1" value="50" class="direct-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3><i class="fas fa-info-circle"></i> System Information</h3>
+                                <div class="info-display">
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <span class="info-label">Bodies:</span>
+                                            <span id="body-count">0</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Total Mass:</span>
+                                            <span id="total-mass">0</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Kinetic Energy:</span>
+                                            <span id="kinetic-energy">0</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Potential Energy:</span>
+                                            <span id="potential-energy">0</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Mouse Position:</span>
+                                            <span id="mouse-position">(0, 0)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Selected Body Info -->
+                            <div id="selected-body-panel" class="panel-section" style="display: none;">
+                                <h3><i class="fas fa-crosshairs"></i> Selected Body</h3>
+                                <div class="selected-body-info">
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <span class="info-label">Mass:</span>
+                                            <span id="selected-mass">0</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Position:</span>
+                                            <span id="selected-position">(0, 0)</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Velocity:</span>
+                                            <span id="selected-velocity">(0, 0)</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Speed:</span>
+                                            <span id="selected-speed">0</span>
+                                        </div>
+                                    </div>
+                                    <button id="delete-selected" class="danger-btn full-width">
+                                        <i class="fas fa-times"></i> Delete Body
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Velocity:</span>
-                            <span id="selected-velocity">(0, 0)</span>
+                        <!-- Tools Tab -->
+                        <div class="tab-panel" id="tools-tab">
+                            <div class="panel-section">
+                                <h3><i class="fas fa-save"></i> Save & Load</h3>
+                                <div class="control-group">
+                                    <button id="save-config" class="secondary-btn"
+                                            data-tooltip="Download current simulation state (all bodies, positions, velocities) as a JSON file that can be loaded later.">
+                                        <i class="fas fa-download"></i> Save
+                                    </button>
+                                    <button id="load-config" class="secondary-btn"
+                                            data-tooltip="Load a previously saved simulation state from a JSON file. Will replace current bodies with saved configuration.">
+                                        <i class="fas fa-upload"></i> Load
+                                    </button>
+                                    <input type="file" id="file-input" accept=".json" style="display: none;">
+                                </div>
+                                <button id="export-video" class="secondary-btn full-width"
+                                        data-tooltip="Records the simulation as an animated GIF or video file. Note: This may impact performance during recording and requires a modern browser.">
+                                    <i class="fas fa-video"></i> Export Video
+                                </button>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3><i class="fas fa-keyboard"></i> Shortcuts</h3>
+                                <button id="show-shortcuts" class="secondary-btn full-width"
+                                        data-tooltip="Display a comprehensive list of all keyboard and mouse controls available in the simulation.">
+                                    <i class="fas fa-question-circle"></i> Show Controls Help
+                                </button>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3><i class="fas fa-cog"></i> Advanced</h3>
+                                <div class="control-group">
+                                    <button id="debug-mode" class="secondary-btn"
+                                            data-tooltip="Toggle debug mode to show additional technical information and performance metrics.">
+                                        <i class="fas fa-bug"></i> Debug
+                                    </button>
+                                    <button id="performance-mode" class="secondary-btn"
+                                            data-tooltip="Enable performance optimizations that may reduce visual quality but improve frame rate with many bodies.">
+                                        <i class="fas fa-tachometer-alt"></i> Performance
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Speed:</span>
-                            <span id="selected-speed">0</span>
-                        </div>
-                        <button id="delete-selected" class="danger-btn full-width">
-                            <i class="fas fa-times"></i> Delete Body
-                        </button>
                     </div>
                 </div>
             </aside>
@@ -678,16 +768,16 @@
         <!-- Help Button removed - use F1 key instead -->
     </div>
 
-    <script src="js/constants.js"></script>
-    <script src="js/vector2d.js"></script>
-    <script src="js/body.js"></script>
-    <script src="js/integrator.js"></script>
-    <script src="js/barnes-hut.js"></script>
-    <script src="js/gpu-physics.js"></script>
-    <script src="js/physics.js"></script>
-    <script src="js/renderer.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/presets.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/constants.js?v=2.0"></script>
+    <script src="js/vector2d.js?v=2.0"></script>
+    <script src="js/body.js?v=2.0"></script>
+    <script src="js/integrator.js?v=2.0"></script>
+    <script src="js/barnes-hut.js?v=2.0"></script>
+    <script src="js/gpu-physics.js?v=2.0"></script>
+    <script src="js/physics.js?v=2.0"></script>
+    <script src="js/renderer.js?v=2.0"></script>
+    <script src="js/ui.js?v=2.0"></script>
+    <script src="js/presets.js?v=2.0"></script>
+    <script src="js/app.js?v=2.0"></script>
 </body>
 </html>

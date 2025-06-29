@@ -461,17 +461,15 @@ class NBodyApp {
             case 'delete-selected':
                 this.deleteSelectedBody();
                 break;
-            case 'help-btn-removed':
-                // Help button removed - use F1 or ? key instead
-                break;
             case 'reference-toggle':
-                this.toggleReferencePanel();
+                this.ui.toggleReferencePanel();
+                this.updateDynamicReference();
                 break;
             case 'performance-toggle':
-                this.togglePerformancePanel();
+                this.ui.togglePerformancePanel();
                 break;
             case 'energy-toggle':
-                this.toggleEnergyPanel();
+                this.ui.toggleEnergyPanel();
                 break;
         }
     }
@@ -508,11 +506,11 @@ class NBodyApp {
                 break;
         }
     }
-    
+
     onCollisionTypeChange(type) {
         this.physics.setCollisionType(type);
     }
-    
+
     onRestitutionChange(value) {
         this.physics.setRestitutionCoefficient(value);
     }
@@ -878,15 +876,6 @@ class NBodyApp {
         if (this.selectedBody) {
             const index = this.bodies.indexOf(this.selectedBody);
             if (index !== -1) {
-                const removedBody = this.selectedBody;
-                
-                // Clean up collision cooldowns for all remaining bodies
-                this.bodies.forEach(body => {
-                    if (body !== removedBody) {
-                        body.collisionCooldowns.delete(removedBody.id);
-                    }
-                });
-                
                 this.bodies.splice(index, 1);
                 this.selectedBody = null;
                 this.updateDynamicReference(); // Update reference panel after deletion
@@ -1025,15 +1014,6 @@ class NBodyApp {
             console.log('GPU acceleration disabled');
             this.ui.showNotification('GPU acceleration disabled', 'info');
         }
-    }
-
-    // Panel toggle methods
-    togglePerformancePanel() {
-        this.ui.togglePerformancePanel();
-    }
-
-    toggleEnergyPanel() {
-        this.ui.toggleEnergyPanel();
     }
 
     // Web Workers control
@@ -1308,17 +1288,6 @@ class NBodyApp {
         // Update cursor during drag operations
         if (this.isDragging) {
             this.canvas.style.cursor = 'grabbing';
-        }
-    }
-
-    // Toggle reference panel
-    toggleReferencePanel() {
-        this.ui.referenceShown = !this.ui.referenceShown;
-        const panel = document.getElementById('reference-panel');
-        const button = document.getElementById('reference-toggle');
-        if (panel && button) {
-            panel.classList.toggle('show');
-            button.classList.toggle('active');
         }
     }
 }
