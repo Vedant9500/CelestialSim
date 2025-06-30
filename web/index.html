@@ -508,76 +508,165 @@
         <!-- Reference Panel -->
         <div id="reference-panel" class="reference-panel">
             <div class="reference-content">
-                <h4><i class="fas fa-ruler"></i> <span id="reference-title">Real-World Scale Reference</span></h4>
+                <div class="reference-header">
+                    <h4><i class="fas fa-ruler-combined"></i> Scale Reference Guide</h4>
+                    <p class="reference-subtitle">Understanding what your simulation values mean in the real world</p>
+                </div>
                 
                 <!-- Selected Body Info -->
                 <div id="selected-body-info" class="selected-body-section" style="display: none;">
-                    <h5><i class="fas fa-dot-circle"></i> Selected Body Information</h5>
-                    <div class="body-info-grid">
-                        <div class="body-info-item">
-                            <span class="info-label">Mass:</span>
-                            <span id="body-mass-value" class="info-value">-</span>
-                            <span id="body-mass-real" class="info-real">-</span>
+                    <div class="section-header">
+                        <h5><i class="fas fa-crosshairs"></i> Selected Body Details</h5>
+                        <p class="section-description">Real-world equivalent values for your selected object</p>
+                    </div>
+                    <div class="body-info-cards">
+                        <div class="info-card">
+                            <div class="info-icon"><i class="fas fa-weight-hanging"></i></div>
+                            <div class="info-content">
+                                <span class="info-label">Mass</span>
+                                <span id="body-mass-value" class="info-value">-</span>
+                                <span class="info-units">simulation units</span>
+                                <span id="body-mass-real" class="info-real">-</span>
+                            </div>
                         </div>
-                        <div class="body-info-item">
-                            <span class="info-label">Position:</span>
-                            <span id="body-position-value" class="info-value">-</span>
-                            <span id="body-position-real" class="info-real">-</span>
+                        <div class="info-card">
+                            <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div class="info-content">
+                                <span class="info-label">Position</span>
+                                <span id="body-position-value" class="info-value">-</span>
+                                <span class="info-units">simulation units</span>
+                                <span id="body-position-real" class="info-real">-</span>
+                            </div>
                         </div>
-                        <div class="body-info-item">
-                            <span class="info-label">Velocity:</span>
-                            <span id="body-velocity-value" class="info-value">-</span>
-                            <span id="body-velocity-real" class="info-real">-</span>
+                        <div class="info-card">
+                            <div class="info-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            <div class="info-content">
+                                <span class="info-label">Speed</span>
+                                <span id="body-velocity-value" class="info-value">-</span>
+                                <span class="info-units">simulation units</span>
+                                <span id="body-velocity-real" class="info-real">-</span>
+                            </div>
                         </div>
-                        <div class="body-info-item">
-                            <span class="info-label">Kinetic Energy:</span>
-                            <span id="body-kinetic-value" class="info-value">-</span>
-                            <span id="body-kinetic-real" class="info-real">-</span>
+                        <div class="info-card">
+                            <div class="info-icon"><i class="fas fa-bolt"></i></div>
+                            <div class="info-content">
+                                <span class="info-label">Energy</span>
+                                <span id="body-kinetic-value" class="info-value">-</span>
+                                <span class="info-units">simulation units</span>
+                                <span id="body-kinetic-real" class="info-real">-</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Base Scale Reference -->
-                <div class="reference-grid">
-                    <div class="reference-item">
-                        <span class="ref-label">1 Mass Unit ≈</span>
-                        <span class="ref-value">5.97 × 10²⁴ kg (Earth Mass)</span>
+                <div class="scale-section">
+                    <div class="section-header">
+                        <h5><i class="fas fa-balance-scale"></i> Simulation Scale</h5>
+                        <p class="section-description">How simulation units translate to real astronomical values</p>
                     </div>
-                    <div class="reference-item">
-                        <span class="ref-label">1 Distance Unit ≈</span>
-                        <span class="ref-value">1.496 × 10¹¹ m (1 AU)</span>
-                    </div>
-                    <div class="reference-item">
-                        <span class="ref-label">1 Time Unit ≈</span>
-                        <span class="ref-value">365.25 days (1 Earth Year)</span>
-                    </div>
-                    <div class="reference-item">
-                        <span class="ref-label">1 Velocity Unit ≈</span>
-                        <span class="ref-value">29.78 km/s (Earth Orbital Speed)</span>
-                    </div>
-                    
-                    <!-- Dynamic comparison bodies -->
-                    <div class="reference-item" id="comparison-sun" style="display: none;">
-                        <span class="ref-label">Sun Mass ≈</span>
-                        <span id="sun-mass-comparison" class="ref-value">333,000 mass units</span>
-                    </div>
-                    <div class="reference-item" id="comparison-moon" style="display: none;">
-                        <span class="ref-label">Moon Mass ≈</span>
-                        <span id="moon-mass-comparison" class="ref-value">0.012 mass units</span>
-                    </div>
-                    <div class="reference-item" id="comparison-jupiter" style="display: none;">
-                        <span class="ref-label">Jupiter Mass ≈</span>
-                        <span id="jupiter-mass-comparison" class="ref-value">318 mass units</span>
-                    </div>
-                    <div class="reference-item" id="comparison-mars" style="display: none;">
-                        <span class="ref-label">Mars Mass ≈</span>
-                        <span id="mars-mass-comparison" class="ref-value">0.107 mass units</span>
+                    <div class="scale-grid">
+                        <div class="scale-card mass-scale">
+                            <div class="scale-icon"><i class="fas fa-globe"></i></div>
+                            <div class="scale-content">
+                                <div class="scale-number">1</div>
+                                <div class="scale-unit">Mass Unit</div>
+                                <div class="scale-equals">=</div>
+                                <div class="scale-real">
+                                    <span class="scale-value">1 Earth Mass</span>
+                                    <span class="scale-scientific">5.97 × 10²⁴ kg</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="scale-card distance-scale">
+                            <div class="scale-icon"><i class="fas fa-ruler"></i></div>
+                            <div class="scale-content">
+                                <div class="scale-number">1</div>
+                                <div class="scale-unit">Distance Unit</div>
+                                <div class="scale-equals">=</div>
+                                <div class="scale-real">
+                                    <span class="scale-value">1 Astronomical Unit</span>
+                                    <span class="scale-scientific">150 million km</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="scale-card time-scale">
+                            <div class="scale-icon"><i class="fas fa-clock"></i></div>
+                            <div class="scale-content">
+                                <div class="scale-number">1</div>
+                                <div class="scale-unit">Time Unit</div>
+                                <div class="scale-equals">=</div>
+                                <div class="scale-real">
+                                    <span class="scale-value">1 Earth Year</span>
+                                    <span class="scale-scientific">365.25 days</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="scale-card velocity-scale">
+                            <div class="scale-icon"><i class="fas fa-rocket"></i></div>
+                            <div class="scale-content">
+                                <div class="scale-number">1</div>
+                                <div class="scale-unit">Speed Unit</div>
+                                <div class="scale-equals">=</div>
+                                <div class="scale-real">
+                                    <span class="scale-value">Earth's Orbital Speed</span>
+                                    <span class="scale-scientific">29.78 km/s</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="reference-note">
-                    <i class="fas fa-info-circle"></i>
-                    <span id="reference-note-text">Select a body to see detailed real-world comparisons and scale information!</span>
+                <!-- Comparison Section -->
+                <div class="comparison-section">
+                    <div class="section-header">
+                        <h5><i class="fas fa-balance-scale-right"></i> Celestial Body Comparisons</h5>
+                        <p class="section-description">Common astronomical objects in simulation units</p>
+                    </div>
+                    <div class="comparison-grid">
+                        <div class="comparison-item" id="comparison-sun" style="display: none;">
+                            <div class="comparison-icon sun"><i class="fas fa-sun"></i></div>
+                            <div class="comparison-info">
+                                <span class="comparison-name">Sun</span>
+                                <span class="comparison-value">333,000 mass units</span>
+                                <span class="comparison-note">Our star</span>
+                            </div>
+                        </div>
+                        <div class="comparison-item" id="comparison-jupiter" style="display: none;">
+                            <div class="comparison-icon jupiter"><i class="fas fa-circle"></i></div>
+                            <div class="comparison-info">
+                                <span class="comparison-name">Jupiter</span>
+                                <span class="comparison-value">318 mass units</span>
+                                <span class="comparison-note">Largest planet</span>
+                            </div>
+                        </div>
+                        <div class="comparison-item" id="comparison-mars" style="display: none;">
+                            <div class="comparison-icon mars"><i class="fas fa-circle"></i></div>
+                            <div class="comparison-info">
+                                <span class="comparison-name">Mars</span>
+                                <span class="comparison-value">0.107 mass units</span>
+                                <span class="comparison-note">Red planet</span>
+                            </div>
+                        </div>
+                        <div class="comparison-item" id="comparison-moon" style="display: none;">
+                            <div class="comparison-icon moon"><i class="fas fa-moon"></i></div>
+                            <div class="comparison-info">
+                                <span class="comparison-name">Moon</span>
+                                <span class="comparison-value">0.012 mass units</span>
+                                <span class="comparison-note">Earth's satellite</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reference-tip">
+                    <div class="tip-icon"><i class="fas fa-lightbulb"></i></div>
+                    <div class="tip-content">
+                        <strong>Pro Tip:</strong> <span id="reference-note-text">Click on any body in the simulation to see how it compares to real astronomical objects!</span>
+                    </div>
                 </div>
             </div>
         </div>

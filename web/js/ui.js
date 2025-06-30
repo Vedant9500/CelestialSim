@@ -896,7 +896,7 @@ class UIManager {
         if (selectedBody && selectedBodyInfo) {
             selectedBodyInfo.style.display = 'block';
             
-            // Update body information
+            // Update body information with improved formatting
             const massValue = document.getElementById('body-mass-value');
             const massReal = document.getElementById('body-mass-real');
             const positionValue = document.getElementById('body-position-value');
@@ -906,36 +906,58 @@ class UIManager {
             const kineticValue = document.getElementById('body-kinetic-value');
             const kineticReal = document.getElementById('body-kinetic-real');
             
-            if (massValue) massValue.textContent = selectedBody.mass.toFixed(1);
-            if (massReal) massReal.textContent = `(${(selectedBody.mass * 5.97e24).toExponential(2)} kg)`;
+            if (massValue) massValue.textContent = selectedBody.mass.toFixed(2);
+            if (massReal) {
+                const earthMasses = selectedBody.mass;
+                const kg = selectedBody.mass * 5.97e24;
+                massReal.textContent = earthMasses >= 1 ? 
+                    `${earthMasses.toFixed(1)} Earth masses` : 
+                    `${(earthMasses * 1000).toFixed(1)}‰ Earth mass`;
+            }
             
             if (positionValue) {
-                positionValue.textContent = `(${selectedBody.position.x.toFixed(1)}, ${selectedBody.position.y.toFixed(1)})`;
+                positionValue.textContent = `(${selectedBody.position.x.toFixed(2)}, ${selectedBody.position.y.toFixed(2)})`;
             }
             if (positionReal) {
-                const realX = selectedBody.position.x * 1.496e11;
-                const realY = selectedBody.position.y * 1.496e11;
-                positionReal.textContent = `(${realX.toExponential(2)}, ${realY.toExponential(2)} m)`;
+                const auX = selectedBody.position.x;
+                const auY = selectedBody.position.y;
+                const distance = Math.sqrt(auX * auX + auY * auY);
+                positionReal.textContent = distance >= 1 ? 
+                    `${distance.toFixed(2)} AU from center` : 
+                    `${(distance * 149.6).toFixed(1)} million km from center`;
             }
             
             if (velocityValue) {
                 const speed = selectedBody.velocity.magnitude();
-                velocityValue.textContent = speed.toFixed(1);
+                velocityValue.textContent = speed.toFixed(2);
             }
             if (velocityReal) {
-                const realSpeed = selectedBody.velocity.magnitude() * 29780;
-                velocityReal.textContent = `(${realSpeed.toFixed(0)} m/s)`;
+                const speed = selectedBody.velocity.magnitude();
+                const kmPerSec = speed * 29.78;
+                velocityReal.textContent = `${kmPerSec.toFixed(1)} km/s`;
             }
             
             if (kineticValue && selectedBody.kineticEnergy !== undefined) {
-                kineticValue.textContent = selectedBody.kineticEnergy.toFixed(1);
+                kineticValue.textContent = selectedBody.kineticEnergy.toFixed(2);
             }
             if (kineticReal && selectedBody.kineticEnergy !== undefined) {
                 const realKE = selectedBody.kineticEnergy * 5.97e24 * Math.pow(29780, 2);
-                kineticReal.textContent = `(${realKE.toExponential(2)} J)`;
+                kineticReal.textContent = `${realKE.toExponential(2)} J`;
+            }
+            
+            // Update the tip text for selected body
+            const tipText = document.getElementById('reference-note-text');
+            if (tipText) {
+                tipText.textContent = `This body has ${selectedBody.mass.toFixed(1)} times the mass of Earth and is moving at ${(selectedBody.velocity.magnitude() * 29.78).toFixed(1)} km/s.`;
             }
         } else if (selectedBodyInfo) {
             selectedBodyInfo.style.display = 'none';
+            
+            // Reset tip text when no body is selected
+            const tipText = document.getElementById('reference-note-text');
+            if (tipText) {
+                tipText.textContent = 'Click on any body in the simulation to see how it compares to real astronomical objects!';
+            }
         }
         
         // Update comparison bodies based on current masses
@@ -944,28 +966,44 @@ class UIManager {
     
     // Update mass comparison display
     updateMassComparisons(bodies) {
-        if (bodies.length === 0) return;
+        if (bodies.length === 0) {
+            // Hide all comparisons when no bodies exist
+            const comparisons = ['comparison-sun', 'comparison-moon', 'comparison-jupiter', 'comparison-mars'];
+            comparisons.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.style.display = 'none';
+            });
+            return;
+        }
         
         const maxMass = Math.max(...bodies.map(b => b.mass));
         const minMass = Math.min(...bodies.map(b => b.mass));
+        const avgMass = bodies.reduce((sum, b) => sum + b.mass, 0) / bodies.length;
         
-        // Show/hide comparison elements based on mass range
+        // Show/hide comparison elements based on mass range with smarter logic
         const sunComparison = document.getElementById('comparison-sun');
         const moonComparison = document.getElementById('comparison-moon');
         const jupiterComparison = document.getElementById('comparison-jupiter');
         const marsComparison = document.getElementById('comparison-mars');
         
+        // Show sun comparison if we have massive bodies or many bodies
         if (sunComparison) {
-            sunComparison.style.display = maxMass > 100 ? 'flex' : 'none';
+            sunComparison.style.display = (maxMass > 50 || bodies.length > 5) ? 'flex' : 'none';
         }
+        
+        // Show moon comparison if we have small bodies
         if (moonComparison) {
-            moonComparison.style.display = minMass < 1 ? 'flex' : 'none';
+            moonComparison.style.display = (minMass < 0.5 || avgMass < 1) ? 'flex' : 'none';
         }
+        
+        // Show Jupiter comparison if we have large planetary bodies
         if (jupiterComparison) {
-            jupiterComparison.style.display = maxMass > 50 ? 'flex' : 'none';
+            jupiterComparison.style.display = (maxMass > 10 && maxMass < 1000) ? 'flex' : 'none';
         }
+        
+        // Show Mars comparison if we have smaller terrestrial planet bodies
         if (marsComparison) {
-            marsComparison.style.display = minMass < 10 ? 'flex' : 'none';
+            marsComparison.style.display = (minMass < 5 && maxMass > 0.05) ? 'flex' : 'none';
         }
     }
 
