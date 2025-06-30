@@ -19,7 +19,7 @@ class GPUPhysicsEngine {
         this.currentRead = 'A'; // Start by reading from A
         this.currentWrite = 'B';// and writing to B
 
-        this.maxBodies = 1024; // Maximum bodies GPU can handle (limited by uniform space)
+        this.maxBodies = 32; // Very conservative limit to avoid uniform register limits
         this.currentBodyCount = 0;
         this.isInitialized = false;
         this.limitWarningShown = false; // Track if we've shown the limitation warning
@@ -43,29 +43,70 @@ class GPUPhysicsEngine {
                 return;
             }
 
-            // Check capabilities
+            // Check capabilities and set very conservative limits
             const maxUniforms = this.gl.getParameter(this.gl.MAX_VERTEX_UNIFORM_VECTORS);
-            // Each body needs a vec3 (pos.x, pos.y, mass). A vec4 uniform holds 4 floats.
-            this.maxBodies = Math.min(this.maxBodies, Math.floor(maxUniforms * 4 / 3));
+            // Each body needs a vec3 (pos.x, pos.y, mass). Very conservative limit to avoid register overflow
+            // Leave plenty of room for other uniforms and GPU overhead
+            const uniformLimit = Math.floor(maxUniforms / 16); // Very conservative - divide by 16
+            this.maxBodies = Math.min(this.maxBodies, uniformLimit, 25); // Hard cap at 25
 
             console.log('WebGL GPU Physics Engine Initializing...');
             console.log('- Max Vertex Uniforms:', maxUniforms);
-            console.log('- Max Bodies Supported (Uniform method):', this.maxBodies);
+            console.log('- Calculated Uniform Limit:', uniformLimit);
+            console.log('- Max Bodies Supported (GPU):', this.maxBodies);
+
+            // Verify we have a reasonable limit
+            if (this.maxBodies < 5) {
+                console.warn('GPU capabilities too limited for GPU physics (less than 5 bodies supported)');
+                this.isSupported = false;
+                return;
+            }
 
             this.createShaders();
             this.createBuffers();
 
             this.isSupported = true;
+            this.isInitialized = true;
             console.log('GPU Physics Engine initialized successfully.');
 
         } catch (error) {
             console.error('Failed to initialize GPU Physics Engine:', error);
             this.isSupported = false;
+            this.isInitialized = false;
+            
+            // Clean up any partially created resources
+            this.cleanup();
+        }
+    }
+
+    cleanup() {
+        if (!this.gl) return;
+        
+        try {
+            if (this.program) {
+                this.gl.deleteProgram(this.program);
+                this.program = null;
+            }
+            
+            if (this.buffers.A) this.gl.deleteBuffer(this.buffers.A);
+            if (this.buffers.B) this.gl.deleteBuffer(this.buffers.B);
+            if (this.vaos.A) this.gl.deleteVertexArray(this.vaos.A);
+            if (this.vaos.B) this.gl.deleteVertexArray(this.vaos.B);
+            if (this.transformFeedback) this.gl.deleteTransformFeedback(this.transformFeedback);
+            
+            this.buffers = { A: null, B: null };
+            this.vaos = { A: null, B: null };
+            this.transformFeedback = null;
+        } catch (e) {
+            console.warn('Error during GPU cleanup:', e);
         }
     }
 
     createShaders() {
         const gl = this.gl;
+
+        // Create vertex shader with dynamic array size based on capabilities
+        console.log(`Creating GPU shader with support for ${this.maxBodies} bodies`);
 
         // Vertex shader that performs a true N-body calculation
         const vertexShaderSource = `#version 300 es
@@ -149,26 +190,38 @@ class GPUPhysicsEngine {
             }
         `;
 
-        const vs = this.compileShader(gl.VERTEX_SHADER, vertexShaderSource);
-        const fs = this.compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-        this.program = gl.createProgram();
-        gl.attachShader(this.program, vs);
-        gl.attachShader(this.program, fs);
-
-        // Specify varyings for transform feedback BEFORE linking
-        gl.transformFeedbackVaryings(this.program,
-            ['v_newPosition', 'v_newVelocity', 'v_newMass'],
-            gl.INTERLEAVED_ATTRIBS);
-
-        gl.linkProgram(this.program);
-
-        if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
-            throw new Error('Program link error: ' + gl.getProgramInfoLog(this.program));
-        }
+        console.log('Compiling shaders...');
         
-        gl.deleteShader(vs);
-        gl.deleteShader(fs);
+        try {
+            const vs = this.compileShader(gl.VERTEX_SHADER, vertexShaderSource);
+            const fs = this.compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+
+            this.program = gl.createProgram();
+            gl.attachShader(this.program, vs);
+            gl.attachShader(this.program, fs);
+
+            // Specify varyings for transform feedback BEFORE linking
+            gl.transformFeedbackVaryings(this.program,
+                ['v_newPosition', 'v_newVelocity', 'v_newMass'],
+                gl.INTERLEAVED_ATTRIBS);
+
+            console.log('Linking shader program...');
+            gl.linkProgram(this.program);
+
+            if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+                const linkError = gl.getProgramInfoLog(this.program);
+                console.error('Shader link error:', linkError);
+                throw new Error('Program link error: ' + linkError);
+            }
+            
+            console.log('GPU shaders compiled and linked successfully');
+            gl.deleteShader(vs);
+            gl.deleteShader(fs);
+            
+        } catch (error) {
+            console.error('Failed to create GPU shaders:', error);
+            throw error; // Re-throw to be caught by initialize()
+        }
     }
 
     compileShader(type, source) {
@@ -176,11 +229,14 @@ class GPUPhysicsEngine {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
+        
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             const error = gl.getShaderInfoLog(shader);
+            console.error(`Shader compile error (${type === gl.VERTEX_SHADER ? 'Vertex' : 'Fragment'}):`, error);
             gl.deleteShader(shader);
             throw new Error(`Shader compile error (${type === gl.VERTEX_SHADER ? 'Vertex' : 'Fragment'}): ${error}`);
         }
+        
         return shader;
     }
 
@@ -220,27 +276,46 @@ class GPUPhysicsEngine {
 
     // Main update method called by the application
     update(bodies, deltaTime) {
-        if (!this.isSupported || bodies.length === 0) return;
-        
+        // Early return if not ready
+        if (!this.isReady()) {
+            return false; // Indicate GPU physics failed
+        }
+
+        if (bodies.length === 0) {
+            return true; // No work to do, but not an error
+        }
+
+        // Check if we exceed the GPU limit
         if (bodies.length > this.maxBodies) {
-            console.warn(`GPU physics limited to ${this.maxBodies} bodies, got ${bodies.length}. Truncating.`);
-            bodies = bodies.slice(0, this.maxBodies);
+            if (!this.limitWarningShown) {
+                console.warn(`GPU Physics: Too many bodies (${bodies.length}), max supported: ${this.maxBodies}. Falling back to CPU physics.`);
+                this.limitWarningShown = true;
+            }
+            return false; // Indicate fallback to CPU is needed
         }
 
-        const startTime = performance.now();
-        
-        // If this is the first run or body count changed, initialize buffers
-        if (!this.isInitialized || this.currentBodyCount !== bodies.length) {
-            this.initializeWithBodyData(bodies);
+        try {
+            const startTime = performance.now();
+            
+            // If this is the first run or body count changed, initialize buffers
+            if (!this.isInitialized || this.currentBodyCount !== bodies.length) {
+                this.initializeWithBodyData(bodies);
+            }
+
+            this.updateSimulation(bodies, deltaTime);
+
+            this.performanceStats.gpuTime = performance.now() - startTime;
+
+            // The simulation runs entirely on the GPU. We only read back data
+            // when the CPU needs it (e.g., for rendering). The application
+            // should call `readbackResults` to get the latest data.
+            return true; // Indicate success
+            
+        } catch (error) {
+            console.error('GPU Physics error, falling back to CPU:', error);
+            this.isSupported = false; // Disable GPU physics for this session
+            return false;
         }
-
-        this.updateSimulation(bodies, deltaTime);
-
-        this.performanceStats.gpuTime = performance.now() - startTime;
-
-        // The simulation runs entirely on the GPU. We only read back data
-        // when the CPU needs it (e.g., for rendering). The application
-        // should call `readbackResults` to get the latest data.
     }
 
     initializeWithBodyData(bodies) {
@@ -391,6 +466,51 @@ class GPUPhysicsEngine {
     dispose() {
         if (!this.gl) return;
         // ... (cleanup code is the same)
+   }
+
+    // Method to check if GPU physics is ready to use
+    isReady() {
+        return this.isSupported && this.isInitialized && this.gl && this.program;
+    }
+
+    // Method to safely update bodies with GPU physics
+    updateBodies(bodies) {
+        // Early return if not ready
+        if (!this.isReady()) {
+            return bodies; // Return unchanged
+        }
+
+        if (bodies.length === 0) {
+            return bodies;
+        }
+
+        // Check if we exceed the GPU limit
+        if (bodies.length > this.maxBodies) {
+            if (!this.limitWarningShown) {
+                console.warn(`GPU Physics: Too many bodies (${bodies.length}), max supported: ${this.maxBodies}. Falling back to CPU physics.`);
+                this.limitWarningShown = true;
+            }
+            return bodies; // Fallback to CPU physics
+        }
+
+        try {
+            // Upload body data if needed
+            if (bodies.length !== this.currentBodyCount) {
+                this.uploadBodyData(bodies);
+            }
+
+            // Run GPU simulation
+            this.updateSimulation(bodies, 0.016); // Assume 60 FPS
+
+            // Read back results
+            this.readbackResults(bodies);
+
+            return bodies;
+        } catch (error) {
+            console.error('GPU Physics error, falling back to CPU:', error);
+            this.isSupported = false;
+            return bodies;
+        }
     }
 }
 

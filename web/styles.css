@@ -1670,6 +1670,145 @@ body {
     right: 200px; /* Increased spacing to prevent overlap */
 }
 
+/* Tools Tab Button Styles */
+.tools-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.tool-btn,
+.tool-btn-wide {
+    padding: 0.9rem;
+    border: 2px solid rgba(100, 255, 218, 0.2);
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(100, 255, 218, 0.05) 100%);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 80px;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.tool-btn-wide {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: center;
+    min-height: 50px;
+}
+
+.tool-btn::before,
+.tool-btn-wide::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(187, 134, 252, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 8px;
+}
+
+.tool-btn:hover,
+.tool-btn-wide:hover {
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.12) 0%, rgba(187, 134, 252, 0.12) 100%);
+    border-color: rgba(100, 255, 218, 0.4);
+    box-shadow: 0 4px 15px rgba(100, 255, 218, 0.15);
+}
+
+.tool-btn:hover::before,
+.tool-btn-wide:hover::before {
+    opacity: 1;
+}
+
+.tool-btn i,
+.tool-btn-wide i {
+    font-size: 1.3rem;
+    color: #64ffda;
+    transition: all 0.3s ease;
+    z-index: 1;
+    position: relative;
+}
+
+.tool-btn-wide i {
+    font-size: 1.1rem;
+}
+
+.tool-btn:hover i,
+.tool-btn-wide:hover i {
+    transform: scale(1.1);
+    text-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
+}
+
+.tool-btn span,
+.tool-btn-wide span {
+    font-weight: 600;
+    color: #ffffff;
+    z-index: 1;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.75rem;
+}
+
+.tool-btn:active,
+.tool-btn-wide:active {
+    transform: scale(0.98);
+}
+
+/* Special styling for different tool categories */
+.tool-btn[id*="save"],
+.tool-btn[id*="load"] {
+    border-color: rgba(100, 255, 218, 0.3);
+}
+
+.tool-btn[id*="save"]:hover,
+.tool-btn[id*="load"]:hover {
+    border-color: #64ffda;
+}
+
+.tool-btn[id*="debug"],
+.tool-btn[id*="performance"] {
+    border-color: rgba(187, 134, 252, 0.3);
+}
+
+.tool-btn[id*="debug"]:hover,
+.tool-btn[id*="performance"]:hover {
+    border-color: #bb86fc;
+    box-shadow: 0 4px 15px rgba(187, 134, 252, 0.15);
+}
+
+.tool-btn[id*="debug"] i,
+.tool-btn[id*="performance"] i {
+    color: #bb86fc;
+}
+
+#export-video {
+    border-color: rgba(255, 135, 135, 0.3);
+}
+
+#export-video:hover {
+    border-color: #ff8787;
+    box-shadow: 0 4px 15px rgba(255, 135, 135, 0.15);
+}
+
+#export-video i {
+    color: #ff8787;
+}
+
 /* Responsive Design for Reference Panel */
 @media (max-width: 768px) {
     .body-info-cards,
