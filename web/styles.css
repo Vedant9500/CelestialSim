@@ -331,7 +331,7 @@ body {
 }
 
 .toolbar-btn.primary:hover {
-    transform: translateY(-3px);
+    /* Removed translateY transform to prevent movement animation */
     box-shadow: 0 8px 30px rgba(100, 255, 218, 0.4);
 }
 
@@ -344,7 +344,7 @@ body {
 
 .toolbar-btn.secondary:hover {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
-    transform: translateY(-2px);
+    /* Removed translateY transform to prevent movement animation */
     box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
 }
 
@@ -357,7 +357,7 @@ body {
 
 .toolbar-btn.danger:hover {
     background: linear-gradient(135deg, rgba(255, 107, 107, 0.4) 0%, rgba(255, 107, 107, 0.3) 100%);
-    transform: translateY(-2px);
+    /* Removed translateY transform to prevent movement animation */
     box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
 }
 
@@ -485,7 +485,7 @@ body {
 
 .tab-btn:hover {
     color: #ffffff;
-    transform: translateY(-1px);
+    /* Removed translateY transform to prevent movement animation */
 }
 
 .tab-btn:hover::before {
@@ -564,7 +564,7 @@ body {
 
 .panel-section:hover {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(100, 255, 218, 0.02) 100%);
-    transform: translateX(2px);
+    /* Removed translateX transform to prevent sliding animation */
 }
 
 .panel-section h3 {
@@ -694,7 +694,7 @@ body {
 .preset-btn:hover {
     background: linear-gradient(135deg, rgba(100, 255, 218, 0.15) 0%, rgba(187, 134, 252, 0.15) 100%);
     border-color: #64ffda;
-    transform: translateY(-2px);
+    /* Removed translateY transform to prevent movement animation */
     box-shadow: 0 6px 20px rgba(100, 255, 218, 0.3);
 }
 
@@ -703,9 +703,7 @@ body {
     text-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
 }
 
-.preset-btn:active {
-    transform: translateY(-1px);
-}
+/* Removed empty active rule for preset buttons */
 
 /* Velocity Controls Enhancement */
 .velocity-controls {
@@ -1503,7 +1501,7 @@ body {
 .comparison-item:hover {
     background: rgba(255, 255, 255, 0.06);
     border-color: rgba(100, 255, 218, 0.3);
-    transform: translateX(3px);
+    /* Removed translateX transform to prevent sliding animation */
 }
 
 .comparison-icon {
