@@ -223,7 +223,7 @@ body {
 .control-panel {
     width: 320px;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.98) 0%, rgba(10, 10, 20, 0.98) 100%);
-    border-left: 2px solid rgba(100, 255, 218, 0.3);
+    border-left: 2px solid #64ffda;
     overflow: hidden;
     backdrop-filter: blur(25px);
     display: flex;
@@ -232,22 +232,9 @@ body {
     position: relative;
 }
 
-.control-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 2px;
-    height: 100%;
-    background: linear-gradient(180deg, #64ffda, #bb86fc, #64ffda);
-    animation: borderPulse 3s ease-in-out infinite;
-    z-index: 1;
-}
+/* Removed animated border - keeping it clean and static */
 
-@keyframes borderPulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
-}
+/* Removed animation keyframes - keeping border static */
 
 .panel-section {
     padding: 1.25rem;
@@ -277,8 +264,6 @@ body {
     flex-direction: column;
     gap: 0.75rem;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-    position: relative;
-    z-index: 2; /* Ensure it sits above the panel border animation */
 }
 
 .toolbar-group {
