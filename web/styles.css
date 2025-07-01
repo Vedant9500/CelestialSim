@@ -471,6 +471,49 @@ body {
     transform: scaleY(1);
 }
 
+/* Tab Divider */
+.tab-divider {
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.2), transparent);
+    margin: 12px auto;
+}
+
+/* Panel Toggle Buttons */
+.panel-toggle-btn {
+    width: 100%;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: #888888;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    position: relative;
+    border-radius: 0;
+    margin: 1px 0;
+}
+
+.panel-toggle-btn:hover {
+    background: rgba(187, 134, 252, 0.08);
+    color: #bb86fc;
+}
+
+.panel-toggle-btn.active {
+    background: rgba(187, 134, 252, 0.15);
+    color: #bb86fc;
+    box-shadow: inset 2px 0 0 #bb86fc;
+}
+
+.panel-toggle-btn:nth-child(odd).active {
+    color: #64ffda;
+    background: rgba(100, 255, 218, 0.15);
+    box-shadow: inset 2px 0 0 #64ffda;
+}
+
 /* Vertical Tab Content Area */
 .vertical-tab-content {
     flex: 1;

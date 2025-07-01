@@ -113,6 +113,20 @@
                         <button class="vertical-tab-btn" data-tab="tools" data-tooltip="Tools & Actions">
                             <i class="fas fa-tools"></i>
                         </button>
+                        
+                        <!-- Divider -->
+                        <div class="tab-divider"></div>
+                        
+                        <!-- Panel Toggle Buttons -->
+                        <button class="panel-toggle-btn" id="reference-toggle-panel" data-tooltip="Scale Reference">
+                            <i class="fas fa-ruler"></i>
+                        </button>
+                        <button class="panel-toggle-btn" id="energy-toggle-panel" data-tooltip="Energy Monitor">
+                            <i class="fas fa-bolt"></i>
+                        </button>
+                        <button class="panel-toggle-btn" id="performance-toggle-panel" data-tooltip="Performance Monitor">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </button>
                     </div>
 
                     <!-- Tab Content Area -->
@@ -833,6 +847,109 @@
                 <!-- Energy Graph Placeholder -->
                 <div class="energy-graph">
                     <canvas id="energy-chart" width="300" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Panel -->
+        <div id="performance-panel" class="performance-panel">
+            <div class="performance-content">
+                <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
+                
+                <!-- Performance Settings -->
+                <div class="performance-settings">
+                    <div class="setting-group">
+                        <label for="physics-method">Physics Method:</label>
+                        <select id="physics-method" class="setting-select">
+                            <option value="verlet">Verlet Integration</option>
+                            <option value="rk4">Runge-Kutta 4</option>
+                            <option value="euler">Euler Method</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="adaptive-timestep" class="setting-checkbox">
+                            <span class="checkbox-label">Adaptive Timestep</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Performance Stats -->
+                <div class="performance-stats">
+                    <h5><i class="fas fa-chart-line"></i> Performance Statistics</h5>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Frame Rate:</span>
+                            <span id="performance-fps" class="stat-value">60 FPS</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Physics Time:</span>
+                            <span id="performance-physics-time" class="stat-value">0.0 ms</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Force Calc:</span>
+                            <span id="performance-force-time" class="stat-value">0.0 ms</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Integration:</span>
+                            <span id="performance-integration-time" class="stat-value">0.0 ms</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Body Count:</span>
+                            <span id="performance-body-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Method:</span>
+                            <span id="performance-current-method" class="stat-value">Verlet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reference Panel -->
+        <div id="reference-panel" class="reference-panel">
+            <div class="reference-content">
+                <h4><i class="fas fa-ruler"></i> Scale Reference</h4>
+                
+                <!-- Scale Information -->
+                <div class="reference-scales">
+                    <div class="scale-item">
+                        <div class="scale-title">Current System Scale</div>
+                        <div class="scale-comparison">
+                            <div class="scale-metric">
+                                <span class="metric-label">1 simulation unit =</span>
+                                <span id="distance-scale" class="metric-value">1.00 AU</span>
+                            </div>
+                            <div class="scale-metric">
+                                <span class="metric-label">1 mass unit =</span>
+                                <span id="mass-scale" class="metric-value">1.00 M☉</span>
+                            </div>
+                            <div class="scale-metric">
+                                <span class="metric-label">1 time unit =</span>
+                                <span id="time-scale-ref" class="metric-value">1.00 years</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scale-item">
+                        <div class="scale-title">Real-World Comparisons</div>
+                        <div class="comparison-list">
+                            <div class="comparison-item">
+                                <span class="object-name">Earth-Sun Distance:</span>
+                                <span id="earth-sun-sim" class="sim-value">1.0 units</span>
+                            </div>
+                            <div class="comparison-item">
+                                <span class="object-name">Jupiter-Sun Distance:</span>
+                                <span id="jupiter-sun-sim" class="sim-value">5.2 units</span>
+                            </div>
+                            <div class="comparison-item">
+                                <span class="object-name">Solar System Width:</span>
+                                <span id="solar-system-sim" class="sim-value">~80 units</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
