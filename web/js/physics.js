@@ -43,6 +43,32 @@ class PhysicsEngine {
         this.currentBodyCount = 0;
     }
 
+    // Utility function to validate and sanitize numerical values
+    validateNumber(value, fallback = 0, name = 'unknown') {
+        if (isNaN(value) || !isFinite(value)) {
+            console.warn(`Physics: Invalid number detected for ${name}: ${value}, using fallback: ${fallback}`);
+            return fallback;
+        }
+        return value;
+    }
+
+    // Validate body state for numerical stability
+    validateBodyState(body) {
+        body.position.x = this.validateNumber(body.position.x, 0, `body ${body.id} position.x`);
+        body.position.y = this.validateNumber(body.position.y, 0, `body ${body.id} position.y`);
+        body.velocity.x = this.validateNumber(body.velocity.x, 0, `body ${body.id} velocity.x`);
+        body.velocity.y = this.validateNumber(body.velocity.y, 0, `body ${body.id} velocity.y`);
+        body.force.x = this.validateNumber(body.force.x, 0, `body ${body.id} force.x`);
+        body.force.y = this.validateNumber(body.force.y, 0, `body ${body.id} force.y`);
+        body.mass = this.validateNumber(body.mass, 1, `body ${body.id} mass`);
+        
+        // Ensure mass is always positive
+        if (body.mass <= 0) {
+            console.warn(`Physics: Non-positive mass detected for body ${body.id}: ${body.mass}, setting to 1`);
+            body.mass = 1;
+        }
+    }
+
     update(bodies, deltaTime) {
         const startTime = performance.now();
         
@@ -62,6 +88,8 @@ class PhysicsEngine {
         // Reset collision flags for the new frame
         bodies.forEach(body => {
             body.hasCollidedThisFrame = false;
+            // Validate body state for numerical stability
+            this.validateBodyState(body);
         });
         
         this.timeAccumulator += deltaTime * this.timeScale;

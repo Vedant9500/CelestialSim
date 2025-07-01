@@ -274,6 +274,19 @@ class UIManager {
         );
     }
 
+    updateModeControls() {
+        const velocityControls = document.getElementById('velocity-controls');
+        if (velocityControls) {
+            if (this.orbitMode) {
+                velocityControls.classList.add('disabled');
+                velocityControls.style.opacity = '0.5';
+            } else {
+                velocityControls.classList.remove('disabled');
+                velocityControls.style.opacity = '1.0';
+            }
+        }
+    }
+
     initializeColorPicker() {
         this.colorPicker = document.querySelector('.color-picker');
         if (this.colorPicker) {
@@ -346,10 +359,10 @@ class UIManager {
     }
 
     initializeTabs() {
-        const tabContainer = document.querySelector('.tab-container');
+        const tabContainer = document.querySelector('.blender-tab-container');
         if (!tabContainer) return;
 
-        const tabButtons = tabContainer.querySelectorAll('.tab-btn');
+        const tabButtons = tabContainer.querySelectorAll('.vertical-tab-btn');
         const tabPanels = tabContainer.querySelectorAll('.tab-panel');
 
         tabButtons.forEach(button => {
@@ -369,7 +382,7 @@ class UIManager {
         });
 
         // Ensure the first tab is active by default
-        if (tabButtons.length > 0 && !tabContainer.querySelector('.tab-btn.active')) {
+        if (tabButtons.length > 0 && !tabContainer.querySelector('.vertical-tab-btn.active')) {
             tabButtons[0].click();
         }
     }

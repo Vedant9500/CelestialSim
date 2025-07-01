@@ -408,142 +408,108 @@ body {
     font-weight: 500;
 }
 
-/* Tab System */
-.tab-container {
+/* Blender-Style Vertical Tab System */
+.blender-tab-container {
     flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Vertical Tab Strip (Left Edge) */
+.vertical-tab-strip {
+    width: 40px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.98) 0%, rgba(15, 15, 25, 0.98) 100%);
+    border-right: 2px solid rgba(100, 255, 218, 0.15);
     display: flex;
     flex-direction: column;
+    padding: 0.5rem 0;
+    gap: 2px;
     overflow: hidden;
+    z-index: 50;
 }
 
-.tab-nav {
-    display: flex;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 30, 0.95) 100%);
-    border-bottom: 1px solid rgba(100, 255, 218, 0.2);
-    position: relative;
-    overflow: hidden;
-    /* Removed margin-left to align properly with panel border */
-}
-
-.tab-nav::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.4), transparent);
-}
-
-.tab-btn {
-    flex: 1;
-    padding: 0.6rem 0.4rem;
+.vertical-tab-btn {
+    width: 100%;
+    height: 40px;
     border: none;
     background: transparent;
-    color: #888888;
+    color: #666666;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.7rem;
-    font-weight: 500;
-    border-bottom: 3px solid transparent;
+    justify-content: center;
+    font-size: 1.1rem;
     position: relative;
-    overflow: hidden;
-    min-height: 60px;
+    border-radius: 0;
 }
 
-.tab-btn::before {
+.vertical-tab-btn::before {
     content: '';
     position: absolute;
-    top: 0;
     left: 0;
-    right: 0;
+    top: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(187, 134, 252, 0.1));
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    width: 3px;
+    background: #64ffda;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+    transform-origin: center;
 }
 
-.tab-btn i {
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    z-index: 1;
-    position: relative;
-}
-
-.tab-btn span {
-    z-index: 1;
-    position: relative;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.tab-btn:hover {
+.vertical-tab-btn:hover {
+    background: rgba(100, 255, 218, 0.08);
     color: #ffffff;
-    /* Removed translateY transform to prevent movement animation */
 }
 
-.tab-btn:hover::before {
-    opacity: 1;
-}
-
-.tab-btn:hover i {
-    transform: scale(1.05);
+.vertical-tab-btn.active {
+    background: rgba(100, 255, 218, 0.12);
     color: #64ffda;
 }
 
-.tab-btn.active {
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.12) 0%, rgba(187, 134, 252, 0.12) 100%);
-    color: #64ffda;
-    border-bottom-color: #64ffda;
-    box-shadow: 0 -2px 8px rgba(100, 255, 218, 0.15);
+.vertical-tab-btn.active::before {
+    transform: scaleY(1);
 }
 
-.tab-btn.active::before {
-    opacity: 1;
-}
-
-.tab-btn.active i {
-    color: #64ffda;
-    text-shadow: 0 0 5px rgba(100, 255, 218, 0.3);
-}
-
-.tab-content {
+/* Vertical Tab Content Area */
+.vertical-tab-content {
     flex: 1;
     overflow-y: auto;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(10, 10, 20, 0.95) 100%);
+    padding: 0;
 }
 
-.tab-content::-webkit-scrollbar {
+.vertical-tab-content::-webkit-scrollbar {
     width: 6px;
 }
 
-.tab-content::-webkit-scrollbar-track {
+.vertical-tab-content::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.tab-content::-webkit-scrollbar-thumb {
+.vertical-tab-content::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, #64ffda, #bb86fc);
     border-radius: 3px;
 }
 
 .tab-panel {
     display: none;
-    animation: fadeIn 0.4s ease-in-out;
+    animation: slideInFromLeft 0.3s ease-out;
 }
 
 .tab-panel.active {
     display: block;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes slideInFromLeft {
+    from { 
+        opacity: 0; 
+        transform: translateX(-20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
 }
 
 /* Enhanced Panel Sections */
@@ -1113,7 +1079,10 @@ body {
 .reference-panel {
     left: 1rem;
     bottom: 4rem;
+    top: 5rem; /* Start below the header */
     width: 380px;
+    max-height: calc(100vh - 18rem); /* Ensure it doesn't overflow */
+    overflow-y: auto; /* Add scroll if content is too long */
 }
 
 .performance-panel {
@@ -1598,12 +1567,12 @@ body {
     font-weight: 600;
 }
 
-/* Toggle Buttons for Floating Panels */
+/* Toggle Buttons for Floating Panels - Relocated to bottom-right corner */
 .performance-toggle,
 .energy-toggle,
 .reference-toggle {
     position: fixed;
-    bottom: 1rem;
+    bottom: 1.5rem;
     padding: 0.75rem 1rem;
     background: rgba(20, 20, 30, 0.95);
     color: #64ffda;
@@ -1611,7 +1580,7 @@ body {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 500;
+    z-index: 502; /* Higher z-index to ensure they're above header */
     backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
@@ -1640,13 +1609,13 @@ body {
 }
 
 .reference-toggle {
-    left: 1rem;
-}
-
-.performance-toggle {
-    right: 1rem;
+    right: 16rem; /* Rightmost position */
 }
 
 .energy-toggle {
-    right: 200px;
+    right: 10.5rem; /* Middle position */
+}
+
+.performance-toggle {
+    right: 5rem; /* Leftmost of the three */
 }
