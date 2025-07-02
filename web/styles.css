@@ -1152,33 +1152,69 @@ body {
 
 .setting-select {
     width: 100%;
-    padding: 0.6rem;
-    background: rgba(0, 0, 0, 0.4);
+    padding: 0.75rem 1rem;
+    background: rgba(18, 18, 18, 0.95);
     border: 2px solid rgba(100, 255, 218, 0.3);
     border-radius: 8px;
     color: #ffffff;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    appearance: none; /* Remove default browser styling */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364ffda' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+}
+
+.setting-select:hover {
+    background-color: rgba(25, 25, 25, 0.95);
+    border-color: rgba(100, 255, 218, 0.5);
+    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.1);
 }
 
 .setting-select:focus {
     outline: none;
     border-color: #64ffda;
     box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
+    background-color: rgba(30, 30, 30, 0.95);
 }
 
-.setting-slider {
-    width: 100%;
-    margin: 0.5rem 0;
+/* Improve dropdown appearance on different browsers */
+.setting-select::-ms-expand {
+    display: none; /* Remove default arrow in IE */
 }
 
-.setting-value {
-    float: right;
+/* Ensure dropdown options have proper contrast */
+.setting-select option:hover,
+.setting-select option:focus {
+    background-color: rgba(100, 255, 218, 0.2);
+    color: #ffffff;
+}
+
+.setting-select option:checked {
+    background-color: rgba(100, 255, 218, 0.3);
+    color: #ffffff;
     font-weight: 600;
-    color: #64ffda;
-    font-family: 'Courier New', monospace;
 }
+
+/* Fix any text overlap issues */
+.setting-select {
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Ensure proper z-index for dropdown */
+.setting-select:focus {
+    position: relative;
+    z-index: 10;
+}
+
+/* Style dropdown in different states */
 
 /* Floating Panels */
 .reference-panel,
@@ -1978,28 +2014,6 @@ body {
     color: #cccccc;
     margin-bottom: 0.5rem;
     font-weight: 500;
-}
-
-.setting-select {
-    width: 100%;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    color: #ffffff;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
-
-.setting-select:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(100, 255, 218, 0.3);
-}
-
-.setting-select:focus {
-    outline: none;
-    border-color: #64ffda;
-    box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
 }
 
 .setting-checkbox {
