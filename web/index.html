@@ -113,18 +113,13 @@
                         <button class="vertical-tab-btn" data-tab="tools" data-tooltip="Tools & Actions">
                             <i class="fas fa-tools"></i>
                         </button>
-                        
-                        <!-- Divider -->
-                        <div class="tab-divider"></div>
-                        
-                        <!-- Panel Toggle Buttons -->
-                        <button class="panel-toggle-btn" id="reference-toggle-panel" data-tooltip="Scale Reference">
+                        <button class="vertical-tab-btn" data-tab="reference" data-tooltip="Scale Reference">
                             <i class="fas fa-ruler"></i>
                         </button>
-                        <button class="panel-toggle-btn" id="energy-toggle-panel" data-tooltip="Energy Monitor">
+                        <button class="vertical-tab-btn" data-tab="energy" data-tooltip="Energy Monitor">
                             <i class="fas fa-bolt"></i>
                         </button>
-                        <button class="panel-toggle-btn" id="performance-toggle-panel" data-tooltip="Performance Monitor">
+                        <button class="vertical-tab-btn" data-tab="performance" data-tooltip="Performance Monitor">
                             <i class="fas fa-tachometer-alt"></i>
                         </button>
                     </div>
@@ -385,52 +380,158 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Tools Tab -->
-                        <div class="tab-panel" id="tools-tab">
-                            <div class="panel-section">
-                                <h3><i class="fas fa-save"></i> Save & Load</h3>
-                                <div class="tools-grid">
-                                    <button id="save-config" class="tool-btn"
-                                            data-tooltip="Download current simulation state (all bodies, positions, velocities) as a JSON file that can be loaded later.">
-                                        <i class="fas fa-download"></i>
-                                        <span>Save</span>
-                                    </button>
-                                    <button id="load-config" class="tool-btn"
-                                            data-tooltip="Load a previously saved simulation state from a JSON file. Will replace current bodies with saved configuration.">
-                                        <i class="fas fa-upload"></i>
-                                        <span>Load</span>
-                                    </button>
-                                    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+                        <!-- Reference Tab -->
+                        <div class="tab-panel" id="reference-tab">
+                            <div class="reference-content">
+                                <h4><i class="fas fa-ruler"></i> Scale Reference</h4>
+                                <div class="reference-scales">
+                                    <div class="scale-item">
+                                        <div class="scale-title">Current System Scale</div>
+                                        <div class="scale-comparison">
+                                            <div class="scale-metric">
+                                                <span class="metric-label">1 simulation unit =</span>
+                                                <span id="distance-scale" class="metric-value">1.00 AU</span>
+                                            </div>
+                                            <div class="scale-metric">
+                                                <span class="metric-label">1 mass unit =</span>
+                                                <span id="mass-scale" class="metric-value">1.00 M☉</span>
+                                            </div>
+                                            <div class="scale-metric">
+                                                <span class="metric-label">1 time unit =</span>
+                                                <span id="time-scale-ref" class="metric-value">1.00 years</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="scale-item">
+                                        <div class="scale-title">Real-World Comparisons</div>
+                                        <div class="comparison-list">
+                                            <div class="comparison-item">
+                                                <span class="object-name">Earth-Sun Distance:</span>
+                                                <span id="earth-sun-sim" class="sim-value">1.0 units</span>
+                                            </div>
+                                            <div class="comparison-item">
+                                                <span class="object-name">Jupiter-Sun Distance:</span>
+                                                <span id="jupiter-sun-sim" class="sim-value">5.2 units</span>
+                                            </div>
+                                            <div class="comparison-item">
+                                                <span class="object-name">Solar System Width:</span>
+                                                <span id="solar-system-sim" class="sim-value">~80 units</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <button id="export-video" class="tool-btn-wide"
-                                        data-tooltip="Records the simulation as an animated GIF or video file. Note: This may impact performance during recording and requires a modern browser.">
-                                    <i class="fas fa-video"></i>
-                                    <span>Export Video</span>
-                                </button>
                             </div>
-
-                            <div class="panel-section">
-                                <h3><i class="fas fa-keyboard"></i> Shortcuts</h3>
-                                <button id="show-shortcuts" class="tool-btn-wide"
-                                        data-tooltip="Display a comprehensive list of all keyboard and mouse controls available in the simulation.">
-                                    <i class="fas fa-question-circle"></i>
-                                    <span>Show Controls Help</span>
-                                </button>
+                        </div>
+                        
+                        <!-- Energy Tab -->
+                        <div class="tab-panel" id="energy-tab">
+                            <div class="energy-content">
+                                <h4><i class="fas fa-bolt"></i> Energy Monitor</h4>
+                                <div class="energy-values">
+                                    <div class="energy-item kinetic">
+                                        <div class="energy-icon"><i class="fas fa-running"></i></div>
+                                        <div class="energy-info">
+                                            <span class="energy-label">Kinetic Energy</span>
+                                            <span id="energy-kinetic" class="energy-value">0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="energy-item potential">
+                                        <div class="energy-icon"><i class="fas fa-arrow-down"></i></div>
+                                        <div class="energy-info">
+                                            <span class="energy-label">Potential Energy</span>
+                                            <span id="energy-potential" class="energy-value">0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="energy-item total">
+                                        <div class="energy-icon"><i class="fas fa-balance-scale"></i></div>
+                                        <div class="energy-info">
+                                            <span class="energy-label">Total Energy</span>
+                                            <span id="energy-total" class="energy-value">0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="energy-stats">
+                                    <div class="energy-stat">
+                                        <span class="stat-label">K.E. Ratio:</span>
+                                        <span id="energy-kinetic-ratio" class="stat-value">50.0%</span>
+                                    </div>
+                                    <div class="energy-stat">
+                                        <span class="stat-label">P.E. Ratio:</span>
+                                        <span id="energy-potential-ratio" class="stat-value">50.0%</span>
+                                    </div>
+                                    <div class="energy-stat">
+                                        <span class="stat-label">K.E. Rate:</span>
+                                        <span id="energy-kinetic-rate" class="stat-value">0.00/s</span>
+                                    </div>
+                                    <div class="energy-stat">
+                                        <span class="stat-label">P.E. Rate:</span>
+                                        <span id="energy-potential-rate" class="stat-value">0.00/s</span>
+                                    </div>
+                                    <div class="energy-stat">
+                                        <span class="stat-label">Temperature:</span>
+                                        <span id="system-temperature" class="stat-value">0.00</span>
+                                    </div>
+                                    <div class="energy-stat">
+                                        <span class="stat-label">Specific Energy:</span>
+                                        <span id="specific-energy" class="stat-value">0.00</span>
+                                    </div>
+                                </div>
+                                <div class="energy-graph">
+                                    <canvas id="energy-chart" width="300" height="150"></canvas>
+                                </div>
                             </div>
-
-                            <div class="panel-section">
-                                <h3><i class="fas fa-cog"></i> Advanced</h3>
-                                <div class="tools-grid">
-                                    <button id="debug-mode" class="tool-btn"
-                                            data-tooltip="Toggle debug mode to show additional technical information and performance metrics.">
-                                        <i class="fas fa-bug"></i>
-                                        <span>Debug</span>
-                                    </button>
-                                    <button id="performance-mode" class="tool-btn"
-                                            data-tooltip="Enable performance optimizations that may reduce visual quality but improve frame rate with many bodies.">
-                                        <i class="fas fa-tachometer-alt"></i>
-                                        <span>Performance</span>
-                                    </button>
+                        </div>
+                        
+                        <!-- Performance Tab -->
+                        <div class="tab-panel" id="performance-tab">
+                            <div class="performance-content">
+                                <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
+                                <div class="performance-settings">
+                                    <div class="setting-group">
+                                        <label for="physics-method">Physics Method:</label>
+                                        <select id="physics-method" class="setting-select">
+                                            <option value="verlet">Verlet Integration</option>
+                                            <option value="rk4">Runge-Kutta 4</option>
+                                            <option value="euler">Euler Method</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-group">
+                                        <label>
+                                            <input type="checkbox" id="adaptive-timestep" class="setting-checkbox">
+                                            <span class="checkbox-label">Adaptive Timestep</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="performance-stats">
+                                    <h5><i class="fas fa-chart-line"></i> Performance Statistics</h5>
+                                    <div class="stat-grid">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Frame Rate:</span>
+                                            <span id="performance-fps" class="stat-value">60 FPS</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Physics Time:</span>
+                                            <span id="performance-physics-time" class="stat-value">0.0 ms</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Force Calc:</span>
+                                            <span id="performance-force-time" class="stat-value">0.0 ms</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Integration:</span>
+                                            <span id="performance-integration-time" class="stat-value">0.0 ms</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Body Count:</span>
+                                            <span id="performance-body-count" class="stat-value">0</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Method:</span>
+                                            <span id="performance-current-method" class="stat-value">Verlet</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -516,466 +617,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Reference Panel -->
-        <div id="reference-panel" class="reference-panel">
-            <div class="reference-content">
-                <div class="reference-header">
-                    <h4><i class="fas fa-ruler-combined"></i> Scale Reference Guide</h4>
-                    <p class="reference-subtitle">Understanding what your simulation values mean in the real world</p>
-                </div>
-                
-                <!-- Selected Body Info -->
-                <div id="selected-body-info" class="selected-body-section" style="display: none;">
-                    <div class="section-header">
-                        <h5><i class="fas fa-crosshairs"></i> Selected Body Details</h5>
-                        <p class="section-description">Real-world equivalent values for your selected object</p>
-                    </div>
-                    <div class="body-info-cards">
-                        <div class="info-card">
-                            <div class="info-icon"><i class="fas fa-weight-hanging"></i></div>
-                            <div class="info-content">
-                                <span class="info-label">Mass</span>
-                                <span id="body-mass-value" class="info-value">-</span>
-                                <span class="info-units">simulation units</span>
-                                <span id="body-mass-real" class="info-real">-</span>
-                            </div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
-                            <div class="info-content">
-                                <span class="info-label">Position</span>
-                                <span id="body-position-value" class="info-value">-</span>
-                                <span class="info-units">simulation units</span>
-                                <span id="body-position-real" class="info-real">-</span>
-                            </div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            <div class="info-content">
-                                <span class="info-label">Speed</span>
-                                <span id="body-velocity-value" class="info-value">-</span>
-                                <span class="info-units">simulation units</span>
-                                <span id="body-velocity-real" class="info-real">-</span>
-                            </div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-icon"><i class="fas fa-bolt"></i></div>
-                            <div class="info-content">
-                                <span class="info-label">Energy</span>
-                                <span id="body-kinetic-value" class="info-value">-</span>
-                                <span class="info-units">simulation units</span>
-                                <span id="body-kinetic-real" class="info-real">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Base Scale Reference -->
-                <div class="scale-section">
-                    <div class="section-header">
-                        <h5><i class="fas fa-balance-scale"></i> Simulation Scale</h5>
-                        <p class="section-description">How simulation units translate to real astronomical values</p>
-                    </div>
-                    <div class="scale-grid">
-                        <div class="scale-card mass-scale">
-                            <div class="scale-icon"><i class="fas fa-globe"></i></div>
-                            <div class="scale-content">
-                                <div class="scale-number">1</div>
-                                <div class="scale-unit">Mass Unit</div>
-                                <div class="scale-equals">=</div>
-                                <div class="scale-real">
-                                    <span class="scale-value">1 Earth Mass</span>
-                                    <span class="scale-scientific">5.97 × 10²⁴ kg</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="scale-card distance-scale">
-                            <div class="scale-icon"><i class="fas fa-ruler"></i></div>
-                            <div class="scale-content">
-                                <div class="scale-number">1</div>
-                                <div class="scale-unit">Distance Unit</div>
-                                <div class="scale-equals">=</div>
-                                <div class="scale-real">
-                                    <span class="scale-value">1 Astronomical Unit</span>
-                                    <span class="scale-scientific">150 million km</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="scale-card time-scale">
-                            <div class="scale-icon"><i class="fas fa-clock"></i></div>
-                            <div class="scale-content">
-                                <div class="scale-number">1</div>
-                                <div class="scale-unit">Time Unit</div>
-                                <div class="scale-equals">=</div>
-                                <div class="scale-real">
-                                    <span class="scale-value">1 Earth Year</span>
-                                    <span class="scale-scientific">365.25 days</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="scale-card velocity-scale">
-                            <div class="scale-icon"><i class="fas fa-rocket"></i></div>
-                            <div class="scale-content">
-                                <div class="scale-number">1</div>
-                                <div class="scale-unit">Speed Unit</div>
-                                <div class="scale-equals">=</div>
-                                <div class="scale-real">
-                                    <span class="scale-value">Earth's Orbital Speed</span>
-                                    <span class="scale-scientific">29.78 km/s</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Comparison Section -->
-                <div class="comparison-section">
-                    <div class="section-header">
-                        <h5><i class="fas fa-balance-scale-right"></i> Celestial Body Comparisons</h5>
-                        <p class="section-description">Common astronomical objects in simulation units</p>
-                    </div>
-                    <div class="comparison-grid">
-                        <div class="comparison-item" id="comparison-sun" style="display: none;">
-                            <div class="comparison-icon sun"><i class="fas fa-sun"></i></div>
-                            <div class="comparison-info">
-                                <span class="comparison-name">Sun</span>
-                                <span class="comparison-value">333,000 mass units</span>
-                                <span class="comparison-note">Our star</span>
-                            </div>
-                        </div>
-                        <div class="comparison-item" id="comparison-jupiter" style="display: none;">
-                            <div class="comparison-icon jupiter"><i class="fas fa-circle"></i></div>
-                            <div class="comparison-info">
-                                <span class="comparison-name">Jupiter</span>
-                                <span class="comparison-value">318 mass units</span>
-                                <span class="comparison-note">Largest planet</span>
-                            </div>
-                        </div>
-                        <div class="comparison-item" id="comparison-mars" style="display: none;">
-                            <div class="comparison-icon mars"><i class="fas fa-circle"></i></div>
-                            <div class="comparison-info">
-                                <span class="comparison-name">Mars</span>
-                                <span class="comparison-value">0.107 mass units</span>
-                                <span class="comparison-note">Red planet</span>
-                            </div>
-                        </div>
-                        <div class="comparison-item" id="comparison-moon" style="display: none;">
-                            <div class="comparison-icon moon"><i class="fas fa-moon"></i></div>
-                            <div class="comparison-info">
-                                <span class="comparison-name">Moon</span>
-                                <span class="comparison-value">0.012 mass units</span>
-                                <span class="comparison-note">Earth's satellite</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="reference-tip">
-                    <div class="tip-icon"><i class="fas fa-lightbulb"></i></div>
-                    <div class="tip-content">
-                        <strong>Pro Tip:</strong> <span id="reference-note-text">Click on any body in the simulation to see how it compares to real astronomical objects!</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Performance Panel -->
-        <div id="performance-panel" class="performance-panel">
-            <div class="performance-content">
-                <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
-                
-                <!-- Performance Settings -->
-                <div class="performance-settings">
-                    <h5><i class="fas fa-cog"></i> Physics Settings</h5>
-                    
-                    <div class="setting-group">
-                        <label for="integration-method">Integration Method:</label>
-                        <select id="integration-method" class="setting-select" 
-                                data-tooltip="Choose the numerical method for solving physics equations. RK4 is most accurate but slower, Verlet is stable and efficient, Euler is fastest but less accurate.">
-                            <option value="rk4">RK4 (High Accuracy)</option>
-                            <option value="verlet" selected>Verlet (Stable)</option>
-                            <option value="euler">Euler (Fast)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="force-method">Force Calculation:</label>
-                        <select id="force-method" class="setting-select"
-                                data-tooltip="Algorithm for calculating gravitational forces. Barnes-Hut is much faster for many bodies (O(N log N)) but slightly less accurate. Naive is exact but slow for many bodies (O(N²)).">
-                            <option value="barnes-hut">Barnes-Hut (O(N log N))</option>
-                            <option value="naive">Naive (O(N²))</option>
-                        </select>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="adaptive-timestep">Adaptive Timestep:</label>
-                        <input type="checkbox" id="adaptive-timestep" class="setting-checkbox"
-                               data-tooltip="Automatically adjusts simulation timestep based on system dynamics. Smaller steps for chaotic systems, larger steps for stable systems. Improves accuracy but may reduce performance.">
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="web-workers">Use Web Workers:</label>
-                        <input type="checkbox" id="web-workers" class="setting-checkbox"
-                               data-tooltip="Runs physics calculations in a background thread to prevent UI freezing. Recommended for complex simulations with many bodies. May add slight latency.">
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="barnes-hut-theta">Barnes-Hut θ (Theta):</label>
-                        <input type="range" id="barnes-hut-theta" class="setting-slider" min="0.1" max="2.0" step="0.1" value="0.5"
-                               data-tooltip="Controls Barnes-Hut approximation accuracy. Lower values (0.1-0.5) = more accurate but slower. Higher values (0.8-2.0) = faster but less accurate. Affects force calculation precision.">
-                        <span id="barnes-hut-theta-value" class="setting-value">0.5</span>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="gpu-acceleration">GPU Acceleration (WebGL):</label>
-                        <input type="checkbox" id="gpu-acceleration" class="setting-checkbox"
-                               data-tooltip="Uses your graphics card (GPU) for physics calculations instead of CPU. Can dramatically speed up simulations with many bodies but limited to ~1000 bodies and may not work on all devices.">
-                        <span class="gpu-status" id="gpu-status">Checking...</span>
-                    </div>
-                </div>
-                
-                <!-- Performance Stats -->
-                <div class="performance-stats">
-                    <h5><i class="fas fa-chart-line"></i> Performance Statistics</h5>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">Frame Rate:</span>
-                            <span id="performance-fps" class="stat-value">60 FPS</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Physics Time:</span>
-                            <span id="performance-physics-time" class="stat-value">0.0 ms</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Force Calc:</span>
-                            <span id="performance-force-time" class="stat-value">0.0 ms</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Integration:</span>
-                            <span id="performance-integration-time" class="stat-value">0.0 ms</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Bodies:</span>
-                            <span id="performance-body-count" class="stat-value">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Method:</span>
-                            <span id="performance-current-method" class="stat-value">RK4</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Energy Panel -->
-        <div id="energy-panel" class="energy-panel">
-            <div class="energy-content">
-                <h4><i class="fas fa-bolt"></i> Energy Monitor</h4>
-                
-                <!-- Energy Values -->
-                <div class="energy-values">
-                    <div class="energy-item kinetic">
-                        <div class="energy-icon"><i class="fas fa-running"></i></div>
-                        <div class="energy-info">
-                            <span class="energy-label">Kinetic Energy</span>
-                            <span id="energy-kinetic" class="energy-value">0.00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="energy-item potential">
-                        <div class="energy-icon"><i class="fas fa-mountain"></i></div>
-                        <div class="energy-info">
-                            <span class="energy-label">Potential Energy</span>
-                            <span id="energy-potential" class="energy-value">0.00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="energy-item total">
-                        <div class="energy-icon"><i class="fas fa-equals"></i></div>
-                        <div class="energy-info">
-                            <span class="energy-label">Total Energy</span>
-                            <span id="energy-total" class="energy-value">0.00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="energy-item conservation">
-                        <div class="energy-icon"><i class="fas fa-balance-scale"></i></div>
-                        <div class="energy-info">
-                            <span class="energy-label">Conservation</span>
-                            <span id="energy-conservation" class="energy-value conservation-good">100.0%</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Advanced Energy Statistics -->
-                <div class="energy-advanced">
-                    <h5><i class="fas fa-chart-line"></i> Advanced Statistics</h5>
-                    
-                    <div class="energy-stats-grid">
-                        <div class="energy-stat">
-                            <span class="stat-label">K.E. Ratio:</span>
-                            <span id="energy-kinetic-ratio" class="stat-value">50.0%</span>
-                        </div>
-                        <div class="energy-stat">
-                            <span class="stat-label">P.E. Ratio:</span>
-                            <span id="energy-potential-ratio" class="stat-value">50.0%</span>
-                        </div>
-                        <div class="energy-stat">
-                            <span class="stat-label">K.E. Rate:</span>
-                            <span id="energy-kinetic-rate" class="stat-value">0.00/s</span>
-                        </div>
-                        <div class="energy-stat">
-                            <span class="stat-label">P.E. Rate:</span>
-                            <span id="energy-potential-rate" class="stat-value">0.00/s</span>
-                        </div>
-                        <div class="energy-stat">
-                            <span class="stat-label">Temperature:</span>
-                            <span id="system-temperature" class="stat-value">0.00</span>
-                        </div>
-                        <div class="energy-stat">
-                            <span class="stat-label">Specific Energy:</span>
-                            <span id="specific-energy" class="stat-value">0.00</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Energy Graph Placeholder -->
-                <div class="energy-graph">
-                    <canvas id="energy-chart" width="300" height="150"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Performance Panel -->
-        <div id="performance-panel" class="performance-panel">
-            <div class="performance-content">
-                <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
-                
-                <!-- Performance Settings -->
-                <div class="performance-settings">
-                    <div class="setting-group">
-                        <label for="physics-method">Physics Method:</label>
-                        <select id="physics-method" class="setting-select">
-                            <option value="verlet">Verlet Integration</option>
-                            <option value="rk4">Runge-Kutta 4</option>
-                            <option value="euler">Euler Method</option>
-                        </select>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label>
-                            <input type="checkbox" id="adaptive-timestep" class="setting-checkbox">
-                            <span class="checkbox-label">Adaptive Timestep</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Performance Stats -->
-                <div class="performance-stats">
-                    <h5><i class="fas fa-chart-line"></i> Performance Statistics</h5>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">Frame Rate:</span>
-                            <span id="performance-fps" class="stat-value">60 FPS</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Physics Time:</span>
-                            <span id="performance-physics-time" class="stat-value">0.0 ms</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Force Calc:</span>
-                            <span id="performance-force-time" class="stat-value">0.0 ms</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Integration:</span>
-                            <span id="performance-integration-time" class="stat-value">0.0 ms</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Body Count:</span>
-                            <span id="performance-body-count" class="stat-value">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Method:</span>
-                            <span id="performance-current-method" class="stat-value">Verlet</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Reference Panel -->
-        <div id="reference-panel" class="reference-panel">
-            <div class="reference-content">
-                <h4><i class="fas fa-ruler"></i> Scale Reference</h4>
-                
-                <!-- Scale Information -->
-                <div class="reference-scales">
-                    <div class="scale-item">
-                        <div class="scale-title">Current System Scale</div>
-                        <div class="scale-comparison">
-                            <div class="scale-metric">
-                                <span class="metric-label">1 simulation unit =</span>
-                                <span id="distance-scale" class="metric-value">1.00 AU</span>
-                            </div>
-                            <div class="scale-metric">
-                                <span class="metric-label">1 mass unit =</span>
-                                <span id="mass-scale" class="metric-value">1.00 M☉</span>
-                            </div>
-                            <div class="scale-metric">
-                                <span class="metric-label">1 time unit =</span>
-                                <span id="time-scale-ref" class="metric-value">1.00 years</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="scale-item">
-                        <div class="scale-title">Real-World Comparisons</div>
-                        <div class="comparison-list">
-                            <div class="comparison-item">
-                                <span class="object-name">Earth-Sun Distance:</span>
-                                <span id="earth-sun-sim" class="sim-value">1.0 units</span>
-                            </div>
-                            <div class="comparison-item">
-                                <span class="object-name">Jupiter-Sun Distance:</span>
-                                <span id="jupiter-sun-sim" class="sim-value">5.2 units</span>
-                            </div>
-                            <div class="comparison-item">
-                                <span class="object-name">Solar System Width:</span>
-                                <span id="solar-system-sim" class="sim-value">~80 units</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Performance Toggle Button -->
-        <button id="performance-toggle" class="performance-toggle" 
-                data-tooltip="Open advanced performance settings and monitoring panel. Shows detailed physics timing, method selection, and optimization options."
-                title="Show/Hide Performance Monitor">
-            <i class="fas fa-tachometer-alt"></i> Performance
-        </button>
-
-        <!-- Energy Toggle Button -->
-        <button id="energy-toggle" class="energy-toggle" 
-                data-tooltip="Open energy conservation monitoring panel. Shows kinetic, potential, and total energy values with conservation tracking."
-                title="Show/Hide Energy Monitor">
-            <i class="fas fa-bolt"></i> Energy
-        </button>
-
-        <!-- Reference Toggle Button -->
-        <button id="reference-toggle" class="reference-toggle" 
-                data-tooltip="Open real-world scale reference panel. Shows how simulation units relate to actual astronomical scales and distances."
-                title="Show/Hide Scale Reference">
-            <i class="fas fa-ruler"></i> Scale Reference
-        </button>
-
-        <!-- Help Button removed - use F1 key instead -->
     </div>
 
     <script src="js/constants.js?v=2.0"></script>

@@ -461,26 +461,6 @@ class NBodyApp {
             case 'delete-selected':
                 this.deleteSelectedBody();
                 break;
-            case 'reference-toggle':
-                this.ui.toggleReferencePanel();
-                this.updateDynamicReference();
-                break;
-            case 'performance-toggle':
-                this.ui.togglePerformancePanel();
-                break;
-            case 'energy-toggle':
-                this.ui.toggleEnergyPanel();
-                break;
-            case 'reference-toggle-panel':
-                this.ui.toggleReferencePanelFromSidebar();
-                this.updateDynamicReference();
-                break;
-            case 'performance-toggle-panel':
-                this.ui.togglePerformancePanelFromSidebar();
-                break;
-            case 'energy-toggle-panel':
-                this.ui.toggleEnergyPanelFromSidebar();
-                break;
         }
     }
 

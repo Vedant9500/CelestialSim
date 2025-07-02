@@ -103,9 +103,7 @@ class UIManager {
         const buttonIds = [
             'play-pause', 'reset', 'clear', 'zoom-in', 'zoom-out',
             'center-view', 'fit-view', 'save-config', 'load-config',
-            'export-video', 'delete-selected', 'help-btn', 'reference-toggle',
-            'performance-toggle', 'energy-toggle', 'reference-toggle-panel',
-            'energy-toggle-panel', 'performance-toggle-panel'
+            'export-video', 'delete-selected', 'help-btn'
         ];
 
         buttonIds.forEach(id => {
@@ -471,64 +469,6 @@ class UIManager {
             this.energyShown = panel.classList.contains('show');
             
             // Update sidebar button state
-            if (sidebarButton) {
-                sidebarButton.classList.toggle('active', this.energyShown);
-            }
-        }
-    }
-
-    // Panel toggle methods for side panel buttons
-    toggleReferencePanelFromSidebar() {
-        const panel = document.getElementById('reference-panel');
-        const originalButton = document.getElementById('reference-toggle');
-        const sidebarButton = document.getElementById('reference-toggle-panel');
-        
-        if (panel) {
-            panel.classList.toggle('show');
-            this.referenceShown = panel.classList.contains('show');
-            
-            // Update both buttons' active state
-            if (originalButton) {
-                originalButton.classList.toggle('active', this.referenceShown);
-            }
-            if (sidebarButton) {
-                sidebarButton.classList.toggle('active', this.referenceShown);
-            }
-        }
-    }
-
-    togglePerformancePanelFromSidebar() {
-        const panel = document.getElementById('performance-panel');
-        const originalButton = document.getElementById('performance-toggle');
-        const sidebarButton = document.getElementById('performance-toggle-panel');
-        
-        if (panel) {
-            panel.classList.toggle('show');
-            this.performanceShown = panel.classList.contains('show');
-            
-            // Update both buttons' active state
-            if (originalButton) {
-                originalButton.classList.toggle('active', this.performanceShown);
-            }
-            if (sidebarButton) {
-                sidebarButton.classList.toggle('active', this.performanceShown);
-            }
-        }
-    }
-
-    toggleEnergyPanelFromSidebar() {
-        const panel = document.getElementById('energy-panel');
-        const originalButton = document.getElementById('energy-toggle');
-        const sidebarButton = document.getElementById('energy-toggle-panel');
-        
-        if (panel) {
-            panel.classList.toggle('show');
-            this.energyShown = panel.classList.contains('show');
-            
-            // Update both buttons' active state
-            if (originalButton) {
-                originalButton.classList.toggle('active', this.energyShown);
-            }
             if (sidebarButton) {
                 sidebarButton.classList.toggle('active', this.energyShown);
             }
@@ -1400,49 +1340,5 @@ class UIManager {
     // Reinitialize tooltips (useful after dynamic content changes)
     reinitializeTooltips() {
         this.initializeTooltips();
-    }
-
-    initializeCollisionControls() {
-        const collisionEnabled = document.getElementById('collision-enabled');
-        const collisionType = document.getElementById('collision-type');
-        const restitutionGroup = document.getElementById('restitution-group');
-        const restitutionSlider = document.getElementById('restitution-coefficient');
-        const restitutionValue = document.getElementById('restitution-coefficient-value');
-
-        const updateRestitutionVisibility = () => {
-            const isEnabled = collisionEnabled ? collisionEnabled.checked : false;
-            const type = collisionType ? collisionType.value : 'inelastic';
-            if (restitutionGroup) {
-                restitutionGroup.style.display = (isEnabled && type === 'elastic') ? 'block' : 'none';
-            }
-        };
-
-        if (collisionType) {
-            collisionType.addEventListener('change', (e) => {
-                this.onCollisionTypeChange(e.target.value);
-                updateRestitutionVisibility();
-            });
-        }
-
-        if (restitutionSlider && restitutionValue) {
-            restitutionSlider.addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                restitutionValue.textContent = value.toFixed(2);
-                this.onRestitutionChange(value);
-            });
-        }
-
-        if (collisionEnabled) {
-            collisionEnabled.addEventListener('change', (e) => {
-                const isEnabled = e.target.checked;
-                if (collisionType) collisionType.disabled = !isEnabled;
-                if (restitutionSlider) restitutionSlider.disabled = !isEnabled;
-                this.onCheckboxChange('collision-enabled', isEnabled);
-                updateRestitutionVisibility();
-            });
-        }
-
-        // Initial state
-        updateRestitutionVisibility();
     }
 }
