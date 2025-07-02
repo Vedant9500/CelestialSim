@@ -12,6 +12,9 @@ class UIManager {
         this.renderer = null; // Will be set by app
         this.tooltipElement = null;
         
+        // Cache frequently accessed DOM elements
+        this.cachedElements = new Map();
+        
         // Bind tooltip methods for proper event listener handling
         this.boundShowTooltip = (e) => this.showTooltip(e.target, e);
         this.boundHideTooltip = () => this.hideTooltip();
@@ -503,12 +506,12 @@ class UIManager {
     }
 
     updatePerformanceStats(stats) {
-        const fpsDisplay = document.getElementById('performance-fps');
-        const physicsTime = document.getElementById('performance-physics-time');
-        const forceTime = document.getElementById('performance-force-time');
-        const integrationTime = document.getElementById('performance-integration-time');
-        const bodyCount = document.getElementById('performance-body-count');
-        const currentMethod = document.getElementById('performance-current-method');
+        const fpsDisplay = this.getElement('performance-fps');
+        const physicsTime = this.getElement('performance-physics-time');
+        const forceTime = this.getElement('performance-force-time');
+        const integrationTime = this.getElement('performance-integration-time');
+        const bodyCount = this.getElement('performance-body-count');
+        const currentMethod = this.getElement('performance-current-method');
 
         if (fpsDisplay) fpsDisplay.textContent = `${Math.round(stats.fps || 0)} FPS`;
         
@@ -531,35 +534,30 @@ class UIManager {
         if (bodyCount) bodyCount.textContent = stats.bodyCount || 0;
         if (currentMethod) currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
         
-        // Update performance tab
-        const bodyCountElement = document.getElementById('performance-body-count');
-        if (bodyCountElement) {
-            bodyCountElement.textContent = stats.bodyCount || 0;
-        }
-        
-        const physicsTimeElement = document.getElementById('physics-time');
+        // Update performance tab body count (avoiding duplicate lookups)
+        const physicsTimeElement = this.getElement('physics-time');
         if (physicsTimeElement) {
             physicsTimeElement.textContent = `${(stats.physicsTime || 0).toFixed(2)}ms`;
         }
         
-        const forceTimeElement = document.getElementById('force-time');
+        const forceTimeElement = this.getElement('force-time');
         if (forceTimeElement) {
             forceTimeElement.textContent = `${(stats.forceCalculationTime || 0).toFixed(2)}ms`;
         }
         
-        const integrationTimeElement = document.getElementById('integration-time');
+        const integrationTimeElement = this.getElement('integration-time');
         if (integrationTimeElement) {
             integrationTimeElement.textContent = `${(stats.integrationTime || 0).toFixed(2)}ms`;
         }
         
         // Update GPU status if available
         if (stats.gpu && stats.gpu.isSupported) {
-            const gpuModeElement = document.getElementById('gpu-mode');
+            const gpuModeElement = this.getElement('gpu-mode');
             if (gpuModeElement) {
                 gpuModeElement.textContent = stats.gpu.mode || 'gpu';
             }
             
-            const gpuTimeElement = document.getElementById('gpu-time');
+            const gpuTimeElement = this.getElement('gpu-time');
             if (gpuTimeElement) {
                 gpuTimeElement.textContent = `${(stats.gpu.lastGpuTime || 0).toFixed(2)}ms`;
             }
@@ -1347,7 +1345,7 @@ class UIManager {
     
     // UI Update Methods
     updateFPS(fps) {
-        const fpsDisplay = document.getElementById('fps-display');
+        const fpsDisplay = this.getElement('fps-display');
         if (fpsDisplay) {
             fpsDisplay.textContent = `${Math.round(fps)} FPS`;
         }
@@ -1363,42 +1361,6 @@ class UIManager {
         
         if (statusDot) {
             statusDot.className = `status-dot ${status.toLowerCase()}`;
-        }
-    }
-    
-    updatePerformanceStats(stats) {
-        // Update performance tab
-        const bodyCountElement = document.getElementById('performance-body-count');
-        if (bodyCountElement) {
-            bodyCountElement.textContent = stats.bodyCount || 0;
-        }
-        
-        const physicsTimeElement = document.getElementById('physics-time');
-        if (physicsTimeElement) {
-            physicsTimeElement.textContent = `${(stats.physicsTime || 0).toFixed(2)}ms`;
-        }
-        
-        const forceTimeElement = document.getElementById('force-time');
-        if (forceTimeElement) {
-            forceTimeElement.textContent = `${(stats.forceCalculationTime || 0).toFixed(2)}ms`;
-        }
-        
-        const integrationTimeElement = document.getElementById('integration-time');
-        if (integrationTimeElement) {
-            integrationTimeElement.textContent = `${(stats.integrationTime || 0).toFixed(2)}ms`;
-        }
-        
-        // Update GPU status if available
-        if (stats.gpu && stats.gpu.isSupported) {
-            const gpuModeElement = document.getElementById('gpu-mode');
-            if (gpuModeElement) {
-                gpuModeElement.textContent = stats.gpu.mode || 'gpu';
-            }
-            
-            const gpuTimeElement = document.getElementById('gpu-time');
-            if (gpuTimeElement) {
-                gpuTimeElement.textContent = `${(stats.gpu.lastGpuTime || 0).toFixed(2)}ms`;
-            }
         }
     }
     
@@ -1496,5 +1458,21 @@ class UIManager {
             computeModeElement.classList.toggle('gpu-mode', mode === 'GPU');
             computeModeElement.classList.toggle('cpu-mode', mode === 'CPU');
         }
+    }
+
+    // Clear cached elements (useful when DOM structure changes)
+    clearElementCache() {
+        this.cachedElements.clear();
+    }
+
+    // Utility method to get cached DOM elements
+    getElement(id) {
+        if (!this.cachedElements.has(id)) {
+            const element = document.getElementById(id);
+            if (element) {
+                this.cachedElements.set(id, element);
+            }
+        }
+        return this.cachedElements.get(id) || null;
     }
 }

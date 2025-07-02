@@ -1,3 +1,37 @@
+// Configuration and constants
+const DEBUG_MODE = false; // Set to false for production builds
+
+// Debug logging utility
+function debugLog(...args) {
+    if (DEBUG_MODE) {
+        console.log(...args);
+    }
+}
+
+// Performance monitoring utility
+class PerformanceMonitor {
+    constructor() {
+        this.measurements = new Map();
+    }
+    
+    start(label) {
+        this.measurements.set(label, performance.now());
+    }
+    
+    end(label) {
+        const startTime = this.measurements.get(label);
+        if (startTime) {
+            const duration = performance.now() - startTime;
+            this.measurements.delete(label);
+            return duration;
+        }
+        return 0;
+    }
+}
+
+// Global performance monitor instance
+const perfMonitor = new PerformanceMonitor();
+
 class NBodyApp {
     constructor() {
         this.canvas = document.getElementById('simulation-canvas');
@@ -55,7 +89,7 @@ class NBodyApp {
         // Initial UI update
         this.updateUI();
         
-        console.log('CelestialSim initialized successfully!');
+        debugLog('CelestialSim initialized successfully!');
         this.ui.showNotification('CelestialSim loaded!', 'success');
     }
 
@@ -720,7 +754,7 @@ class NBodyApp {
             newBody.applyForce(force);
         }
         
-        console.log(`Initial force calculated for new body: ${newBody.force.magnitude().toFixed(2)}`);
+        debugLog(`Initial force calculated for new body: ${newBody.force.magnitude().toFixed(2)}`);
     }
 
     findNearestBody(position) {
@@ -1344,7 +1378,7 @@ class NBodyApp {
             // Apply the orbital velocity to the dragged body
             this.draggedBody.velocity = new Vector2D(orbitalVelocity.x, orbitalVelocity.y);
             
-            console.log(`Applied orbital velocity to dragged body: ${orbitalVelocity.magnitude().toFixed(2)}`);
+            debugLog(`Applied orbital velocity to dragged body: ${orbitalVelocity.magnitude().toFixed(2)}`);
         }
     }
 }
