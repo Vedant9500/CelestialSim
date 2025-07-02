@@ -396,11 +396,37 @@ class UIManager {
             });
         }
         
+        // Physics method dropdown  
+        const physicsMethod = document.getElementById('physics-method');
+        if (physicsMethod) {
+            physicsMethod.addEventListener('change', (e) => {
+                this.onPerformanceSettingChange('physics-method', e.target.value);
+            });
+        }
+        
         // Force calculation method dropdown
         const forceMethod = document.getElementById('force-method');
         if (forceMethod) {
             forceMethod.addEventListener('change', (e) => {
                 this.onPerformanceSettingChange('force-method', e.target.value);
+            });
+        }
+        
+        // GPU/CPU toggle
+        const gpuToggle = document.getElementById('gpu-toggle');
+        if (gpuToggle) {
+            gpuToggle.addEventListener('change', (e) => {
+                const useGPU = e.target.checked;
+                this.onPerformanceSettingChange('gpu-acceleration', useGPU);
+                this.updateComputeModeDisplay(useGPU ? 'GPU' : 'CPU');
+            });
+        }
+        
+        // Adaptive timestep checkbox
+        const adaptiveTimestep = document.getElementById('adaptive-timestep');
+        if (adaptiveTimestep) {
+            adaptiveTimestep.addEventListener('change', (e) => {
+                this.onPerformanceSettingChange('adaptive-timestep', e.target.checked);
             });
         }
         
@@ -415,7 +441,7 @@ class UIManager {
             });
         }
         
-        // GPU acceleration checkbox
+        // GPU acceleration checkbox (legacy support)
         const gpuAcceleration = document.getElementById('gpu-acceleration');
         if (gpuAcceleration) {
             gpuAcceleration.addEventListener('change', (e) => {
@@ -1465,6 +1491,15 @@ class UIManager {
                 if (icon) icon.className = 'fas fa-play';
                 if (span) span.textContent = 'Play';
             }
+        }
+    }
+
+    updateComputeModeDisplay(mode) {
+        const computeModeElement = document.getElementById('performance-compute-mode');
+        if (computeModeElement) {
+            computeModeElement.textContent = mode;
+            computeModeElement.classList.toggle('gpu-mode', mode === 'GPU');
+            computeModeElement.classList.toggle('cpu-mode', mode === 'CPU');
         }
     }
 }

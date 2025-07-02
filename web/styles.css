@@ -1153,68 +1153,225 @@ body {
 .setting-select {
     width: 100%;
     padding: 0.75rem 1rem;
-    background: rgba(18, 18, 18, 0.95);
-    border: 2px solid rgba(100, 255, 218, 0.3);
+    background: linear-gradient(145deg, rgba(25, 25, 25, 0.98), rgba(18, 18, 18, 0.98));
+    border: 2px solid rgba(100, 255, 218, 0.4);
     border-radius: 8px;
     color: #ffffff;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    appearance: none; /* Remove default browser styling */
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364ffda' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    appearance: none;
+    
+    /* Custom dropdown arrow */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364ffda' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
-    background-size: 1rem;
-    padding-right: 2.5rem;
+    background-size: 1.2rem;
+    padding-right: 3rem;
+    
+    /* Text styling */
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    
+    /* Enhanced visibility */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.1);
 }
 
 .setting-select:hover {
-    background-color: rgba(25, 25, 25, 0.95);
-    border-color: rgba(100, 255, 218, 0.5);
-    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.1);
+    background: linear-gradient(145deg, rgba(35, 35, 35, 0.98), rgba(28, 28, 28, 0.98));
+    border-color: rgba(100, 255, 218, 0.6);
+    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
 }
 
 .setting-select:focus {
     outline: none;
     border-color: #64ffda;
-    box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
-    background-color: rgba(30, 30, 30, 0.95);
-}
-
-/* Improve dropdown appearance on different browsers */
-.setting-select::-ms-expand {
-    display: none; /* Remove default arrow in IE */
-}
-
-/* Ensure dropdown options have proper contrast */
-.setting-select option:hover,
-.setting-select option:focus {
-    background-color: rgba(100, 255, 218, 0.2);
-    color: #ffffff;
-}
-
-.setting-select option:checked {
-    background-color: rgba(100, 255, 218, 0.3);
-    color: #ffffff;
-    font-weight: 600;
-}
-
-/* Fix any text overlap issues */
-.setting-select {
-    line-height: 1.4;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-/* Ensure proper z-index for dropdown */
-.setting-select:focus {
+    background: linear-gradient(145deg, rgba(40, 40, 40, 0.98), rgba(32, 32, 32, 0.98));
+    box-shadow: 
+        0 0 0 3px rgba(100, 255, 218, 0.2),
+        0 4px 16px rgba(100, 255, 218, 0.2),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
     position: relative;
     z-index: 10;
 }
 
-/* Style dropdown in different states */
+.setting-select::-ms-expand {
+    display: none;
+}
+
+/* Enhanced option styling for better visibility */
+.setting-select option {
+    background-color: rgba(25, 25, 25, 0.98);
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border: none;
+}
+
+.setting-select option:hover,
+.setting-select option:focus {
+    background-color: rgba(100, 255, 218, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.setting-select option:checked {
+    background-color: rgba(100, 255, 218, 0.3) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Ensure proper dropdown behavior across browsers */
+@supports (-webkit-appearance: none) {
+    .setting-select {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+}
+
+@supports (-moz-appearance: none) {
+    .setting-select {
+        -moz-appearance: none;
+        appearance: none;
+    }
+}
+
+/* Dark mode enhancements for better contrast */
+@media (prefers-color-scheme: dark) {
+    .setting-select {
+        background: linear-gradient(145deg, rgba(20, 20, 20, 0.98), rgba(15, 15, 15, 0.98));
+        border-color: rgba(100, 255, 218, 0.5);
+        color: #f0f0f0;
+    }
+    
+    .setting-select option {
+        background-color: rgba(20, 20, 20, 0.98);
+        color: #f0f0f0;
+    }
+}
+
+/* Toggle Switch Styles */
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.toggle-input {
+    display: none;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-label:hover {
+    background: rgba(100, 255, 218, 0.05);
+}
+
+.toggle-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #888;
+    transition: all 0.3s ease;
+    min-width: 35px;
+    text-align: center;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 56px;
+    height: 28px;
+    background: linear-gradient(135deg, rgba(60, 60, 60, 0.8), rgba(40, 40, 40, 0.8));
+    border-radius: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        inset 0 2px 6px rgba(0, 0, 0, 0.4),
+        0 1px 3px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.3),
+        0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider {
+    background: linear-gradient(135deg, #64ffda, #4fd3b0);
+    box-shadow: 
+        inset 0 2px 6px rgba(0, 0, 0, 0.2), 
+        0 0 12px rgba(100, 255, 218, 0.4),
+        0 1px 3px rgba(0, 0, 0, 0.2);
+    border-color: rgba(100, 255, 218, 0.3);
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider::before {
+    transform: translateX(28px);
+    background: linear-gradient(135deg, #ffffff, #f1f3f4);
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-input:checked + .toggle-label .toggle-text:first-child {
+    color: #666;
+    font-weight: 500;
+}
+
+.toggle-input:checked + .toggle-label .toggle-text:last-child {
+    color: #64ffda;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(100, 255, 218, 0.3);
+}
+
+.toggle-input:not(:checked) + .toggle-label .toggle-text:first-child {
+    color: #64ffda;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(100, 255, 218, 0.3);
+}
+
+.toggle-input:not(:checked) + .toggle-label .toggle-text:last-child {
+    color: #666;
+    font-weight: 500;
+}
+
+.toggle-label:hover .toggle-slider {
+    transform: scale(1.02);
+    box-shadow: 
+        inset 0 2px 6px rgba(0, 0, 0, 0.3), 
+        0 0 16px rgba(100, 255, 218, 0.2),
+        0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-input:checked + .toggle-label:hover .toggle-slider {
+    box-shadow: 
+        inset 0 2px 6px rgba(0, 0, 0, 0.2), 
+        0 0 20px rgba(100, 255, 218, 0.5),
+        0 2px 8px rgba(0, 0, 0, 0.2);
+}
 
 /* Floating Panels */
 .reference-panel,
@@ -2006,25 +2163,94 @@ body {
 
 .setting-group {
     margin-bottom: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    transition: all 0.3s ease;
 }
 
-.setting-group label {
+.setting-group:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(100, 255, 218, 0.2);
+}
+
+.setting-group > label:first-child {
     display: block;
     font-size: 0.9rem;
-    color: #cccccc;
-    margin-bottom: 0.5rem;
+    color: #e0e0e0;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Checkbox container label */
+.setting-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    margin-bottom: 0;
+    font-size: 0.9rem;
     font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.setting-group label:hover {
+    color: #64ffda;
 }
 
 .setting-checkbox {
-    margin-right: 0.75rem;
-    transform: scale(1.1);
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+    appearance: none;
+    background: linear-gradient(135deg, rgba(25, 25, 25, 0.8), rgba(15, 15, 15, 0.8));
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.setting-checkbox:hover {
+    border-color: rgba(100, 255, 218, 0.5);
+    background: linear-gradient(135deg, rgba(35, 35, 35, 0.8), rgba(25, 25, 25, 0.8));
+    transform: scale(1.05);
+}
+
+.setting-checkbox:checked {
+    background: linear-gradient(135deg, #64ffda, #4fd3b0);
+    border-color: #64ffda;
+    transform: scale(1.05);
+}
+
+.setting-checkbox:checked::before {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.setting-checkbox:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
 }
 
 .checkbox-label {
     font-size: 0.9rem;
-    color: #cccccc;
+    color: #d0d0d0;
     cursor: pointer;
+    user-select: none;
+    transition: color 0.3s ease;
+    flex: 1;
 }
 
 .performance-stats {
@@ -2108,4 +2334,39 @@ body {
     background: rgba(100, 255, 218, 0.15);
     border-color: #64ffda;
     color: #64ffda;
+}
+
+/* Compute Mode Display Styles */
+.performance-compute-mode {
+    transition: all 0.3s ease;
+}
+
+.performance-compute-mode.gpu-mode {
+    color: #64ffda;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(100, 255, 218, 0.3);
+}
+
+.performance-compute-mode.cpu-mode {
+    color: #ffa726;
+    font-weight: 500;
+}
+
+/* Compute Mode Status Styling */
+#performance-compute-mode {
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+#performance-compute-mode.gpu-mode {
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(79, 211, 176, 0.2));
+    color: #64ffda;
+    box-shadow: 0 0 8px rgba(100, 255, 218, 0.3);
+}
+
+#performance-compute-mode.cpu-mode {
+    background: rgba(100, 100, 100, 0.2);
+    color: #cccccc;
 }

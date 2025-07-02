@@ -166,7 +166,7 @@ class NBodyApp {
             performanceStats.bodyCount = this.bodies.length;
             
             // Add GPU status to performance stats
-            if (this.useGPU && this.gpuPhysics.isSupported) {
+            if (this.useGPU && this.physics.gpuPhysics && this.physics.gpuPhysics.isReady()) {
                 performanceStats.method = `${performanceStats.method} (GPU)`;
                 performanceStats.gpuAccelerated = true;
             } else {
@@ -974,6 +974,9 @@ class NBodyApp {
             case 'integration-method':
                 this.physics.setConfiguration({ integrationMethod: value });
                 break;
+            case 'physics-method':
+                this.physics.setConfiguration({ integrationMethod: value });
+                break;
             case 'force-method':
                 this.physics.setConfiguration({ forceCalculationMethod: value });
                 break;
@@ -983,19 +986,36 @@ class NBodyApp {
             case 'gpu-acceleration':
                 this.setGPUEnabled(value);
                 break;
+            case 'adaptive-timestep':
+                this.physics.setConfiguration({ adaptiveTimestep: value });
+                break;
         }
     }
 
     // GPU acceleration control
     setGPUEnabled(enabled) {
-        if (!this.gpuPhysics.isSupported && enabled) {
+        const gpuPhysics = this.physics.gpuPhysics;
+        if (!gpuPhysics || !gpuPhysics.isReady() && enabled) {
             this.ui.showNotification('GPU acceleration not supported on this device', 'warning');
             const gpuCheckbox = document.getElementById('gpu-acceleration');
+            const gpuToggle = document.getElementById('gpu-toggle');
             if (gpuCheckbox) gpuCheckbox.checked = false;
+            if (gpuToggle) gpuToggle.checked = false;
+            this.ui.updateComputeModeDisplay('CPU');
             return;
         }
         
         this.useGPU = enabled;
+        this.physics.setConfiguration({ useGPUPhysics: enabled });
+        
+        // Update toggle state if changed programmatically
+        const gpuToggle = document.getElementById('gpu-toggle');
+        if (gpuToggle && gpuToggle.checked !== enabled) {
+            gpuToggle.checked = enabled;
+        }
+        
+        // Update display
+        this.ui.updateComputeModeDisplay(enabled ? 'GPU' : 'CPU');
         
         if (enabled) {
             console.log('GPU acceleration enabled');
@@ -1096,7 +1116,7 @@ class NBodyApp {
         this.validateAndCleanBodies();
         
         if (this.isRunning && !this.isPaused) {
-            if (this.useGPU && this.gpuPhysics.isSupported && this.bodies.length > 0) {
+            if (this.useGPU && this.physics.gpuPhysics && this.physics.gpuPhysics.isReady() && this.bodies.length > 0) {
                 // Use GPU acceleration for physics
                 this.updateWithGPU(deltaTime);
             } else if (this.useWebWorkers && this.physicsWorker && !this.workerBusy && this.bodies.length > 8) {
@@ -1115,7 +1135,7 @@ class NBodyApp {
     updateWithGPU(deltaTime) {
         try {
             // Update bodies using GPU physics
-            const gpuSuccess = this.gpuPhysics.update(this.bodies, deltaTime);
+            const gpuSuccess = this.physics.gpuPhysics.update(this.bodies, deltaTime);
             
             if (!gpuSuccess) {
                 // GPU physics returned false, fall back to CPU
@@ -1127,7 +1147,10 @@ class NBodyApp {
             // Fallback to CPU physics
             this.useGPU = false;
             const gpuCheckbox = document.getElementById('gpu-acceleration');
+            const gpuToggle = document.getElementById('gpu-toggle');
             if (gpuCheckbox) gpuCheckbox.checked = false;
+            if (gpuToggle) gpuToggle.checked = false;
+            this.ui.updateComputeModeDisplay('CPU');
             this.physics.update(this.bodies, deltaTime);
             this.ui.showNotification('GPU acceleration failed, switched to CPU', 'warning');
         }
@@ -1176,15 +1199,19 @@ class NBodyApp {
         // Update GPU status indicator in the UI
         const gpuStatus = document.getElementById('gpu-status');
         const gpuCheckbox = document.getElementById('gpu-acceleration');
+        const gpuToggle = document.getElementById('gpu-toggle');
+        
+        const gpuPhysics = this.physics.gpuPhysics;
         
         if (gpuStatus && gpuCheckbox) {
-            const gpuInfo = this.gpuPhysics.getPerformanceInfo();
-            
-            if (this.gpuPhysics.isSupported) {
+            if (gpuPhysics && gpuPhysics.isReady()) {
+                const gpuInfo = gpuPhysics.getPerformanceInfo();
+                
                 gpuStatus.textContent = 'Available';
                 gpuStatus.className = 'gpu-status available';
-                gpuStatus.title = `WebGL ${gpuInfo.webglVersion}\nVendor: ${gpuInfo.vendor}\nRenderer: ${gpuInfo.renderer}\nMax Bodies: ${gpuInfo.maxBodies}`;
+                gpuStatus.title = `GPU.js ${gpuInfo.mode}\nMax Bodies: ${gpuInfo.maxBodies || 'Unknown'}`;
                 gpuCheckbox.disabled = false;
+                if (gpuToggle) gpuToggle.disabled = false;
                 
                 console.log('GPU acceleration is available:', gpuInfo);
             } else {
@@ -1193,11 +1220,18 @@ class NBodyApp {
                 gpuStatus.title = 'GPU acceleration is not supported on this device';
                 gpuCheckbox.disabled = true;
                 gpuCheckbox.checked = false;
+                if (gpuToggle) {
+                    gpuToggle.disabled = true;
+                    gpuToggle.checked = false;
+                }
                 this.useGPU = false;
                 
-                console.log('GPU acceleration not available:', gpuInfo);
+                console.log('GPU acceleration not available');
             }
         }
+        
+        // Initialize compute mode display
+        this.ui.updateComputeModeDisplay(this.useGPU ? 'GPU' : 'CPU');
     }
 
     validateAndCleanBodies() {

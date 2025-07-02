@@ -549,6 +549,17 @@
                                 <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
                                 <div class="performance-settings">
                                     <div class="setting-group">
+                                        <label for="compute-mode">Compute Mode:</label>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="gpu-toggle" class="toggle-input">
+                                            <label for="gpu-toggle" class="toggle-label">
+                                                <span class="toggle-text">CPU</span>
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-text">GPU</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="setting-group">
                                         <label for="physics-method">Physics Method:</label>
                                         <select id="physics-method" class="setting-select">
                                             <option value="verlet">Verlet Integration</option>
@@ -589,6 +600,10 @@
                                         <div class="stat-item">
                                             <span class="stat-label">Method:</span>
                                             <span id="performance-current-method" class="stat-value">Verlet</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Compute:</span>
+                                            <span id="performance-compute-mode" class="stat-value">CPU</span>
                                         </div>
                                     </div>
                                 </div>
