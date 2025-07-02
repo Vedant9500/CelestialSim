@@ -658,31 +658,70 @@ body {
     box-shadow: 0 2px 6px rgba(100, 255, 218, 0.3);
 }
 
-/* Info Grid Layout */
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+/* Manual Creation Section within Bodies Tab */
+.manual-creation-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(100, 255, 218, 0.15);
+    position: relative;
 }
 
-.info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+.manual-creation-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, #64ffda, #bb86fc);
+    transform: translateY(-0.5px);
 }
 
-.info-label {
-    font-size: 0.75rem;
-    color: #aaaaaa;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.info-item span:last-child {
-    font-family: 'Courier New', monospace;
-    font-weight: 600;
-    color: #64ffda;
+.manual-creation-section h4 {
     font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #64ffda;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    position: relative;
+    opacity: 0.9;
+}
+
+.manual-creation-section h4 i {
+    font-size: 0.75rem;
+    padding: 0.25rem;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(187, 134, 252, 0.15));
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(100, 255, 218, 0.2);
+}
+
+/* Presets Section within Bodies Tab */
+.presets-section {
+    margin-top: 0;
+    padding-top: 0;
+    position: relative;
+}
+
+.presets-section h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #64ffda;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    position: relative;
+    opacity: 0.9;
+}
+
+.presets-section h4 i {
+    font-size: 0.75rem;
+    padding: 0.25rem;
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(187, 134, 252, 0.15));
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(100, 255, 218, 0.2);
 }
 
 /* Preset Grid */
@@ -691,6 +730,7 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 0.6rem;
     padding: 0.25rem;
+    margin-bottom: 0.5rem;
 }
 
 .preset-btn {
@@ -708,7 +748,8 @@ body {
     text-align: center;
     position: relative;
     overflow: hidden;
-    min-height: 60px;
+    min-height: 65px;
+    backdrop-filter: blur(2px);
 }
 
 .preset-btn::before {
@@ -762,8 +803,6 @@ body {
     transform: scale(1.15) rotate(3deg);
     text-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
 }
-
-/* Removed empty active rule for preset buttons */
 
 /* Velocity Controls Enhancement */
 .velocity-controls {
@@ -1814,8 +1853,8 @@ body {
 .energy-stat .stat-value {
     font-family: 'Courier New', monospace;
     font-weight: 600;
-    font-size: 0.8rem;
-    color: #bb86fc;
+    font-size: 0.9rem;
+    color: #64ffda;
 }
 
 .energy-graph {
