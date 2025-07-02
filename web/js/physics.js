@@ -8,7 +8,7 @@ class PhysicsEngine {
         this.restitutionCoefficient = PHYSICS_CONSTANTS.RESTITUTION_COEFFICIENT;
         this.timeScale = 1.0;
         this.integrationMethod = 'verlet'; // 'verlet', 'euler', 'rk4' - Verlet is more stable for runtime additions
-        this.forceCalculationMethod = 'barnes-hut'; // 'naive' or 'barnes-hut'
+        this.forceCalculationMethod = 'barnes-hut'; // 'naive', 'barnes-hut', or 'gpu'
         
         // Time accumulator for consistent physics
         this.timeAccumulator = 0.0;
@@ -34,6 +34,11 @@ class PhysicsEngine {
         this.integrator = new Integrator();
         this.barnesHut = null;
         this.barnesHutTheta = PHYSICS_CONSTANTS.BARNES_HUT_THETA;
+        
+        // GPU Physics Engine
+        this.gpuPhysics = null;
+        this.useGPUPhysics = false;
+        this.gpuPhysicsThreshold = 50; // Use GPU for 50+ bodies
         
         // Double precision support
         this.useDoublePrecision = false;
@@ -110,26 +115,46 @@ class PhysicsEngine {
         
         while (this.timeAccumulator >= currentTimeStep) {
             const forceStart = performance.now();
-            if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > PHYSICS_CONSTANTS.BARNES_HUT_MAX_BODIES_THRESHOLD) {
-                this.calculateForcesBarnesHut(bodies);
+            
+            // Check if we should use GPU physics for this frame
+            if (this.shouldUseGPUPhysics(bodies.length)) {
+                // GPU physics handles entire integration step at once
+                const gpuSuccess = this.gpuPhysics.update(bodies, currentTimeStep);
+                if (!gpuSuccess) {
+                    console.warn('GPU physics failed, falling back to CPU for this frame');
+                    // Fallback to CPU physics
+                    if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > PHYSICS_CONSTANTS.BARNES_HUT_MAX_BODIES_THRESHOLD) {
+                        this.calculateForcesBarnesHut(bodies);
+                    } else {
+                        this.calculateForcesNaive(bodies);
+                    }
+                }
             } else {
-                this.calculateForcesNaive(bodies);
+                // Use CPU physics
+                if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > PHYSICS_CONSTANTS.BARNES_HUT_MAX_BODIES_THRESHOLD) {
+                    this.calculateForcesBarnesHut(bodies);
+                } else {
+                    this.calculateForcesNaive(bodies);
+                }
             }
             
             totalForceTime += performance.now() - forceStart;
             
             const integrationStart = performance.now();
             
-            if (this.integrationMethod === 'rk4') {
-                this.integrator.integrateRK4(bodies, currentTimeStep, (bodies) => {
-                    if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
-                        this.calculateForcesBarnesHut(bodies);
-                    } else {
-                        this.calculateForcesNaive(bodies);
-                    }
-                });
-            } else {
-                this.updateBodies(bodies, currentTimeStep);
+            // Only do CPU integration if not using GPU physics
+            if (!this.shouldUseGPUPhysics(bodies.length)) {
+                if (this.integrationMethod === 'rk4') {
+                    this.integrator.integrateRK4(bodies, currentTimeStep, (bodies) => {
+                        if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
+                            this.calculateForcesBarnesHut(bodies);
+                        } else {
+                            this.calculateForcesNaive(bodies);
+                        }
+                    });
+                } else {
+                    this.updateBodies(bodies, currentTimeStep);
+                }
             }
             
             totalIntegrationTime += performance.now() - integrationStart;
@@ -699,22 +724,37 @@ class PhysicsEngine {
 
     // Get system statistics
     getSystemStats(bodies) {
-        const centerOfMass = this.getCenterOfMass(bodies);
-        const totalMomentum = this.getTotalMomentum(bodies);
-        const totalAngularMomentum = this.getTotalAngularMomentum(bodies);
-        
+        let totalMass = 0;
+        let kineticEnergy = 0;
+        let potentialEnergy = 0;
+
+        bodies.forEach(body => {
+            totalMass += body.mass;
+            kineticEnergy += 0.5 * body.mass * body.velocity.magnitudeSquared();
+        });
+
+        // Calculate potential energy
+        for (let i = 0; i < bodies.length; i++) {
+            for (let j = i + 1; j < bodies.length; j++) {
+                const distance = bodies[i].position.distance(bodies[j].position);
+                potentialEnergy -= this.gravitationalConstant * bodies[i].mass * bodies[j].mass / distance;
+            }
+        }
+
         return {
-            bodyCount: bodies.length,
-            totalMass: bodies.reduce((sum, body) => sum + body.mass, 0),
-            centerOfMass: centerOfMass,
-            totalMomentum: totalMomentum,
-            totalAngularMomentum: totalAngularMomentum,
-            kineticEnergy: this.totalKineticEnergy,
-            potentialEnergy: this.totalPotentialEnergy,
-            totalEnergy: this.totalEnergy,
-            momentumMagnitude: totalMomentum.magnitude(),
-            averageSpeed: bodies.length > 0 ? 
-                bodies.reduce((sum, body) => sum + body.velocity.magnitude(), 0) / bodies.length : 0
+            totalMass,
+            kineticEnergy,
+            potentialEnergy,
+            totalEnergy: kineticEnergy + potentialEnergy
+        };
+    }
+
+    // Get energy statistics for monitoring
+    getEnergyStats() {
+        return {
+            kinetic: this.totalKineticEnergy,
+            potential: this.totalPotentialEnergy,
+            total: this.totalEnergy
         };
     }
 
@@ -724,15 +764,14 @@ class PhysicsEngine {
             physicsTime: this.physicsTime,
             forceCalculationTime: this.forceCalculationTime,
             integrationTime: this.integrationTime,
-            method: this.integrationMethod,
-            forceMethod: this.forceCalculationMethod,
-            adaptiveTimeStep: this.adaptiveTimeStep,
-            currentTimeStep: this.adaptiveTimeStep ? this.calculateAdaptiveTimeStep([]) : this.fixedTimeStep
+            bodyCount: this.currentBodyCount,
+            method: this.forceCalculationMethod,
+            integrationMethod: this.integrationMethod
         };
     }
     
     // Get comprehensive energy statistics
-    getEnergyStats() {
+    getComprehensiveEnergyStats() {
         const currentTime = Date.now();
         
         // Calculate energy conservation metrics
@@ -872,5 +911,78 @@ class PhysicsEngine {
         return bodies.reduce((momentum, body) => {
             return momentum.add(body.velocity.multiply(body.mass));
         }, new Vector2D(0, 0));
+    }
+
+    // Initialize GPU Physics Engine
+    initializeGPUPhysics() {
+        if (typeof GPUPhysicsEngine !== 'undefined') {
+            try {
+                this.gpuPhysics = new GPUPhysicsEngine();
+                if (this.gpuPhysics.isReady()) {
+                    console.log('GPU Physics Engine initialized successfully');
+                    console.log(`GPU Mode: ${this.gpuPhysics.getPerformanceInfo().mode}`);
+                    console.log(`Max Bodies (GPU): ${this.gpuPhysics.maxBodies}`);
+                    this.useGPUPhysics = true;
+                } else {
+                    console.warn('GPU Physics Engine failed to initialize, using CPU physics');
+                    this.gpuPhysics = null;
+                    this.useGPUPhysics = false;
+                }
+            } catch (error) {
+                console.error('Error initializing GPU Physics Engine:', error);
+                this.gpuPhysics = null;
+                this.useGPUPhysics = false;
+            }
+        } else {
+            console.warn('GPUPhysicsEngine not available, using CPU physics only');
+            this.useGPUPhysics = false;
+        }
+    }
+
+    // Check if GPU physics should be used for current simulation
+    shouldUseGPUPhysics(bodyCount) {
+        return this.useGPUPhysics && 
+               this.gpuPhysics && 
+               this.gpuPhysics.isReady() && 
+               bodyCount >= this.gpuPhysicsThreshold &&
+               bodyCount <= this.gpuPhysics.maxBodies &&
+               !this.collisionEnabled; // GPU physics doesn't handle collisions yet
+    }
+
+    // Set force calculation method with automatic GPU detection
+    setForceCalculationMethod(method) {
+        if (method === 'gpu' && !this.useGPUPhysics) {
+            console.warn('GPU physics not available, falling back to Barnes-Hut');
+            this.forceCalculationMethod = 'barnes-hut';
+        } else {
+            this.forceCalculationMethod = method;
+        }
+    }
+
+    // Get comprehensive performance information including GPU stats
+    getPerformanceInfo() {
+        const cpuInfo = {
+            physicsTime: this.physicsTime,
+            forceCalculationTime: this.forceCalculationTime,
+            integrationTime: this.integrationTime,
+            bodyCount: this.currentBodyCount,
+            forceMethod: this.forceCalculationMethod,
+            integrationMethod: this.integrationMethod
+        };
+
+        if (this.gpuPhysics && this.useGPUPhysics) {
+            const gpuInfo = this.gpuPhysics.getPerformanceInfo();
+            return {
+                ...cpuInfo,
+                gpu: gpuInfo,
+                usingGPU: this.shouldUseGPUPhysics(this.currentBodyCount)
+            };
+        }
+
+        return {
+            ...cpuInfo,
+            gpu: { isSupported: false },
+            usingGPU: false
+        };
     }
 }

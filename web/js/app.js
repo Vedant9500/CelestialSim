@@ -5,8 +5,8 @@ class NBodyApp {
         this.physics = new PhysicsEngine();
         this.ui = new UIManager();
         
-        this.gpuPhysics = new GPUPhysicsEngine();
-        this.useGPU = false;
+        // Initialize GPU physics within the main physics engine
+        this.physics.initializeGPUPhysics();
         
         this.ui.setRenderer(this.renderer);
         

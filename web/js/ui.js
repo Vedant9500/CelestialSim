@@ -504,6 +504,40 @@ class UIManager {
         
         if (bodyCount) bodyCount.textContent = stats.bodyCount || 0;
         if (currentMethod) currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
+        
+        // Update performance tab
+        const bodyCountElement = document.getElementById('performance-body-count');
+        if (bodyCountElement) {
+            bodyCountElement.textContent = stats.bodyCount || 0;
+        }
+        
+        const physicsTimeElement = document.getElementById('physics-time');
+        if (physicsTimeElement) {
+            physicsTimeElement.textContent = `${(stats.physicsTime || 0).toFixed(2)}ms`;
+        }
+        
+        const forceTimeElement = document.getElementById('force-time');
+        if (forceTimeElement) {
+            forceTimeElement.textContent = `${(stats.forceCalculationTime || 0).toFixed(2)}ms`;
+        }
+        
+        const integrationTimeElement = document.getElementById('integration-time');
+        if (integrationTimeElement) {
+            integrationTimeElement.textContent = `${(stats.integrationTime || 0).toFixed(2)}ms`;
+        }
+        
+        // Update GPU status if available
+        if (stats.gpu && stats.gpu.isSupported) {
+            const gpuModeElement = document.getElementById('gpu-mode');
+            if (gpuModeElement) {
+                gpuModeElement.textContent = stats.gpu.mode || 'gpu';
+            }
+            
+            const gpuTimeElement = document.getElementById('gpu-time');
+            if (gpuTimeElement) {
+                gpuTimeElement.textContent = `${(stats.gpu.lastGpuTime || 0).toFixed(2)}ms`;
+            }
+        }
     }
 
     updateEnergyDisplay(energy) {
@@ -797,92 +831,34 @@ class UIManager {
         }
     }
 
-    updateStatus(status) {
-        const statusText = document.getElementById('status-text');
-        const statusDot = document.getElementById('status-dot');
-        
-        if (statusText) {
-            statusText.textContent = status;
-        }
-        
-        if (statusDot) {
-            statusDot.className = 'status-dot';
-            switch (status.toLowerCase()) {
-                case 'running':
-                    statusDot.classList.add('running');
-                    break;
-                case 'paused':
-                    statusDot.classList.add('paused');
-                    break;
-                default:
-                    statusDot.classList.add('stopped');
-            }
-        }
-    }
-
-    updateFPS(fps) {
-        const fpsDisplay = document.getElementById('fps-display');
-        if (fpsDisplay) {
-            fpsDisplay.textContent = `${Math.round(fps)} FPS`;
-        }
-    }
-
-    updateInfoPanel(info) {
-        // Update body count
-        const bodyCount = document.getElementById('body-count');
-        if (bodyCount) {
-            bodyCount.textContent = info.bodyCount.toString();
-        }
-
-        // Update total mass
-        const totalMass = document.getElementById('total-mass');
-        if (totalMass) {
-            totalMass.textContent = info.totalMass.toFixed(1);
-        }
-
-        // Update energies
-        const kineticEnergy = document.getElementById('kinetic-energy');
-        if (kineticEnergy) {
-            kineticEnergy.textContent = info.kineticEnergy.toFixed(1);
-        }
-
-        const potentialEnergy = document.getElementById('potential-energy');
-        if (potentialEnergy) {
-            potentialEnergy.textContent = info.potentialEnergy.toFixed(1);
-        }
-    }
-
     updateMousePosition(x, y) {
-        const mousePosition = document.getElementById('mouse-position');
-        if (mousePosition) {
-            mousePosition.textContent = `(${Math.round(x)}, ${Math.round(y)})`;
+        const mousePositionElement = document.getElementById('mouse-position');
+        if (mousePositionElement) {
+            mousePositionElement.textContent = `(${Math.round(x)}, ${Math.round(y)})`;
         }
     }
-
-    updateSelectedBodyPanel(body) {
-        const panel = document.getElementById('selected-body-panel');
-        if (!panel) return;
-
-        if (body) {
-            panel.style.display = 'block';
+    
+    updateSelectedBodyPanel(selectedBody) {
+        // This would update a selected body info panel if it exists
+        // For now, we'll just log it in debug mode
+        if (window.DEBUG && selectedBody) {
+            console.log('Selected body:', selectedBody);
+        }
+    }
+    
+    updatePlayPauseButton(isRunning, isPaused) {
+        const playPauseBtn = document.getElementById('play-pause');
+        if (playPauseBtn) {
+            const icon = playPauseBtn.querySelector('i');
+            const span = playPauseBtn.querySelector('span');
             
-            const info = body.getDisplayInfo();
-            
-            const elements = {
-                'selected-mass': info.mass,
-                'selected-position': info.position,
-                'selected-velocity': info.velocity,
-                'selected-speed': info.speed
-            };
-
-            Object.entries(elements).forEach(([id, value]) => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.textContent = value;
-                }
-            });
-        } else {
-            panel.style.display = 'none';
+            if (isRunning && !isPaused) {
+                if (icon) icon.className = 'fas fa-pause';
+                if (span) span.textContent = 'Pause';
+            } else {
+                if (icon) icon.className = 'fas fa-play';
+                if (span) span.textContent = 'Play';
+            }
         }
     }
 
@@ -1341,5 +1317,303 @@ class UIManager {
     // Reinitialize tooltips (useful after dynamic content changes)
     reinitializeTooltips() {
         this.initializeTooltips();
+    }
+    
+    // UI Update Methods
+    updateFPS(fps) {
+        const fpsDisplay = document.getElementById('fps-display');
+        if (fpsDisplay) {
+            fpsDisplay.textContent = `${Math.round(fps)} FPS`;
+        }
+        
+        const fpsToolbar = document.getElementById('fps-toolbar');
+        if (fpsToolbar) {
+            fpsToolbar.textContent = Math.round(fps);
+        }
+    }
+    
+    updateStatus(status) {
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        
+        if (statusText) {
+            statusText.textContent = status;
+        }
+        
+        if (statusDot) {
+            statusDot.className = `status-dot ${status.toLowerCase()}`;
+        }
+    }
+    
+    updatePerformanceStats(stats) {
+        // Update performance tab
+        const bodyCountElement = document.getElementById('performance-body-count');
+        if (bodyCountElement) {
+            bodyCountElement.textContent = stats.bodyCount || 0;
+        }
+        
+        const physicsTimeElement = document.getElementById('physics-time');
+        if (physicsTimeElement) {
+            physicsTimeElement.textContent = `${(stats.physicsTime || 0).toFixed(2)}ms`;
+        }
+        
+        const forceTimeElement = document.getElementById('force-time');
+        if (forceTimeElement) {
+            forceTimeElement.textContent = `${(stats.forceCalculationTime || 0).toFixed(2)}ms`;
+        }
+        
+        const integrationTimeElement = document.getElementById('integration-time');
+        if (integrationTimeElement) {
+            integrationTimeElement.textContent = `${(stats.integrationTime || 0).toFixed(2)}ms`;
+        }
+        
+        // Update GPU status if available
+        if (stats.gpu && stats.gpu.isSupported) {
+            const gpuModeElement = document.getElementById('gpu-mode');
+            if (gpuModeElement) {
+                gpuModeElement.textContent = stats.gpu.mode || 'gpu';
+            }
+            
+            const gpuTimeElement = document.getElementById('gpu-time');
+            if (gpuTimeElement) {
+                gpuTimeElement.textContent = `${(stats.gpu.lastGpuTime || 0).toFixed(2)}ms`;
+            }
+        }
+    }
+    
+    updateInfoPanel(info) {
+        // Update View tab system info
+        const bodyCountElement = document.getElementById('body-count');
+        if (bodyCountElement) {
+            bodyCountElement.textContent = info.bodyCount || 0;
+        }
+        
+        // Update toolbar body count
+        const bodyCountToolbar = document.getElementById('body-count-toolbar');
+        if (bodyCountToolbar) {
+            bodyCountToolbar.textContent = info.bodyCount || 0;
+        }
+        
+        const totalMassElement = document.getElementById('total-mass');
+        if (totalMassElement) {
+            totalMassElement.textContent = (info.totalMass || 0).toFixed(1);
+        }
+        
+        const kineticEnergyElement = document.getElementById('kinetic-energy');
+        if (kineticEnergyElement) {
+            kineticEnergyElement.textContent = (info.kineticEnergy || 0).toFixed(1);
+        }
+        
+        const potentialEnergyElement = document.getElementById('potential-energy');
+        if (potentialEnergyElement) {
+            potentialEnergyElement.textContent = (info.potentialEnergy || 0).toFixed(1);
+        }
+    }
+    
+    updateEnergyDisplay(energyStats) {
+        // Update Energy tab
+        const kineticElement = document.getElementById('energy-kinetic');
+        if (kineticElement) {
+            kineticElement.textContent = (energyStats.kinetic || 0).toFixed(2);
+        }
+        
+        const potentialElement = document.getElementById('energy-potential');
+        if (potentialElement) {
+            potentialElement.textContent = (energyStats.potential || 0).toFixed(2);
+        }
+        
+        const totalElement = document.getElementById('energy-total');
+        if (totalElement) {
+            totalElement.textContent = (energyStats.total || 0).toFixed(2);
+        }
+    }
+    
+    updateEnergyChart(energyStats) {
+        // This would be for the energy chart visualization
+        // Implementation depends on the charting library being used
+        // For now, just log the data
+        if (window.DEBUG) {
+            console.log('Energy Chart Update:', energyStats);
+        }
+    }
+    
+    updateMousePosition(x, y) {
+        const mousePositionElement = document.getElementById('mouse-position');
+        if (mousePositionElement) {
+            mousePositionElement.textContent = `(${Math.round(x)}, ${Math.round(y)})`;
+        }
+    }
+    
+    updateSelectedBodyPanel(selectedBody) {
+        // This would update a selected body info panel if it exists
+        // For now, we'll just log it in debug mode
+        if (window.DEBUG && selectedBody) {
+            console.log('Selected body:', selectedBody);
+        }
+    }
+    
+    updatePlayPauseButton(isRunning, isPaused) {
+        const playPauseBtn = document.getElementById('play-pause');
+        if (playPauseBtn) {
+            const icon = playPauseBtn.querySelector('i');
+            const span = playPauseBtn.querySelector('span');
+            
+            if (isRunning && !isPaused) {
+                if (icon) icon.className = 'fas fa-pause';
+                if (span) span.textContent = 'Pause';
+            } else {
+                if (icon) icon.className = 'fas fa-play';
+                if (span) span.textContent = 'Play';
+            }
+        }
+    }
+
+    // UI Update Methods
+    updateFPS(fps) {
+        const fpsDisplay = document.getElementById('fps-display');
+        if (fpsDisplay) {
+            fpsDisplay.textContent = `${Math.round(fps)} FPS`;
+        }
+        
+        const fpsToolbar = document.getElementById('fps-toolbar');
+        if (fpsToolbar) {
+            fpsToolbar.textContent = Math.round(fps);
+        }
+    }
+    
+    updateStatus(status) {
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        
+        if (statusText) {
+            statusText.textContent = status;
+        }
+        
+        if (statusDot) {
+            statusDot.className = `status-dot ${status.toLowerCase()}`;
+        }
+    }
+    
+    updatePerformanceStats(stats) {
+        // Update performance tab
+        const bodyCountElement = document.getElementById('performance-body-count');
+        if (bodyCountElement) {
+            bodyCountElement.textContent = stats.bodyCount || 0;
+        }
+        
+        const physicsTimeElement = document.getElementById('physics-time');
+        if (physicsTimeElement) {
+            physicsTimeElement.textContent = `${(stats.physicsTime || 0).toFixed(2)}ms`;
+        }
+        
+        const forceTimeElement = document.getElementById('force-time');
+        if (forceTimeElement) {
+            forceTimeElement.textContent = `${(stats.forceCalculationTime || 0).toFixed(2)}ms`;
+        }
+        
+        const integrationTimeElement = document.getElementById('integration-time');
+        if (integrationTimeElement) {
+            integrationTimeElement.textContent = `${(stats.integrationTime || 0).toFixed(2)}ms`;
+        }
+        
+        // Update GPU status if available
+        if (stats.gpu && stats.gpu.isSupported) {
+            const gpuModeElement = document.getElementById('gpu-mode');
+            if (gpuModeElement) {
+                gpuModeElement.textContent = stats.gpu.mode || 'gpu';
+            }
+            
+            const gpuTimeElement = document.getElementById('gpu-time');
+            if (gpuTimeElement) {
+                gpuTimeElement.textContent = `${(stats.gpu.lastGpuTime || 0).toFixed(2)}ms`;
+            }
+        }
+    }
+    
+    updateInfoPanel(info) {
+        // Update View tab system info
+        const bodyCountElement = document.getElementById('body-count');
+        if (bodyCountElement) {
+            bodyCountElement.textContent = info.bodyCount || 0;
+        }
+        
+        // Update toolbar body count
+        const bodyCountToolbar = document.getElementById('body-count-toolbar');
+        if (bodyCountToolbar) {
+            bodyCountToolbar.textContent = info.bodyCount || 0;
+        }
+        
+        const totalMassElement = document.getElementById('total-mass');
+        if (totalMassElement) {
+            totalMassElement.textContent = (info.totalMass || 0).toFixed(1);
+        }
+        
+        const kineticEnergyElement = document.getElementById('kinetic-energy');
+        if (kineticEnergyElement) {
+            kineticEnergyElement.textContent = (info.kineticEnergy || 0).toFixed(1);
+        }
+        
+        const potentialEnergyElement = document.getElementById('potential-energy');
+        if (potentialEnergyElement) {
+            potentialEnergyElement.textContent = (info.potentialEnergy || 0).toFixed(1);
+        }
+    }
+    
+    updateEnergyDisplay(energyStats) {
+        // Update Energy tab
+        const kineticElement = document.getElementById('energy-kinetic');
+        if (kineticElement) {
+            kineticElement.textContent = (energyStats.kinetic || 0).toFixed(2);
+        }
+        
+        const potentialElement = document.getElementById('energy-potential');
+        if (potentialElement) {
+            potentialElement.textContent = (energyStats.potential || 0).toFixed(2);
+        }
+        
+        const totalElement = document.getElementById('energy-total');
+        if (totalElement) {
+            totalElement.textContent = (energyStats.total || 0).toFixed(2);
+        }
+    }
+    
+    updateEnergyChart(energyStats) {
+        // This would be for the energy chart visualization
+        // Implementation depends on the charting library being used
+        // For now, just log the data
+        if (window.DEBUG) {
+            console.log('Energy Chart Update:', energyStats);
+        }
+    }
+    
+    updateMousePosition(x, y) {
+        const mousePositionElement = document.getElementById('mouse-position');
+        if (mousePositionElement) {
+            mousePositionElement.textContent = `(${Math.round(x)}, ${Math.round(y)})`;
+        }
+    }
+    
+    updateSelectedBodyPanel(selectedBody) {
+        // This would update a selected body info panel if it exists
+        // For now, we'll just log it in debug mode
+        if (window.DEBUG && selectedBody) {
+            console.log('Selected body:', selectedBody);
+        }
+    }
+    
+    updatePlayPauseButton(isRunning, isPaused) {
+        const playPauseBtn = document.getElementById('play-pause');
+        if (playPauseBtn) {
+            const icon = playPauseBtn.querySelector('i');
+            const span = playPauseBtn.querySelector('span');
+            
+            if (isRunning && !isPaused) {
+                if (icon) icon.className = 'fas fa-pause';
+                if (span) span.textContent = 'Pause';
+            } else {
+                if (icon) icon.className = 'fas fa-play';
+                if (span) span.textContent = 'Play';
+            }
+        }
     }
 }
