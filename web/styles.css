@@ -2195,6 +2195,7 @@ body {
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.3s ease;
+    line-height: 1.4;
 }
 
 .setting-group label:hover {
@@ -2205,9 +2206,18 @@ body {
     position: relative;
     width: 20px;
     height: 20px;
+    min-width: 20px;
     margin: 0;
     cursor: pointer;
     appearance: none;
+    background: linear-gradient(135deg, rgba(25, 25, 25, 0.8), rgba(15, 15, 15, 0.8));
+    border: 2px solid rgba(100, 255, 218, 0.3);
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(135deg, rgba(25, 25, 25, 0.8), rgba(15, 15, 15, 0.8));
     border: 2px solid rgba(100, 255, 218, 0.3);
     border-radius: 6px;
@@ -2251,6 +2261,9 @@ body {
     user-select: none;
     transition: color 0.3s ease;
     flex: 1;
+    line-height: 1.4;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .performance-stats {
