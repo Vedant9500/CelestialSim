@@ -1351,11 +1351,6 @@ class UIManager {
         if (fpsDisplay) {
             fpsDisplay.textContent = `${Math.round(fps)} FPS`;
         }
-        
-        const fpsToolbar = document.getElementById('fps-toolbar');
-        if (fpsToolbar) {
-            fpsToolbar.textContent = Math.round(fps);
-        }
     }
     
     updateStatus(status) {

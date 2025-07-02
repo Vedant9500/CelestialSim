@@ -762,12 +762,10 @@ class NBodyApp {
             
             // Create a temporary body for orbit preview
             const tempBody = new Body(
-                draggedBodyPos.x,
-                draggedBodyPos.y,
-                orbitalVelocity.x,
-                orbitalVelocity.y,
+                new Vector2D(draggedBodyPos.x, draggedBodyPos.y),
+                new Vector2D(orbitalVelocity.x, orbitalVelocity.y),
                 this.draggedBody.mass,
-                this.draggedBody.radius,
+                this.draggedBody.color,
                 this.draggedBody.color
             );
             
@@ -1312,6 +1310,41 @@ class NBodyApp {
         // Update cursor during drag operations
         if (this.isDragging) {
             this.canvas.style.cursor = 'grabbing';
+        }
+    }
+
+    applyOrbitVelocityToDraggedBody() {
+        if (!this.draggedBody || this.bodies.length < 2) {
+            return;
+        }
+
+        // Find the nearest body to calculate orbital velocity around
+        const draggedBodyPos = this.draggedBody.position;
+        let nearestBody = null;
+        let minDistance = Infinity;
+
+        for (const body of this.bodies) {
+            if (body === this.draggedBody) continue;
+            
+            const distance = draggedBodyPos.distance(body.position);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestBody = body;
+            }
+        }
+
+        if (nearestBody) {
+            // Calculate orbital velocity around the nearest body
+            const orbitalVelocity = this.ui.calculateOrbitalVelocity(
+                nearestBody, 
+                draggedBodyPos, 
+                this.physics.gravitationalConstant
+            );
+            
+            // Apply the orbital velocity to the dragged body
+            this.draggedBody.velocity = new Vector2D(orbitalVelocity.x, orbitalVelocity.y);
+            
+            console.log(`Applied orbital velocity to dragged body: ${orbitalVelocity.magnitude().toFixed(2)}`);
         }
     }
 }
