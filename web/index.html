@@ -381,6 +381,51 @@
                             </div>
                         </div>
 
+                        <!-- Tools Tab -->
+                        <div class="tab-panel" id="tools-tab">
+                            <div class="panel-section">
+                                <h3><i class="fas fa-tools"></i> Tools & Actions</h3>
+                                
+                                <div class="tools-grid">
+                                    <button id="save-config" class="tool-btn"
+                                            data-tooltip="Save current simulation configuration including all bodies, their properties, and physics settings to a file.">
+                                        <i class="fas fa-save"></i>
+                                        <span>Save Config</span>
+                                    </button>
+                                    
+                                    <button id="load-config" class="tool-btn"
+                                            data-tooltip="Load a previously saved simulation configuration from file. This will replace current setup.">
+                                        <i class="fas fa-folder-open"></i>
+                                        <span>Load Config</span>
+                                    </button>
+                                    
+                                    <button id="export-video" class="tool-btn"
+                                            data-tooltip="Records the simulation as an animated GIF or video file. Note: This may impact performance during recording and requires a modern browser.">
+                                        <i class="fas fa-video"></i>
+                                        <span>Record</span>
+                                    </button>
+                                    
+                                    <button id="show-shortcuts" class="tool-btn"
+                                            data-tooltip="Display keyboard shortcuts and controls reference. Shows all available hotkeys for faster simulation control.">
+                                        <i class="fas fa-keyboard"></i>
+                                        <span>Shortcuts</span>
+                                    </button>
+                                    
+                                    <button id="debug-mode" class="tool-btn"
+                                            data-tooltip="Toggle debug mode to show additional technical information and performance metrics.">
+                                        <i class="fas fa-bug"></i>
+                                        <span>Debug</span>
+                                    </button>
+                                    
+                                    <button id="performance-mode" class="tool-btn"
+                                            data-tooltip="Enable performance optimizations that may reduce visual quality but improve frame rate with many bodies.">
+                                        <i class="fas fa-rocket"></i>
+                                        <span>Optimize</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Reference Tab -->
                         <div class="tab-panel" id="reference-tab">
                             <div class="reference-content">

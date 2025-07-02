@@ -103,7 +103,8 @@ class UIManager {
         const buttonIds = [
             'play-pause', 'reset', 'clear', 'zoom-in', 'zoom-out',
             'center-view', 'fit-view', 'save-config', 'load-config',
-            'export-video', 'delete-selected', 'help-btn'
+            'export-video', 'delete-selected', 'help-btn', 'show-shortcuts',
+            'debug-mode', 'performance-mode'
         ];
 
         buttonIds.forEach(id => {
