@@ -1371,10 +1371,10 @@ class UIManager {
             bodyCountElement.textContent = info.bodyCount || 0;
         }
         
-        // Update toolbar body count
-        const bodyCountToolbar = document.getElementById('body-count-toolbar');
-        if (bodyCountToolbar) {
-            bodyCountToolbar.textContent = info.bodyCount || 0;
+        // Update body count in Bodies tab
+        const bodyCountDisplay = this.getElement('body-count-display');
+        if (bodyCountDisplay) {
+            bodyCountDisplay.textContent = info.bodyCount || 0;
         }
         
         const totalMassElement = document.getElementById('total-mass');

@@ -85,12 +85,6 @@
                             <span>Clear</span>
                         </button>
                     </div>
-                    <div class="quick-stats">
-                        <div class="stat-item">
-                            <span class="stat-value" id="body-count-toolbar">0</span>
-                            <span class="stat-label">Bodies</span>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Blender-style Vertical Tab Layout -->
@@ -189,6 +183,15 @@
                         <div class="tab-panel" id="bodies-tab">
                             <div class="panel-section">
                                 <h3><i class="fas fa-plus-circle"></i> Bodies & Presets</h3>
+                                
+                                <!-- Body Count Status -->
+                                <div class="body-count-status">
+                                    <div class="status-item">
+                                        <i class="fas fa-globe"></i>
+                                        <span class="count-value" id="body-count-display">0</span>
+                                        <span class="count-label">Bodies in Simulation</span>
+                                    </div>
+                                </div>
                                 
                                 <!-- Quick Start Presets -->
                                 <div class="presets-section">
@@ -610,77 +613,193 @@
             </aside>
         </main>
 
-        <!-- Keyboard Shortcuts Modal -->
+        <!-- Enhanced Keyboard Shortcuts Modal -->
         <div id="shortcuts-modal" class="modal">
-            <div class="modal-content">
+            <div class="modal-content enhanced-modal">
                 <div class="modal-header">
-                    <h3><i class="fas fa-keyboard"></i> Controls & Shortcuts</h3>
+                    <div class="modal-title">
+                        <i class="fas fa-keyboard modal-icon"></i>
+                        <h3>Controls & Shortcuts</h3>
+                        <span class="modal-subtitle">Master CelestialSim with these shortcuts</span>
+                    </div>
                     <button class="close-modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div class="shortcuts-section">
-                        <h4><i class="fas fa-mouse"></i> Mouse Controls</h4>
-                        <div class="shortcuts-grid">
-                            <div class="shortcut-item">
-                                <kbd>Left Click</kbd>
-                                <span>Select body or add new body</span>
+                    <div class="shortcuts-container">
+                        <div class="shortcuts-section">
+                            <div class="section-header">
+                                <i class="fas fa-mouse"></i>
+                                <h4>Mouse Controls</h4>
                             </div>
-                            <div class="shortcut-item">
-                                <kbd>Drag</kbd>
-                                <span>Move selected body to new position</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <kbd>Right Click</kbd>
-                                <span>Select body (context menu)</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <kbd>Mouse Wheel</kbd>
-                                <span>Zoom in/out</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <kbd>Ctrl + Drag</kbd>
-                                <span>Pan camera view</span>
+                            <div class="shortcuts-grid">
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd><i class="fas fa-mouse-pointer"></i> Left Click</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Select or Add Body</span>
+                                        <small>Click to select existing body or add new body in empty space</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd><i class="fas fa-hand-rock"></i> Drag</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Move Bodies</span>
+                                        <small>Drag selected body to new position, shows orbit preview</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd><i class="fas fa-mouse-pointer"></i> Right Click</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Quick Select</span>
+                                        <small>Select body and show context options</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd><i class="fas fa-scroll"></i> Mouse Wheel</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Zoom In/Out</span>
+                                        <small>Scroll to zoom, center on mouse position</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>Ctrl + <i class="fas fa-hand-rock"></i> Drag</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Pan Camera</span>
+                                        <small>Move the view around without affecting bodies</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="shortcuts-section">
-                        <h4><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h4>
-                        <div class="shortcuts-grid">
-                            <div class="shortcut-item">
-                                <kbd>Space</kbd>
-                                <span>Start/Pause simulation</span>
+
+                        <div class="shortcuts-section">
+                            <div class="section-header">
+                                <i class="fas fa-keyboard"></i>
+                                <h4>Keyboard Shortcuts</h4>
                             </div>
-                            <div class="shortcut-item">
-                                <kbd>R</kbd>
-                                <span>Reset simulation</span>
+                            <div class="shortcuts-grid">
+                                <div class="shortcut-item featured">
+                                    <div class="shortcut-key">
+                                        <kbd>Space</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Start/Pause Simulation</span>
+                                        <small>Toggle physics simulation on/off</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>R</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Reset Simulation</span>
+                                        <small>Stop and reset all bodies to initial state</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>C</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Clear All Bodies</span>
+                                        <small>Remove all bodies from the simulation</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>T</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Toggle Trails</span>
+                                        <small>Show/hide orbital trails behind bodies</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>G</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Toggle Grid</span>
+                                        <small>Show/hide reference grid overlay</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>F</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Toggle Force Vectors</span>
+                                        <small>Visualize gravitational forces as arrows</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>I</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Toggle Scale Reference</span>
+                                        <small>Show/hide astronomical scale indicators</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>Delete</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Delete Selected</span>
+                                        <small>Remove the currently selected body</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-item">
+                                    <div class="shortcut-key">
+                                        <kbd>?</kbd>
+                                    </div>
+                                    <div class="shortcut-desc">
+                                        <span class="action">Show Help</span>
+                                        <small>Display this shortcuts reference</small>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="shortcut-item">
-                                <kbd>C</kbd>
-                                <span>Clear all bodies</span>
+                        </div>
+
+                        <div class="shortcuts-section">
+                            <div class="section-header">
+                                <i class="fas fa-lightbulb"></i>
+                                <h4>Pro Tips</h4>
                             </div>
-                            <div class="shortcut-item">
-                                <kbd>T</kbd>
-                                <span>Toggle trails</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <kbd>G</kbd>
-                                <span>Toggle grid</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <kbd>F</kbd>
-                                <span>Toggle force vectors</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <kbd>I</kbd>
-                                <span>Toggle scale reference</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <kbd>Delete</kbd>
-                                <span>Delete selected body</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <kbd>?</kbd>
-                                <span>Show this help</span>
+                            <div class="tips-grid">
+                                <div class="tip-item">
+                                    <i class="fas fa-rocket tip-icon"></i>
+                                    <div class="tip-content">
+                                        <strong>Orbit Mode:</strong> Switch to orbit mode for automatic orbital velocity calculation when placing bodies.
+                                    </div>
+                                </div>
+                                <div class="tip-item">
+                                    <i class="fas fa-microchip tip-icon"></i>
+                                    <div class="tip-content">
+                                        <strong>GPU Acceleration:</strong> Enable GPU mode in Performance tab for faster simulations with many bodies.
+                                    </div>
+                                </div>
+                                <div class="tip-item">
+                                    <i class="fas fa-save tip-icon"></i>
+                                    <div class="tip-content">
+                                        <strong>Save Configurations:</strong> Use presets to quickly load interesting solar system configurations.
+                                    </div>
+                                </div>
+                                <div class="tip-item">
+                                    <i class="fas fa-chart-line tip-icon"></i>
+                                    <div class="tip-content">
+                                        <strong>Energy Monitoring:</strong> Watch the Energy tab to see conservation of energy in action.
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
