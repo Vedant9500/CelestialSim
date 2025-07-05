@@ -69,7 +69,33 @@ class NBodyApp {
         this.workerBusy = false;
         this.initialEnergy = null;
         
+        // Store references for cleanup
+        this.eventCleanupFunctions = [];
+        this.intervalIds = [];
+        
         this.initialize();
+    }
+
+    // Add cleanup method
+    cleanup() {
+        // Clear all intervals
+        this.intervalIds.forEach(id => clearInterval(id));
+        this.intervalIds = [];
+        
+        // Clean up event listeners
+        this.eventCleanupFunctions.forEach(cleanup => cleanup());
+        this.eventCleanupFunctions = [];
+        
+        // Clean up web worker
+        if (this.physicsWorker) {
+            this.physicsWorker.terminate();
+            this.physicsWorker = null;
+        }
+        
+        // Clean up GPU resources
+        if (this.physics.gpuPhysics) {
+            this.physics.gpuPhysics.cleanup();
+        }
     }
 
     initialize() {
@@ -94,17 +120,32 @@ class NBodyApp {
     }
 
     setupEventListeners() {
-        // Mouse events
-        this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
-        this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
-        this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
-        this.canvas.addEventListener('wheel', (e) => this.onMouseWheel(e));
-        this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        // Store cleanup functions for proper removal
+        const mouseDownHandler = (e) => this.onMouseDown(e);
+        const mouseMoveHandler = (e) => this.onMouseMove(e);
+        const mouseUpHandler = (e) => this.onMouseUp(e);
+        const wheelHandler = (e) => this.onMouseWheel(e);
+        const contextMenuHandler = (e) => e.preventDefault();
+        const resizeHandler = () => this.onWindowResize();
         
-        // Window events
-        window.addEventListener('resize', () => this.onWindowResize());
+        this.canvas.addEventListener('mousedown', mouseDownHandler);
+        this.canvas.addEventListener('mousemove', mouseMoveHandler);
+        this.canvas.addEventListener('mouseup', mouseUpHandler);
+        this.canvas.addEventListener('wheel', wheelHandler);
+        this.canvas.addEventListener('contextmenu', contextMenuHandler);
+        window.addEventListener('resize', resizeHandler);
         
-        // Handle browser zoom changes
+        // Store cleanup functions
+        this.eventCleanupFunctions.push(
+            () => this.canvas.removeEventListener('mousedown', mouseDownHandler),
+            () => this.canvas.removeEventListener('mousemove', mouseMoveHandler),
+            () => this.canvas.removeEventListener('mouseup', mouseUpHandler),
+            () => this.canvas.removeEventListener('wheel', wheelHandler),
+            () => this.canvas.removeEventListener('contextmenu', contextMenuHandler),
+            () => window.removeEventListener('resize', resizeHandler)
+        );
+        
+        // Handle browser zoom changes with proper cleanup
         let lastDevicePixelRatio = window.devicePixelRatio;
         const checkZoomChange = () => {
             if (window.devicePixelRatio !== lastDevicePixelRatio) {
@@ -113,17 +154,18 @@ class NBodyApp {
             }
         };
         
-        // Check for zoom changes periodically
-        setInterval(checkZoomChange, 500);
+        // Store interval ID for cleanup
+        const zoomCheckInterval = setInterval(checkZoomChange, 500);
+        this.intervalIds.push(zoomCheckInterval);
         
-        // Also check on various events that might indicate zoom change
-        window.addEventListener('wheel', (e) => {
+        // Also check on wheel events
+        const wheelZoomHandler = (e) => {
             if (e.ctrlKey) {
                 setTimeout(checkZoomChange, 100);
             }
-        });
-        
-        // Keyboard events are handled by UI manager
+        };
+        window.addEventListener('wheel', wheelZoomHandler);
+        this.eventCleanupFunctions.push(() => window.removeEventListener('wheel', wheelZoomHandler));
     }
 
     setupUICallbacks() {

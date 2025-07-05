@@ -51,12 +51,36 @@ class Body {
         this.radius = this.calculateRadius();
     }
 
-    // Add position to trail
+    // Add position to trail with efficient circular buffer implementation
     addToTrail() {
-        this.trail.push(this.position.clone());
-        while (this.trail.length > this.maxTrailLength) {
-            this.trail.shift();
+        if (this.maxTrailLength <= 0) return;
+        
+        // Use circular buffer for better performance
+        if (!this.trailIndex) this.trailIndex = 0;
+        
+        if (this.trail.length < this.maxTrailLength) {
+            // Still filling up the trail
+            this.trail.push(this.position.clone());
+        } else {
+            // Trail is full, use circular buffer
+            this.trail[this.trailIndex] = this.position.clone();
+            this.trailIndex = (this.trailIndex + 1) % this.maxTrailLength;
         }
+    }
+    
+    // Get trail points in correct order for rendering
+    getOrderedTrail() {
+        if (this.trail.length < this.maxTrailLength || !this.trailIndex) {
+            return this.trail;
+        }
+        
+        // Return trail points in correct chronological order
+        const orderedTrail = [];
+        for (let i = 0; i < this.maxTrailLength; i++) {
+            const index = (this.trailIndex + i) % this.maxTrailLength;
+            orderedTrail.push(this.trail[index]);
+        }
+        return orderedTrail;
     }
 
     // Clear the trail

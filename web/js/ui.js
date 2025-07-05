@@ -68,17 +68,39 @@ class UIManager {
                     this.onSliderChange(config.id, value);
                 });
                 
-                // Sync input to slider
+                // Sync input to slider with comprehensive validation
                 input.addEventListener('input', (e) => {
                     let value = parseFloat(e.target.value);
                     
-                    // Special validation for mass to prevent zero or negative values
-                    if (config.id === 'body-mass' && (isNaN(value) || value <= 0)) {
-                        value = config.min; // Reset to minimum safe value
-                        input.value = value; // Update the input field
+                    // Comprehensive validation for all sliders
+                    if (isNaN(value)) {
+                        value = config.default;
+                        input.value = value;
                     }
                     
-                    // Only update slider if value is within range
+                    // Special validation for mass to prevent zero or negative values
+                    if (config.id === 'body-mass') {
+                        if (value <= 0) {
+                            value = Math.max(config.min, 1); // Ensure positive mass
+                            input.value = value;
+                        }
+                        // Cap maximum mass to prevent numerical instability
+                        if (value > config.extendedMax) {
+                            value = config.extendedMax;
+                            input.value = value;
+                        }
+                    }
+                    
+                    // Velocity validation to prevent extreme values
+                    if (config.id.includes('velocity')) {
+                        const maxVel = config.extendedMax || 1000;
+                        if (Math.abs(value) > maxVel) {
+                            value = Math.sign(value) * maxVel;
+                            input.value = value;
+                        }
+                    }
+                    
+                    // Only update slider if value is within basic range
                     if (value >= config.min && value <= config.max) {
                         slider.value = value;
                     }
@@ -505,59 +527,77 @@ class UIManager {
         }
     }
 
-    updatePerformanceStats(stats) {
-        const fpsDisplay = this.getElement('performance-fps');
-        const physicsTime = this.getElement('performance-physics-time');
-        const forceTime = this.getElement('performance-force-time');
-        const integrationTime = this.getElement('performance-integration-time');
-        const bodyCount = this.getElement('performance-body-count');
-        const currentMethod = this.getElement('performance-current-method');
+    // Centralized element caching to avoid duplicate DOM lookups
+    getElement(id) {
+        if (!this.cachedElements.has(id)) {
+            this.cachedElements.set(id, document.getElementById(id));
+        }
+        return this.cachedElements.get(id);
+    }
+    
+    // Clear element cache when DOM changes
+    clearElementCache() {
+        this.cachedElements.clear();
+    }
 
-        if (fpsDisplay) fpsDisplay.textContent = `${Math.round(stats.fps || 0)} FPS`;
-        
-        // Display with better precision and show actual values
-        if (physicsTime) {
-            const value = stats.physicsTime || 0;
-            physicsTime.textContent = value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+    updatePerformanceStats(stats) {
+        // Use cached elements to avoid repeated DOM lookups
+        const elements = {
+            fpsDisplay: this.getElement('performance-fps'),
+            physicsTime: this.getElement('performance-physics-time'),
+            forceTime: this.getElement('performance-force-time'),
+            integrationTime: this.getElement('performance-integration-time'),
+            bodyCount: this.getElement('performance-body-count'),
+            currentMethod: this.getElement('performance-current-method'),
+            physicsTimeElement: this.getElement('physics-time'),
+            forceTimeElement: this.getElement('force-time'),
+            integrationTimeElement: this.getElement('integration-time')
+        };
+
+        // Update FPS display
+        if (elements.fpsDisplay) {
+            elements.fpsDisplay.textContent = `${Math.round(stats.fps || 0)} FPS`;
         }
         
-        if (forceTime) {
-            const value = stats.forceCalculationTime || 0;
-            forceTime.textContent = value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+        // Helper function to format time values consistently
+        const formatTime = (value) => value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+        
+        // Update timing displays
+        if (elements.physicsTime) {
+            elements.physicsTime.textContent = formatTime(stats.physicsTime || 0);
+        }
+        if (elements.forceTime) {
+            elements.forceTime.textContent = formatTime(stats.forceCalculationTime || 0);
+        }
+        if (elements.integrationTime) {
+            elements.integrationTime.textContent = formatTime(stats.integrationTime || 0);
         }
         
-        if (integrationTime) {
-            const value = stats.integrationTime || 0;
-            integrationTime.textContent = value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+        // Update other stats
+        if (elements.bodyCount) elements.bodyCount.textContent = stats.bodyCount || 0;
+        if (elements.currentMethod) {
+            elements.currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
         }
         
-        if (bodyCount) bodyCount.textContent = stats.bodyCount || 0;
-        if (currentMethod) currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
-        
-        // Update performance tab body count (avoiding duplicate lookups)
-        const physicsTimeElement = this.getElement('physics-time');
-        if (physicsTimeElement) {
-            physicsTimeElement.textContent = `${(stats.physicsTime || 0).toFixed(2)}ms`;
+        // Update performance tab elements (avoiding code duplication)
+        if (elements.physicsTimeElement) {
+            elements.physicsTimeElement.textContent = `${(stats.physicsTime || 0).toFixed(2)}ms`;
         }
-        
-        const forceTimeElement = this.getElement('force-time');
-        if (forceTimeElement) {
-            forceTimeElement.textContent = `${(stats.forceCalculationTime || 0).toFixed(2)}ms`;
+        if (elements.forceTimeElement) {
+            elements.forceTimeElement.textContent = `${(stats.forceCalculationTime || 0).toFixed(2)}ms`;
         }
-        
-        const integrationTimeElement = this.getElement('integration-time');
-        if (integrationTimeElement) {
-            integrationTimeElement.textContent = `${(stats.integrationTime || 0).toFixed(2)}ms`;
+        if (elements.integrationTimeElement) {
+            elements.integrationTimeElement.textContent = `${(stats.integrationTime || 0).toFixed(2)}ms`;
         }
         
         // Update GPU status if available
         if (stats.gpu && stats.gpu.isSupported) {
             const gpuModeElement = this.getElement('gpu-mode');
+            const gpuTimeElement = this.getElement('gpu-time');
+            
             if (gpuModeElement) {
                 gpuModeElement.textContent = stats.gpu.mode || 'gpu';
             }
-            
-            const gpuTimeElement = this.getElement('gpu-time');
             if (gpuTimeElement) {
                 gpuTimeElement.textContent = `${(stats.gpu.lastGpuTime || 0).toFixed(2)}ms`;
             }

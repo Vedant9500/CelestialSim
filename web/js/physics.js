@@ -595,8 +595,17 @@ class PhysicsEngine {
         bodies.push(...bodiesToAdd);
     }
 
-    // Calculate total system energy with improved accuracy
+    // Calculate total system energy with improved accuracy and caching
     calculateTotalEnergy(bodies) {
+        // Only recalculate if needed (when bodies have moved)
+        if (this.energyCacheValid) {
+            return {
+                kinetic: this.totalKineticEnergy,
+                potential: this.totalPotentialEnergy,
+                total: this.totalKineticEnergy + this.totalPotentialEnergy
+            };
+        }
+        
         this.totalKineticEnergy = 0;
         this.totalPotentialEnergy = 0;
         

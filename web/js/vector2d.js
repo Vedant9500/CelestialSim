@@ -36,8 +36,8 @@ class Vector2D {
     }
 
     divide(scalar) {
-        if (scalar === 0) {
-            console.warn('Vector2D: Division by zero detected, returning zero vector');
+        if (Math.abs(scalar) < Number.EPSILON) {
+            console.warn('Vector2D: Division by near-zero value detected, returning zero vector');
             return new Vector2D(0, 0);
         }
         return new Vector2D(this.x / scalar, this.y / scalar);
@@ -45,28 +45,42 @@ class Vector2D {
 
     // Mutating operations
     addMut(other) {
+        if (!other || typeof other.x !== 'number' || typeof other.y !== 'number') {
+            console.warn('Vector2D: Invalid vector in addMut operation');
+            return this;
+        }
         this.x += other.x;
         this.y += other.y;
         return this;
     }
 
     subtractMut(other) {
+        if (!other || typeof other.x !== 'number' || typeof other.y !== 'number') {
+            console.warn('Vector2D: Invalid vector in subtractMut operation');
+            return this;
+        }
         this.x -= other.x;
         this.y -= other.y;
         return this;
     }
 
     multiplyMut(scalar) {
+        if (typeof scalar !== 'number' || !isFinite(scalar)) {
+            console.warn('Vector2D: Invalid scalar in multiplyMut operation');
+            return this;
+        }
         this.x *= scalar;
         this.y *= scalar;
         return this;
     }
 
     divideMut(scalar) {
-        if (scalar !== 0) {
-            this.x /= scalar;
-            this.y /= scalar;
+        if (Math.abs(scalar) < Number.EPSILON) {
+            console.warn('Vector2D: Division by near-zero value in divideMut, no operation performed');
+            return this;
         }
+        this.x /= scalar;
+        this.y /= scalar;
         return this;
     }
 
