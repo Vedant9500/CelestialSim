@@ -1123,7 +1123,11 @@ class NBodyApp {
                 
                 switch (type) {
                     case 'simulation-result':
-                        if (!this.workerBusy) return; // Ignore stale results
+                        // Check if worker is still supposed to be busy (prevent race conditions)
+                        if (!this.workerBusy) {
+                            console.warn('Received worker result but worker not marked as busy - ignoring stale result');
+                            return;
+                        }
                         
                         // Update bodies with worker results
                         this.updateBodiesFromWorker(data.bodies);
@@ -1133,18 +1137,25 @@ class NBodyApp {
                         this.physics.totalPotentialEnergy = data.energy.potential;
                         this.physics.totalEnergy = data.energy.total;
                         
+                        // Mark worker as no longer busy
                         this.workerBusy = false;
                         break;
                         
                     case 'error':
                         console.error('Physics worker error:', data.message);
+                        this.workerBusy = false; // Ensure flag is cleared on error
                         this.setWebWorkersEnabled(false);
+                        break;
+                        
+                    default:
+                        console.warn('Unknown worker message type:', type);
                         break;
                 }
             };
             
             this.physicsWorker.onerror = (error) => {
                 console.error('Physics worker error:', error);
+                this.workerBusy = false; // Ensure flag is cleared on error
                 this.setWebWorkersEnabled(false);
             };
             
@@ -1238,33 +1249,53 @@ class NBodyApp {
 
     // Update simulation using Web Worker
     updateWithWebWorker(deltaTime) {
-        if (this.workerBusy) return; // Skip if worker is busy
+        if (this.workerBusy) {
+            // Worker is busy, fall back to CPU physics for this frame
+            this.physics.update(this.bodies, deltaTime);
+            return;
+        }
         
         this.workerBusy = true;
         
-        // Serialize bodies for worker
-        const serializedBodies = this.bodies.map(body => ({
-            id: body.id,
-            position: { x: body.position.x, y: body.position.y },
-            velocity: { x: body.velocity.x, y: body.velocity.y },
-            mass: body.mass,
-            radius: body.radius,
-            color: body.color,
-            trail: body.trail || []
-        }));
-        
-        // Send simulation step to worker
-        this.physicsWorker.postMessage({
-            type: 'simulate',
-            data: {
-                bodies: serializedBodies,
-                deltaTime: deltaTime,
-                config: {
-                    integrationMethod: this.physics.integrationMethod,
-                    forceMethod: this.physics.forceCalculationMethod
+        try {
+            // Serialize bodies for worker
+            const serializedBodies = this.bodies.map(body => ({
+                id: body.id,
+                position: { x: body.position.x, y: body.position.y },
+                velocity: { x: body.velocity.x, y: body.velocity.y },
+                mass: body.mass,
+                radius: body.radius,
+                color: body.color,
+                trail: body.trail || []
+            }));
+            
+            // Send simulation step to worker
+            this.physicsWorker.postMessage({
+                type: 'simulate',
+                data: {
+                    bodies: serializedBodies,
+                    deltaTime: deltaTime,
+                    config: {
+                        integrationMethod: this.physics.integrationMethod,
+                        forceMethod: this.physics.forceCalculationMethod
+                    }
                 }
-            }
-        });
+            });
+            
+            // Set a timeout to prevent worker from hanging indefinitely
+            setTimeout(() => {
+                if (this.workerBusy) {
+                    console.warn('Worker timeout - forcing worker busy flag reset');
+                    this.workerBusy = false;
+                }
+            }, 100); // 100ms timeout
+            
+        } catch (error) {
+            console.error('Error sending data to worker:', error);
+            this.workerBusy = false;
+            // Fall back to CPU physics
+            this.physics.update(this.bodies, deltaTime);
+        }
     }
 
     // Utility methods

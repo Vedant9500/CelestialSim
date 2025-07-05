@@ -4,7 +4,7 @@
  */
 
 class QuadTree {
-    constructor(bounds, maxBodies = 1) {
+    constructor(bounds, maxBodies = 1, depth = 0, maxDepth = 20) {
         this.bounds = bounds; // {x, y, width, height}
         this.maxBodies = maxBodies;
         this.bodies = [];
@@ -12,6 +12,8 @@ class QuadTree {
         this.centerOfMass = null;
         this.totalMass = 0;
         this.divided = false;
+        this.depth = depth;
+        this.maxDepth = maxDepth;
     }
 
     /**
@@ -27,6 +29,15 @@ class QuadTree {
         if (this.bodies.length < this.maxBodies && !this.divided) {
             this.bodies.push(body);
             this.updateCenterOfMass();
+            return true;
+        }
+
+        // Check depth limit to prevent stack overflow
+        if (this.depth >= this.maxDepth) {
+            // Force add to this node even if it exceeds maxBodies
+            this.bodies.push(body);
+            this.updateCenterOfMass();
+            console.warn(`QuadTree depth limit reached (${this.maxDepth}), forcing body insertion`);
             return true;
         }
 
@@ -72,10 +83,10 @@ class QuadTree {
         const h = this.bounds.height / 2;
 
         this.children = {
-            nw: new QuadTree({ x: x, y: y, width: w, height: h }, this.maxBodies),
-            ne: new QuadTree({ x: x + w, y: y, width: w, height: h }, this.maxBodies),
-            sw: new QuadTree({ x: x, y: y + h, width: w, height: h }, this.maxBodies),
-            se: new QuadTree({ x: x + w, y: y + h, width: w, height: h }, this.maxBodies)
+            nw: new QuadTree({ x: x, y: y, width: w, height: h }, this.maxBodies, this.depth + 1, this.maxDepth),
+            ne: new QuadTree({ x: x + w, y: y, width: w, height: h }, this.maxBodies, this.depth + 1, this.maxDepth),
+            sw: new QuadTree({ x: x, y: y + h, width: w, height: h }, this.maxBodies, this.depth + 1, this.maxDepth),
+            se: new QuadTree({ x: x + w, y: y + h, width: w, height: h }, this.maxBodies, this.depth + 1, this.maxDepth)
         };
 
         this.divided = true;

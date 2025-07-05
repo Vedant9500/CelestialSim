@@ -1,5 +1,23 @@
 class Body {
     constructor(position, velocity, mass, color = '#ff4757', trailLength = 50) {
+        // Validate and sanitize input parameters
+        if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+            console.warn('Invalid position provided to Body constructor, using default (0,0)');
+            position = new Vector2D(0, 0);
+        }
+        if (!velocity || typeof velocity.x !== 'number' || typeof velocity.y !== 'number') {
+            console.warn('Invalid velocity provided to Body constructor, using default (0,0)');
+            velocity = new Vector2D(0, 0);
+        }
+        if (typeof mass !== 'number' || mass <= 0 || !isFinite(mass)) {
+            console.warn('Invalid mass provided to Body constructor, using default (50)');
+            mass = 50;
+        }
+        if (typeof trailLength !== 'number' || trailLength < 0) {
+            console.warn('Invalid trail length provided to Body constructor, using default (50)');
+            trailLength = 50;
+        }
+        
         this.position = position.clone();
         this.velocity = velocity.clone();
         this.acceleration = new Vector2D(0, 0);
@@ -7,7 +25,7 @@ class Body {
         this.mass = mass;
         this.color = color;
         this.trail = [];
-        this.maxTrailLength = trailLength;
+        this.maxTrailLength = Math.max(0, Math.floor(trailLength)); // Ensure integer and non-negative
         this.radius = this.calculateRadius();
         this.selected = false;
         this.hovered = false; // Add hover state
@@ -43,7 +61,15 @@ class Body {
     calculateRadius() {
         // Ensure mass is a valid, positive number
         const safeMass = Math.max(0.1, this.mass || 0.1);
-        return Math.max(RENDERING_CONSTANTS.MIN_BODY_RADIUS, Math.sqrt(safeMass / RENDERING_CONSTANTS.BODY_RADIUS_SCALE) + 2);
+        
+        // Validate that safeMass is finite
+        if (!isFinite(safeMass)) {
+            console.warn(`Body ${this.id}: Non-finite mass detected, using fallback`);
+            return RENDERING_CONSTANTS.MIN_BODY_RADIUS;
+        }
+        
+        const calculatedRadius = Math.sqrt(safeMass / RENDERING_CONSTANTS.BODY_RADIUS_SCALE) + 2;
+        return Math.max(RENDERING_CONSTANTS.MIN_BODY_RADIUS, calculatedRadius);
     }
 
     // Update radius when mass changes
@@ -53,32 +79,49 @@ class Body {
 
     // Add position to trail with efficient circular buffer implementation
     addToTrail() {
-        if (this.maxTrailLength <= 0) return;
+        if (this.maxTrailLength <= 0) {
+            // Clear trail if disabled
+            this.trail = [];
+            this.trailIndex = 0;
+            return;
+        }
         
-        // Use circular buffer for better performance
-        if (!this.trailIndex) this.trailIndex = 0;
+        // Initialize trail index if not set
+        if (this.trailIndex === undefined) this.trailIndex = 0;
         
         if (this.trail.length < this.maxTrailLength) {
             // Still filling up the trail
             this.trail.push(this.position.clone());
         } else {
-            // Trail is full, use circular buffer
+            // Trail is full, use circular buffer - properly clean up old reference
+            if (this.trail[this.trailIndex]) {
+                // Clear old position reference to prevent memory leaks
+                this.trail[this.trailIndex] = null;
+            }
             this.trail[this.trailIndex] = this.position.clone();
             this.trailIndex = (this.trailIndex + 1) % this.maxTrailLength;
+        }
+        
+        // Trim trail if maxTrailLength was reduced
+        if (this.trail.length > this.maxTrailLength) {
+            this.trail.splice(this.maxTrailLength);
+            this.trailIndex = this.trailIndex % this.maxTrailLength;
         }
     }
     
     // Get trail points in correct order for rendering
     getOrderedTrail() {
-        if (this.trail.length < this.maxTrailLength || !this.trailIndex) {
-            return this.trail;
+        if (this.trail.length < this.maxTrailLength || this.trailIndex === undefined) {
+            return this.trail.filter(point => point !== null);
         }
         
-        // Return trail points in correct chronological order
+        // Return trail points in correct chronological order, filtering out nulls
         const orderedTrail = [];
         for (let i = 0; i < this.maxTrailLength; i++) {
             const index = (this.trailIndex + i) % this.maxTrailLength;
-            orderedTrail.push(this.trail[index]);
+            if (this.trail[index] !== null && this.trail[index] !== undefined) {
+                orderedTrail.push(this.trail[index]);
+            }
         }
         return orderedTrail;
     }
@@ -86,11 +129,24 @@ class Body {
     // Clear the trail
     clearTrail() {
         this.trail = [];
+        this.trailIndex = 0;
     }
 
     // Update physics - Verlet integration for better stability
     update(deltaTime) {
         if (this.fixed) return;
+        
+        // Validate deltaTime
+        if (typeof deltaTime !== 'number' || deltaTime <= 0 || !isFinite(deltaTime)) {
+            console.warn(`Body ${this.id}: Invalid deltaTime (${deltaTime}), skipping update`);
+            return;
+        }
+        
+        // Validate current state before updating
+        if (!this.validateState()) {
+            console.warn(`Body ${this.id}: Invalid state detected, attempting correction`);
+            this.correctState();
+        }
 
         // Calculate acceleration from current forces
         this.acceleration = this.force.divide(this.mass);
@@ -331,6 +387,12 @@ class Body {
 
     // Set position and update last position to prevent teleportation effects
     setPosition(newPosition) {
+        // Validate input
+        if (!newPosition || !this.isValidNumber(newPosition.x) || !this.isValidNumber(newPosition.y)) {
+            console.warn(`Body ${this.id}: Invalid position provided to setPosition, ignoring`);
+            return;
+        }
+        
         const delta = newPosition.subtract(this.position);
         this.position.setFromVector(newPosition);
         this.lastPosition.addMut(delta);
@@ -413,5 +475,40 @@ class Body {
 
     clearAllCollisionCooldowns() {
         this.collisionCooldowns.clear();
+    }
+
+    // Validate body state for numerical stability
+    validateState() {
+        return this.isValidNumber(this.position.x) && 
+               this.isValidNumber(this.position.y) &&
+               this.isValidNumber(this.velocity.x) && 
+               this.isValidNumber(this.velocity.y) &&
+               this.isValidNumber(this.mass) && 
+               this.mass > 0;
+    }
+    
+    // Check if a number is valid (not NaN, not infinite)
+    isValidNumber(value) {
+        return typeof value === 'number' && isFinite(value);
+    }
+    
+    // Correct invalid state values
+    correctState() {
+        if (!this.isValidNumber(this.position.x)) this.position.x = 0;
+        if (!this.isValidNumber(this.position.y)) this.position.y = 0;
+        if (!this.isValidNumber(this.velocity.x)) this.velocity.x = 0;
+        if (!this.isValidNumber(this.velocity.y)) this.velocity.y = 0;
+        if (!this.isValidNumber(this.mass) || this.mass <= 0) this.mass = 50;
+        
+        // Correct force and acceleration if needed
+        if (!this.isValidNumber(this.force.x)) this.force.x = 0;
+        if (!this.isValidNumber(this.force.y)) this.force.y = 0;
+        if (!this.isValidNumber(this.acceleration.x)) this.acceleration.x = 0;
+        if (!this.isValidNumber(this.acceleration.y)) this.acceleration.y = 0;
+        
+        // Update radius after mass correction
+        this.updateRadius();
+        
+        console.warn(`Body ${this.id}: State corrected due to invalid values`);
     }
 }
