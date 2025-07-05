@@ -226,21 +226,25 @@ class Renderer {
 
     drawTrails(bodies) {
         bodies.forEach(body => {
-            if (body.trail.length < 2) return;
+            // Use getOrderedTrail() to get points in correct chronological order
+            const trail = body.getOrderedTrail();
+            if (trail.length < 2) return;
             
-            const trail = body.trail.slice(-this.maxTrailPoints);
+            // Limit trail points for performance if needed
+            const limitedTrail = trail.length > this.maxTrailPoints ? 
+                trail.slice(-this.maxTrailPoints) : trail;
             
-            for (let i = 1; i < trail.length; i++) {
-                const alpha = (i / trail.length) * 0.8;
-                const thickness = (i / trail.length) * 3 + 0.5;
+            for (let i = 1; i < limitedTrail.length; i++) {
+                const alpha = (i / limitedTrail.length) * 0.8;
+                const thickness = (i / limitedTrail.length) * 3 + 0.5;
                 
                 this.ctx.strokeStyle = this.hexToRgba(body.color, alpha);
                 this.ctx.lineWidth = thickness / this.camera.zoom;
                 this.ctx.lineCap = 'round';
                 
                 this.ctx.beginPath();
-                this.ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
-                this.ctx.lineTo(trail[i].x, trail[i].y);
+                this.ctx.moveTo(limitedTrail[i - 1].x, limitedTrail[i - 1].y);
+                this.ctx.lineTo(limitedTrail[i].x, limitedTrail[i].y);
                 this.ctx.stroke();
             }
         });
