@@ -733,6 +733,21 @@ class Renderer {
             return { points: [], stable: false, collision: false };
         }
         
+        // Validate input parameters
+        if (!previewBody || !previewBody.position || !previewBody.velocity || 
+            !Array.isArray(existingBodies) || !physicsEngine) {
+            console.warn('Invalid parameters for orbit preview calculation');
+            return { points: [], stable: false, collision: false };
+        }
+        
+        // Validate preview body has valid properties
+        if (isNaN(previewBody.position.x) || isNaN(previewBody.position.y) ||
+            isNaN(previewBody.velocity.x) || isNaN(previewBody.velocity.y) ||
+            isNaN(previewBody.mass) || previewBody.mass <= 0) {
+            console.warn('Preview body has invalid numerical values');
+            return { points: [], stable: false, collision: false };
+        }
+        
         // Create a copy of the preview body for simulation
         const testBody = new Body(
             previewBody.position.clone(),
@@ -741,8 +756,20 @@ class Renderer {
             previewBody.color
         );
         
-        // Create copies of existing bodies (these stay stationary for prediction)
-        const fixedBodies = existingBodies.map(body => new Body(
+        // Validate and create copies of existing bodies
+        const validBodies = existingBodies.filter(body => 
+            body && body.position && body.velocity && 
+            !isNaN(body.position.x) && !isNaN(body.position.y) &&
+            !isNaN(body.velocity.x) && !isNaN(body.velocity.y) &&
+            !isNaN(body.mass) && body.mass > 0
+        );
+        
+        if (validBodies.length === 0) {
+            console.warn('No valid bodies found for orbit preview');
+            return { points: [], stable: false, collision: false };
+        }
+        
+        const fixedBodies = validBodies.map(body => new Body(
             body.position.clone(),
             body.velocity.clone(),
             body.mass,

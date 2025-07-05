@@ -1212,19 +1212,25 @@ class NBodyApp {
             const gpuSuccess = this.physics.gpuPhysics.update(this.bodies, deltaTime);
             
             if (!gpuSuccess) {
-                // GPU physics returned false, fall back to CPU
-                console.log('GPU physics not available, falling back to CPU');
+                // GPU physics returned false, fall back to CPU for this frame only
+                console.warn('GPU physics temporarily unavailable, falling back to CPU for this frame');
                 this.physics.update(this.bodies, deltaTime);
+                // Don't disable GPU permanently for temporary failures
             }
         } catch (error) {
-            console.error('GPU physics update failed, falling back to CPU:', error);
-            // Fallback to CPU physics
+            console.error('GPU physics update failed, disabling GPU acceleration:', error);
+            // Permanently disable GPU physics due to error
             this.useGPU = false;
+            this.physics.setConfiguration({ useGPUPhysics: false });
+            
+            // Update UI state consistently
             const gpuCheckbox = document.getElementById('gpu-acceleration');
             const gpuToggle = document.getElementById('gpu-toggle');
             if (gpuCheckbox) gpuCheckbox.checked = false;
             if (gpuToggle) gpuToggle.checked = false;
             this.ui.updateComputeModeDisplay('CPU');
+            
+            // Fallback to CPU physics for this frame
             this.physics.update(this.bodies, deltaTime);
             this.ui.showNotification('GPU acceleration failed, switched to CPU', 'warning');
         }

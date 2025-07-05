@@ -633,11 +633,20 @@ class UIManager {
                 if (Math.abs(energy.energyDrift) > 1e-6) {
                     conservationText += ` (drift: ${this.formatScientific(energy.energyDrift)})`;
                 }
-            } else if (energy.initial !== undefined && energy.initial !== 0) {
-                // Fallback to old method
+            } else if (energy.initial !== undefined && Math.abs(energy.initial) > 1e-10) {
+                // Fallback to old method - only if initial energy is significant
                 conservation = Math.abs(energy.total) > 0 ? 
                     (1 - Math.abs(energy.total - energy.initial) / Math.abs(energy.initial)) * 100 : 100;
                 conservationText = `${conservation.toFixed(1)}%`;
+            } else if (energy.initial !== undefined && Math.abs(energy.initial) <= 1e-10) {
+                // Handle case where initial energy is essentially zero
+                if (Math.abs(energy.total) <= 1e-10) {
+                    conservation = 100;
+                    conservationText = '100.0% (zero energy system)';
+                } else {
+                    conservation = 0;
+                    conservationText = 'N/A (zero initial energy)';
+                }
             }
             
             conservationDisplay.textContent = conservationText;
