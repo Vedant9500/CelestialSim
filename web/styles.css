@@ -221,7 +221,7 @@ body {
 
 /* Control Panel */
 .control-panel {
-    width: 350px;
+    width: 420px;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.98) 0%, rgba(10, 10, 20, 0.98) 100%);
     border-left: 2px solid #64ffda;
     overflow: hidden;
@@ -1485,27 +1485,42 @@ body {
 .reference-panel {
     left: 1rem;
     bottom: 4rem;
-    width: 380px; /* Reduced from 420px */
+    width: 420px;
 }
 
 .reference-content {
     font-size: 0.8rem;
     line-height: 1.5;
-    padding: 1.2rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .reference-header {
     text-align: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.8rem;
+    margin: 0;
+    padding: 0 0 1rem 0;
     border-bottom: 2px solid rgba(100, 255, 218, 0.2);
+    position: relative;
+}
+
+.reference-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, #64ffda, #bb86fc);
 }
 
 .reference-header h4 {
     color: #64ffda;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1513,8 +1528,11 @@ body {
 }
 
 .reference-header h4 i {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #64ffda;
+    padding: 0.4rem;
+    background: rgba(100, 255, 218, 0.15);
+    border-radius: 8px;
 }
 
 .reference-subtitle {
@@ -1522,151 +1540,16 @@ body {
     font-size: 0.75rem;
     font-style: italic;
     margin: 0;
+    opacity: 0.8;
 }
 
-/* Section Headers */
-.section-header {
-    margin-bottom: 1rem;
-}
-
-.section-header h5 {
-    color: #64ffda;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.section-header h5 i {
-    font-size: 0.8rem;
-    color: #64ffda;
-    background: rgba(100, 255, 218, 0.15);
-    padding: 0.3rem;
-    border-radius: 5px;
-}
-
-/* Selected Body Info Cards */
-.selected-body-section {
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.08) 0%, rgba(187, 134, 252, 0.08) 100%);
-    border: 1px solid rgba(100, 255, 218, 0.2);
-    border-radius: 10px;
-    padding: 1.2rem;
-    margin-bottom: 1.5rem;
-}
-
-.body-info-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
-}
-
-.info-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(100, 255, 218, 0.2);
-    border-radius: 8px;
-    padding: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.info-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(187, 134, 252, 0.1));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.info-card:hover::before {
-    opacity: 1;
-}
-
-.info-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(100, 255, 218, 0.4);
-    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.15);
-}
-
-.info-icon {
-    background: linear-gradient(135deg, #64ffda, #4ecdc4);
-    color: #000000;
-    width: 30px;
-    height: 30px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-}
-
-.info-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    flex: 1;
-    position: relative;
-    z-index: 1;
-}
-
-.info-label {
-    font-size: 0.65rem;
-    color: #aaaaaa;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    font-weight: 600;
-}
-
-.info-value {
-    font-family: 'Courier New', monospace;
-    font-weight: 700;
-    color: #64ffda;
-    font-size: 0.8rem;
-    text-shadow: 0 0 4px rgba(100, 255, 218, 0.2);
-}
-
-.info-units {
-    font-size: 0.6rem;
-    color: #888888;
-    font-style: italic;
-}
-
-.info-real {
-    font-family: 'Courier New', monospace;
-    font-size: 0.65rem;
-    color: #bb86fc;
-    margin-top: 0.1rem;
-}
-
-/* Scale Section */
-.scale-section {
-    margin-bottom: 1.5rem;
-}
-
-.scale-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
-}
-
+/* Scale Cards */
 .scale-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(100, 255, 218, 0.05) 100%);
-    border: 2px solid rgba(100, 255, 218, 0.2);
-    border-radius: 10px;
-    padding: 1rem;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(100, 255, 218, 0.03) 100%);
+    border: 1px solid rgba(100, 255, 218, 0.2);
+    border-radius: 12px;
+    padding: 1.2rem;
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 }
@@ -1674,843 +1557,847 @@ body {
 .scale-card::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(100, 255, 218, 0.1), transparent);
-    transform: rotate(45deg);
-    transition: all 0.5s ease;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #64ffda, #bb86fc, #64ffda);
     opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.scale-card:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(100, 255, 218, 0.05) 100%);
+    border-color: rgba(100, 255, 218, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(100, 255, 218, 0.15);
 }
 
 .scale-card:hover::before {
     opacity: 1;
-    animation: shimmer 1.5s ease-in-out;
 }
 
-.scale-card:hover {
-    transform: translateY(-3px);
-    border-color: #64ffda;
-    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.2);
-}
-
-.scale-card.mass-scale:hover { border-color: #64ffda; }
-.scale-card.distance-scale:hover { border-color: #ffd43b; }
-.scale-card.time-scale:hover { border-color: #51cf66; }
-.scale-card.velocity-scale:hover { border-color: #ff8787; }
-
-.scale-icon {
-    text-align: center;
-    margin-bottom: 0.6rem;
-}
-
-.scale-icon i {
-    font-size: 1.4rem;
-    color: #64ffda;
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(187, 134, 252, 0.2));
-    padding: 0.6rem;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.15);
-}
-
-.distance-scale .scale-icon i { color: #ffd43b; }
-.time-scale .scale-icon i { color: #51cf66; }
-.velocity-scale .scale-icon i { color: #ff8787; }
-
-.scale-content {
-    text-align: center;
-}
-
-.scale-number {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #64ffda;
-    font-family: 'Courier New', monospace;
-    text-shadow: 0 0 6px rgba(100, 255, 218, 0.3);
-}
-
-.scale-unit {
-    font-size: 0.7rem;
-    color: #ffffff;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    margin-bottom: 0.4rem;
-}
-
-.scale-equals {
-    font-size: 1rem;
-    color: #64ffda;
-    font-weight: 700;
-    margin: 0.4rem 0;
-}
-
-.scale-real {
+.scale-card-header {
     display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
-.scale-value {
-    font-size: 0.75rem;
-    color: #ffffff;
-    font-weight: 600;
-}
-
-.scale-scientific {
-    font-size: 0.65rem;
-    color: #aaaaaa;
-    font-family: 'Courier New', monospace;
-}
-
-/* Comparison Section */
-.comparison-section {
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 1.5rem;
 }
 
-.comparison-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-}
-
-.comparison-item {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(100, 255, 218, 0.15);
-    border-radius: 8px;
-    padding: 0.8rem;
+.header-content {
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    transition: all 0.3s ease;
-}
-
-.comparison-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(100, 255, 218, 0.3);
-    /* Removed translateX transform to prevent sliding animation */
-}
-
-.comparison-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    color: #64ffda;
+    font-weight: 600;
     font-size: 1rem;
-    flex-shrink: 0;
 }
 
-.comparison-icon.sun {
+.header-content i {
+    font-size: 1rem;
+    padding: 0.5rem;
+    background: rgba(100, 255, 218, 0.15);
+    border-radius: 8px;
+}
+
+.header-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.header-badge.current {
+    background: linear-gradient(135deg, #64ffda, #4ecdc4);
+    color: #000000;
+}
+
+.header-badge.solar {
     background: linear-gradient(135deg, #ffd43b, #ff922b);
     color: #000000;
 }
 
-.comparison-icon.jupiter {
-    background: linear-gradient(135deg, #d6336c, #f06595);
+.header-badge.cosmic {
+    background: linear-gradient(135deg, #bb86fc, #9c27b0);
     color: #ffffff;
 }
 
-.comparison-icon.mars {
+.header-badge.reference {
+    background: linear-gradient(135deg, #ff6b6b, #ff8787);
+    color: #ffffff;
+}
+
+/* Units Grid */
+.units-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+}
+
+.unit-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(100, 255, 218, 0.15);
+    border-radius: 12px;
+    padding: 1.2rem;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.unit-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(100, 255, 218, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(100, 255, 218, 0.15);
+}
+
+.unit-visual {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.unit-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.unit-icon.distance {
     background: linear-gradient(135deg, #ff6b6b, #fa5252);
     color: #ffffff;
 }
 
-.comparison-icon.moon {
-    background: linear-gradient(135deg, #e9ecef, #ced4da);
-    color: #495057;
+.unit-icon.mass {
+    background: linear-gradient(135deg, #ffd43b, #ff922b);
+    color: #000000;
 }
 
-.comparison-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    flex: 1;
+.unit-icon.time {
+    background: linear-gradient(135deg, #64ffda, #4ecdc4);
+    color: #000000;
 }
 
-.comparison-name {
-    font-size: 0.8rem;
-    font-weight: 600;
+.unit-icon.velocity {
+    background: linear-gradient(135deg, #bb86fc, #9c27b0);
     color: #ffffff;
 }
 
-.comparison-value {
-    font-family: 'Courier New', monospace;
-    font-size: 0.7rem;
-    color: #64ffda;
-    font-weight: 700;
+.unit-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
 }
 
-.comparison-note {
-    font-size: 0.65rem;
+.bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    position: relative;
+    width: 100%;
+    animation: barFill 2s ease-out;
+}
+
+.distance-fill {
+    background: linear-gradient(90deg, #ff6b6b, #fa5252);
+}
+
+.mass-fill {
+    background: linear-gradient(90deg, #ffd43b, #ff922b);
+}
+
+.time-fill {
+    background: linear-gradient(90deg, #64ffda, #4ecdc4);
+}
+
+.velocity-fill {
+    background: linear-gradient(90deg, #bb86fc, #9c27b0);
+}
+
+@keyframes barFill {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+.bar-spark {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 2px;
+    animation: spark 2s ease-out infinite;
+}
+
+@keyframes spark {
+    0%, 90% { opacity: 0; }
+    95% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.unit-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.unit-name {
+    font-size: 0.8rem;
     color: #aaaaaa;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.unit-value {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.unit-desc {
+    font-size: 0.7rem;
+    color: #888888;
     font-style: italic;
 }
 
-/* Reference Tip */
-.reference-tip {
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.1) 0%, rgba(187, 134, 252, 0.1) 100%);
-    border: 1px solid rgba(100, 255, 218, 0.3);
-    border-radius: 8px;
-    padding: 0.8rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.6rem;
-    margin-top: 1.2rem;
+/* Improved Solar System Visualization */
+.solar-system-visual {
+    position: relative;
+    background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+    border-radius: 15px;
+    padding: 1rem;
+    min-height: 280px;
 }
 
-.tip-icon {
-    background: linear-gradient(135deg, #64ffda, #4ecdc4);
-    color: #000000;
-    width: 28px;
-    height: 28px;
+.orbital-rings {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sun-icon {
+    font-size: 16px;
+    color: #ffd700;
+    text-shadow: 0 0 8px #ffd700;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
-    flex-shrink: 0;
-    margin-top: 0.1rem;
+    animation: sunPulse 2s ease-in-out infinite alternate;
 }
 
-.tip-content {
-    font-size: 0.75rem;
-    line-height: 1.4;
-    color: #e0e0e0;
+@keyframes sunPulse {
+    0% { text-shadow: 0 0 8px #ffd700; }
+    100% { text-shadow: 0 0 12px #ffd700, 0 0 16px #ffd700; }
 }
 
-.tip-content strong {
-    color: #64ffda;
-    font-weight: 600;
+.orbit-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(100, 255, 218, 0.2);
 }
 
-/* Toggle Buttons for Floating Panels - Relocated to bottom-right corner */
-.performance-toggle,
-.energy-toggle,
-.reference-toggle {
-    position: fixed;
-    bottom: 1.5rem;
-    padding: 0.75rem 1rem;
-    background: rgba(20, 20, 30, 0.95);
-    color: #64ffda;
-    border: 2px solid #64ffda;
-    border-radius: 8px;
+.orbit-line {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid rgba(100, 255, 218, 0.15);
+    position: absolute;
+}
+
+/* Orbit Sizes - Proportional to actual distances */
+.mercury-ring { width: 40px; height: 40px; }
+.venus-ring { width: 60px; height: 60px; }
+.earth-ring { width: 80px; height: 80px; border-color: rgba(64, 224, 255, 0.4); }
+.mars-ring { width: 100px; height: 100px; }
+.jupiter-ring { width: 150px; height: 150px; }
+.saturn-ring { width: 180px; height: 180px; }
+.neptune-ring { width: 240px; height: 240px; }
+
+.planet-marker {
+    position: absolute;
+    top: -6px;
+    width: 12px;
+    height: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 502; /* Higher z-index to ensure they're above header */
-    backdrop-filter: blur(10px);
+}
+
+.planet-marker:hover {
+    transform: scale(1.3);
+}
+
+.planet-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+}
+
+.planet-label {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.planet-label span {
+    display: block;
+    font-size: 0.6rem;
+    color: #aaaaaa;
+    text-align: center;
+}
+
+.planet-marker:hover .planet-label {
+    opacity: 1;
+}
+
+/* Planet Colors - Based on actual planet appearances */
+.mercury .planet-dot { background: #8c7853; }
+.venus .planet-dot { background: #ffc649; }
+.earth .planet-dot { background: #6b93d6; box-shadow: 0 0 4px #6b93d6; }
+.mars .planet-dot { background: #c1440e; }
+.jupiter .planet-dot { background: #d8ca9d; width: 10px; height: 10px; }
+.saturn .planet-dot { background: #fad5a5; width: 9px; height: 9px; }
+.neptune .planet-dot { background: #4b70dd; }
+
+/* Planet Positions on Orbits */
+.mercury-ring .planet-marker { left: calc(100% - 6px); }
+.venus-ring .planet-marker { left: calc(100% - 6px); }
+.earth-ring .planet-marker { left: calc(100% - 6px); }
+.mars-ring .planet-marker { left: calc(100% - 6px); }
+.jupiter-ring .planet-marker { left: calc(100% - 6px); }
+.saturn-ring .planet-marker { left: calc(100% - 6px); }
+.neptune-ring .planet-marker { left: calc(100% - 6px); }
+
+.orbit-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.legend-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 0.75rem;
+    color: #aaaaaa;
 }
 
-.performance-toggle:hover,
-.energy-toggle:hover,
-.reference-toggle:hover {
-    background: rgba(100, 255, 218, 0.1);
-    color: #ffffff;
-    border-color: #64ffda;
-    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.2);
+.legend-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
 }
 
-.performance-toggle.active,
-.energy-toggle.active,
-.reference-toggle.active {
-    background: #64ffda;
-    color: #000000;
-    border-color: #64ffda;
-    box-shadow: 0 6px 20px rgba(100, 255, 218, 0.3);
+.legend-color.inner { background: #6b93d6; }
+.legend-color.outer { background: #d8ca9d; }
+
+/* ===== ENHANCED SCALE REFERENCE PANEL ===== */
+
+/* Cosmic Header */
+.tab-header.cosmic {
+    background: radial-gradient(ellipse at center, rgba(100, 255, 218, 0.1) 0%, rgba(187, 134, 252, 0.05) 50%, transparent 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 2rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 15px;
+    border: 1px solid rgba(100, 255, 218, 0.2);
 }
 
-.reference-toggle {
-    right: 16rem; /* Rightmost position */
+.cosmic-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.3)"/><circle cx="80" cy="30" r="0.5" fill="rgba(100,255,218,0.4)"/><circle cx="60" cy="70" r="0.8" fill="rgba(187,134,252,0.3)"/><circle cx="30" cy="80" r="0.6" fill="rgba(255,255,255,0.2)"/><circle cx="90" cy="60" r="0.4" fill="rgba(100,255,218,0.5)"/></svg>') repeat;
+    animation: starField 20s linear infinite;
+    opacity: 0.6;
 }
 
-.energy-toggle {
-    right: 10.5rem; /* Middle position */
+@keyframes starField {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
 }
 
-.performance-toggle {
-    right: 5rem; /* Leftmost of the three */
-}
-
-/* Energy Tab Styles */
-.energy-values {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+/* Scale Dashboard */
+.scale-dashboard {
     margin-bottom: 2rem;
 }
 
-.energy-item {
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.08) 0%, rgba(187, 134, 252, 0.05) 100%);
+    border: 1px solid rgba(100, 255, 218, 0.2);
+    border-radius: 12px;
+    padding: 1.2rem;
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #64ffda, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(100, 255, 218, 0.15);
+    border-color: rgba(100, 255, 218, 0.4);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-card .stat-icon {
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.2s ease;
-}
-
-.energy-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.12);
-}
-
-.energy-item.kinetic {
-    border-left: 3px solid #64ffda;
-}
-
-.energy-item.potential {
-    border-left: 3px solid #bb86fc;
-}
-
-.energy-item.total {
-    border-left: 3px solid #ffd54f;
-}
-
-.energy-icon {
-    width: 24px;
-    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
-.energy-icon i {
-    color: #64ffda;
+.stat-card.bodies .stat-icon {
+    background: linear-gradient(135deg, #ff6b6b, #ff8787);
+    color: #ffffff;
 }
 
-.energy-item.potential .energy-icon i {
-    color: #bb86fc;
+.stat-card.extent .stat-icon {
+    background: linear-gradient(135deg, #ffd43b, #ff922b);
+    color: #000000;
 }
 
-.energy-item.total .energy-icon i {
-    color: #ffd54f;
+.stat-card.time .stat-icon {
+    background: linear-gradient(135deg, #64ffda, #4ecdc4);
+    color: #000000;
 }
 
-.energy-info {
-    flex: 1;
+.stat-content {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
 }
 
-.energy-label {
-    font-size: 0.8rem;
-    color: #cccccc;
-    font-weight: 500;
-}
-
-.energy-value {
+.stat-content .stat-value {
     font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
     font-weight: 700;
-    font-size: 0.9rem;
     color: #ffffff;
 }
 
-.energy-stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
-    margin-bottom: 1.5rem;
-}
-
-.energy-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.2s ease;
-}
-
-.energy-stat:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.energy-stat .stat-label {
-    font-size: 0.7rem;
+.stat-content .stat-label {
+    font-size: 0.75rem;
     color: #aaaaaa;
     font-weight: 500;
 }
 
-.energy-stat .stat-value {
-    font-family: 'Courier New', monospace;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #64ffda;
+/* Enhanced Units Card */
+.units-card {
+    margin-bottom: 2rem;
 }
 
-/* Tools Tab Styles */
-.tools-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-}
-
-.tool-btn {
+.scale-card-header {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.4rem;
-    padding: 1rem 0.75rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    color: #cccccc;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-}
-
-.tool-btn:hover {
-    background: rgba(100, 255, 218, 0.08);
-    border-color: rgba(100, 255, 218, 0.3);
-    color: #64ffda;
-    transform: translateY(-2px);
-}
-
-.tool-btn i {
-    font-size: 1.2rem;
-    margin-bottom: 0.2rem;
-}
-
-.tool-btn span {
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.tool-btn.active {
-    background: rgba(100, 255, 218, 0.15);
-    border-color: #64ffda;
-    color: #64ffda;
-}
-
-/* Compute Mode Display Styles */
-.performance-compute-mode {
-    transition: all 0.3s ease;
-}
-
-.performance-compute-mode.gpu-mode {
-    color: #64ffda;
-    font-weight: 600;
-    text-shadow: 0 0 8px rgba(100, 255, 218, 0.3);
-}
-
-.performance-compute-mode.cpu-mode {
-    color: #ffa726;
-    font-weight: 500;
-}
-
-/* Compute Mode Status Styling */
-#performance-compute-mode {
-    font-weight: 600;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-#performance-compute-mode.gpu-mode {
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.2), rgba(79, 211, 176, 0.2));
-    color: #64ffda;
-    box-shadow: 0 0 8px rgba(100, 255, 218, 0.3);
-}
-
-#performance-compute-mode.cpu-mode {
-    background: rgba(100, 100, 100, 0.2);
-    color: #cccccc;
-}
-
-/* Body Count Status in Bodies Tab */
-.body-count-status {
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.08), rgba(187, 134, 252, 0.08));
-    border: 1px solid rgba(100, 255, 218, 0.2);
-    border-radius: 8px;
-    padding: 1rem;
+    justify-content: space-between;
     margin-bottom: 1.5rem;
-    text-align: center;
 }
 
-.status-item {
+.header-content {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    font-size: 0.95rem;
-}
-
-.status-item i {
+    gap: 0.8rem;
     color: #64ffda;
-    font-size: 1.1rem;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
-.count-value {
-    font-size: 1.4rem;
+.header-content i {
+    font-size: 1rem;
+    padding: 0.5rem;
+    background: rgba(100, 255, 218, 0.15);
+    border-radius: 8px;
+}
+
+.header-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.65rem;
     font-weight: 700;
-    color: #64ffda;
-    min-width: 2rem;
-    text-align: center;
-    background: rgba(100, 255, 218, 0.1);
-    padding: 0.25rem 0.75rem;
-    border-radius: 6px;
-    border: 1px solid rgba(100, 255, 218, 0.3);
-}
-
-.count-label {
-    color: #d0d0d0;
-    font-weight: 500;
+    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-/* Modal Base Styles */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
-    padding: 2rem;
-    box-sizing: border-box;
+.header-badge.current {
+    background: linear-gradient(135deg, #64ffda, #4ecdc4);
+    color: #000000;
 }
 
-.modal.show {
-    display: flex;
+.header-badge.solar {
+    background: linear-gradient(135deg, #ffd43b, #ff922b);
+    color: #000000;
 }
 
-.modal-content {
-    background: linear-gradient(135deg, rgba(10, 10, 20, 0.95) 0%, rgba(20, 20, 35, 0.95) 100%);
-    border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 15px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
-    width: 100%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
+.header-badge.cosmic {
+    background: linear-gradient(135deg, #bb86fc, #9c27b0);
+    color: #ffffff;
+}
+
+.header-badge.reference {
+    background: linear-gradient(135deg, #ff6b6b, #ff8787);
+    color: #ffffff;
+}
+
+/* Units Grid */
+.units-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+}
+
+.unit-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(100, 255, 218, 0.15);
+    border-radius: 12px;
+    padding: 1.2rem;
+    transition: all 0.4s ease;
     position: relative;
-    animation: modalSlideIn 0.3s ease-out;
+    overflow: hidden;
 }
 
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9) translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+.unit-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(100, 255, 218, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(100, 255, 218, 0.15);
 }
 
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 1.5rem 2rem 1rem;
-    border-bottom: 1px solid rgba(100, 255, 218, 0.2);
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.1) 0%, rgba(187, 134, 252, 0.1) 100%);
-    border-radius: 13px 13px 0 0;
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #64ffda;
+.unit-visual {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-.close-modal {
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    width: 32px;
-    height: 32px;
+.unit-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
 }
 
-.close-modal:hover {
-    background: rgba(255, 100, 100, 0.2);
-    color: #ff6b6b;
-    transform: scale(1.1);
+.unit-icon.distance {
+    background: linear-gradient(135deg, #ff6b6b, #fa5252);
+    color: #ffffff;
 }
 
-.modal-body {
-    padding: 1.5rem 2rem 2rem;
+.unit-icon.mass {
+    background: linear-gradient(135deg, #ffd43b, #ff922b);
+    color: #000000;
 }
 
-/* Enhanced Modal Styles */
-.enhanced-modal {
-    max-width: 750px;
-    max-height: 85vh;
-    background: linear-gradient(135deg, rgba(10, 10, 20, 0.98) 0%, rgba(20, 20, 35, 0.98) 100%);
-    border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 20px;
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.8),
-        0 0 40px rgba(100, 255, 218, 0.15),
-        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+.unit-icon.time {
+    background: linear-gradient(135deg, #64ffda, #4ecdc4);
+    color: #000000;
 }
 
-.modal-title {
+.unit-icon.velocity {
+    background: linear-gradient(135deg, #bb86fc, #9c27b0);
+    color: #ffffff;
+}
+
+.unit-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    position: relative;
+    width: 100%;
+    animation: barFill 2s ease-out;
+}
+
+.distance-fill {
+    background: linear-gradient(90deg, #ff6b6b, #fa5252);
+}
+
+.mass-fill {
+    background: linear-gradient(90deg, #ffd43b, #ff922b);
+}
+
+.time-fill {
+    background: linear-gradient(90deg, #64ffda, #4ecdc4);
+}
+
+.velocity-fill {
+    background: linear-gradient(90deg, #bb86fc, #9c27b0);
+}
+
+@keyframes barFill {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+.bar-spark {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 2px;
+    animation: spark 2s ease-out infinite;
+}
+
+@keyframes spark {
+    0%, 90% { opacity: 0; }
+    95% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.unit-info {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.3rem;
 }
 
-.modal-icon {
-    font-size: 1.5rem;
-    color: #64ffda;
-    margin-bottom: 0.5rem;
+.unit-name {
+    font-size: 0.8rem;
+    color: #aaaaaa;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.modal-subtitle {
-    font-size: 0.85rem;
-    color: #888;
-    font-weight: 400;
+.unit-value {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.unit-desc {
+    font-size: 0.7rem;
+    color: #888888;
     font-style: italic;
 }
 
-.shortcuts-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+/* Improved Solar System Visualization */
+.solar-system-visual {
+    position: relative;
+    background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+    border-radius: 15px;
+    padding: 1rem;
+    min-height: 280px;
 }
 
-.section-header {
+.orbital-rings {
+    position: relative;
+    width: 100%;
+    height: 260px;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid rgba(100, 255, 218, 0.2);
+    justify-content: center;
 }
 
-.section-header i {
-    font-size: 1.2rem;
-    color: #64ffda;
-    padding: 0.5rem;
-    background: rgba(100, 255, 218, 0.1);
-    border-radius: 8px;
-}
-
-.section-header h4 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #e0e0e0;
-}
-
-.shortcuts-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-}
-
-.shortcut-item {
+.sun-icon {
+    font-size: 16px;
+    color: #ffd700;
+    text-shadow: 0 0 8px #ffd700;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
     display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(100, 255, 218, 0.1);
-    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+    animation: sunPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes sunPulse {
+    0% { text-shadow: 0 0 8px #ffd700; }
+    100% { text-shadow: 0 0 12px #ffd700, 0 0 16px #ffd700; }
+}
+
+.orbit-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.orbit-line {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid rgba(100, 255, 218, 0.15);
+    position: absolute;
+}
+
+/* Orbit Sizes - Proportional to actual distances */
+.mercury-ring { width: 40px; height: 40px; }
+.venus-ring { width: 60px; height: 60px; }
+.earth-ring { width: 80px; height: 80px; border-color: rgba(64, 224, 255, 0.4); }
+.mars-ring { width: 100px; height: 100px; }
+.jupiter-ring { width: 150px; height: 150px; }
+.saturn-ring { width: 180px; height: 180px; }
+.neptune-ring { width: 240px; height: 240px; }
+
+.planet-marker {
+    position: absolute;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.shortcut-item:hover {
-    background: rgba(100, 255, 218, 0.05);
-    border-color: rgba(100, 255, 218, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(100, 255, 218, 0.1);
+.planet-marker:hover {
+    transform: scale(1.3);
 }
 
-.shortcut-item.featured {
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(79, 211, 176, 0.1));
-    border-color: rgba(100, 255, 218, 0.3);
+.planet-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
 }
 
-.shortcut-key {
-    flex-shrink: 0;
-    min-width: 120px;
+.planet-label {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
-.shortcut-key kbd {
-    display: inline-flex;
+.planet-label span {
+    display: block;
+    font-size: 0.6rem;
+    color: #aaaaaa;
+    text-align: center;
+}
+
+.planet-marker:hover .planet-label {
+    opacity: 1;
+}
+
+/* Planet Colors - Based on actual planet appearances */
+.mercury .planet-dot { background: #8c7853; }
+.venus .planet-dot { background: #ffc649; }
+.earth .planet-dot { background: #6b93d6; box-shadow: 0 0 4px #6b93d6; }
+.mars .planet-dot { background: #c1440e; }
+.jupiter .planet-dot { background: #d8ca9d; width: 10px; height: 10px; }
+.saturn .planet-dot { background: #fad5a5; width: 9px; height: 9px; }
+.neptune .planet-dot { background: #4b70dd; }
+
+/* Planet Positions on Orbits */
+.mercury-ring .planet-marker { left: calc(100% - 6px); }
+.venus-ring .planet-marker { left: calc(100% - 6px); }
+.earth-ring .planet-marker { left: calc(100% - 6px); }
+.mars-ring .planet-marker { left: calc(100% - 6px); }
+.jupiter-ring .planet-marker { left: calc(100% - 6px); }
+.saturn-ring .planet-marker { left: calc(100% - 6px); }
+.neptune-ring .planet-marker { left: calc(100% - 6px); }
+
+.orbit-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.legend-item {
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.8), rgba(20, 20, 20, 0.8));
-    border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 8px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #64ffda;
-    box-shadow: 
-        0 2px 4px rgba(0, 0, 0, 0.3),
-        inset 0 1px 2px rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
+    font-size: 0.75rem;
+    color: #aaaaaa;
 }
 
-.shortcut-key kbd:hover {
-    background: linear-gradient(135deg, rgba(40, 40, 40, 0.8), rgba(30, 30, 30, 0.8));
-    border-color: rgba(100, 255, 218, 0.5);
-    transform: scale(1.05);
+.legend-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
 }
 
-.shortcut-desc {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    flex: 1;
-}
-
-.shortcut-desc .action {
-    font-weight: 600;
-    color: #e0e0e0;
-    font-size: 0.95rem;
-}
-
-.shortcut-desc small {
-    color: #aaa;
-    font-size: 0.8rem;
-    line-height: 1.4;
-}
-
-/* Pro Tips Section */
-.tips-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
-}
-
-.tip-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-    background: linear-gradient(135deg, rgba(187, 134, 252, 0.1), rgba(100, 255, 218, 0.05));
-    border: 1px solid rgba(187, 134, 252, 0.2);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.tip-item:hover {
-    background: linear-gradient(135deg, rgba(187, 134, 252, 0.15), rgba(100, 255, 218, 0.1));
-    border-color: rgba(187, 134, 252, 0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(187, 134, 252, 0.2);
-}
-
-.tip-icon {
-    font-size: 1.2rem;
-    color: #bb86fc;
-    padding: 0.5rem;
-    background: rgba(187, 134, 252, 0.1);
-    border-radius: 8px;
-    flex-shrink: 0;
-}
-
-.tip-content {
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: #d0d0d0;
-}
-
-.tip-content strong {
-    color: #bb86fc;
-    font-weight: 600;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .modal {
-        padding: 1rem;
-    }
-    
-    .modal-content {
-        max-width: 95vw;
-        max-height: 90vh;
-    }
-    
-    .enhanced-modal {
-        max-width: 95vw;
-    }
-    
-    .modal-header {
-        padding: 1rem 1.5rem 0.75rem;
-    }
-    
-    .modal-body {
-        padding: 1rem 1.5rem 1.5rem;
-    }
-    
-    .shortcuts-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .shortcut-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-    
-    .shortcut-key {
-        min-width: auto;
-        width: 100%;
-    }
-    
-    .tips-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .modal {
-        padding: 0.5rem;
-    }
-    
-    .modal-content {
-        max-width: 98vw;
-        max-height: 95vh;
-        border-radius: 10px;
-    }
-    
-    .modal-header {
-        padding: 0.75rem 1rem 0.5rem;
-        border-radius: 8px 8px 0 0;
-    }
-    
-    .modal-header h3 {
-        font-size: 1.1rem;
-    }
-    
-    .modal-body {
-        padding: 0.75rem 1rem 1rem;
-    }
-}
+.legend-color.inner { background: #6b93d6; }
+.legend-color.outer { background: #d8ca9d; }

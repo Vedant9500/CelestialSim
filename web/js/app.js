@@ -251,6 +251,15 @@ class NBodyApp {
             
             this.ui.updatePerformanceStats(performanceStats);
             
+            // Update scale reference with current simulation data
+            const simulationData = {
+                bodies: this.bodies,
+                timeElapsed: this.physics.simulationTime || 0,
+                systemExtent: this.calculateSystemExtent(),
+                averageVelocity: this.calculateAverageVelocity()
+            };
+            this.ui.updateScaleReference(simulationData);
+            
             // Update energy display
             const energyStats = this.physics.getEnergyStats();
             if (this.initialEnergy === null && energyStats.total !== 0) {
@@ -1393,6 +1402,36 @@ class NBodyApp {
         
         // Initialize compute mode display
         this.ui.updateComputeModeDisplay(this.useGPU ? 'GPU' : 'CPU');
+    }
+
+    calculateSystemExtent() {
+        if (this.bodies.length < 2) return 0;
+        
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+        
+        this.bodies.forEach(body => {
+            minX = Math.min(minX, body.x);
+            maxX = Math.max(maxX, body.x);
+            minY = Math.min(minY, body.y);
+            maxY = Math.max(maxY, body.y);
+        });
+        
+        const width = maxX - minX;
+        const height = maxY - minY;
+        return Math.sqrt(width * width + height * height);
+    }
+    
+    calculateAverageVelocity() {
+        if (this.bodies.length === 0) return 0;
+        
+        let totalSpeed = 0;
+        this.bodies.forEach(body => {
+            const speed = Math.sqrt(body.vx * body.vx + body.vy * body.vy);
+            totalSpeed += speed;
+        });
+        
+        return totalSpeed / this.bodies.length;
     }
 
     validateAndCleanBodies() {

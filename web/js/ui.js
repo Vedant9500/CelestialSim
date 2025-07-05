@@ -30,6 +30,7 @@ class UIManager {
         this.initializePerformanceControls();
         this.initializeEnergyChart();
         this.initializeCollisionControls();
+        this.initializeScaleReference();
         this.setupEventListeners();
         this.initializeTooltips();
     }
@@ -1547,5 +1548,165 @@ class UIManager {
             }
         }
         return this.cachedElements.get(id) || null;
+    }
+
+    updateScaleReference(simulationData) {
+        // Validate input
+        if (!simulationData || typeof simulationData !== 'object') {
+            return;
+        }
+        
+        // Update dashboard stats
+        this.updateScaleDashboard(simulationData);
+        
+        // Update unit values if needed
+        this.updateScaleUnits(simulationData);
+        
+        // Update planetary animations
+        this.updatePlanetaryAnimations();
+    }
+    
+    updateScaleDashboard(simulationData) {
+        const { bodies = [], timeElapsed = 0, systemExtent = null } = simulationData;
+        
+        // Update body count
+        const bodyCountEl = document.getElementById('current-bodies-count');
+        if (bodyCountEl) {
+            bodyCountEl.textContent = bodies.length.toString();
+        }
+        
+        // Update system size
+        const systemExtentEl = document.getElementById('simulation-extent');
+        if (systemExtentEl && systemExtent) {
+            if (systemExtent < 1) {
+                systemExtentEl.textContent = `${(systemExtent * 1000).toFixed(1)} km`;
+            } else if (systemExtent < 100) {
+                systemExtentEl.textContent = `${systemExtent.toFixed(2)} AU`;
+            } else {
+                systemExtentEl.textContent = `${(systemExtent / 63241).toFixed(2)} ly`;
+            }
+        }
+        
+        // Update time elapsed
+        const timeElapsedEl = document.getElementById('time-elapsed');
+        if (timeElapsedEl) {
+            if (timeElapsed < 0.1) {
+                timeElapsedEl.textContent = `${(timeElapsed * 365.25).toFixed(1)} days`;
+            } else if (timeElapsed < 1000) {
+                timeElapsedEl.textContent = `${timeElapsed.toFixed(2)} yr`;
+            } else if (timeElapsed < 1000000) {
+                timeElapsedEl.textContent = `${(timeElapsed / 1000).toFixed(2)} kyr`;
+            } else {
+                timeElapsedEl.textContent = `${(timeElapsed / 1000000).toFixed(2)} Myr`;
+            }
+        }
+    }
+    
+    updateScaleUnits(simulationData) {
+        // Update velocity scale based on typical velocities in the system
+        const velocityScaleEl = document.getElementById('velocity-scale');
+        if (velocityScaleEl && simulationData.bodies && simulationData.bodies.length > 0) {
+            // Calculate average velocity
+            let totalVelocity = 0;
+            let count = 0;
+            
+            simulationData.bodies.forEach(body => {
+                if (body.vx !== undefined && body.vy !== undefined) {
+                    const speed = Math.sqrt(body.vx * body.vx + body.vy * body.vy);
+                    totalVelocity += speed;
+                    count++;
+                }
+            });
+            
+            if (count > 0) {
+                const avgVelocity = totalVelocity / count;
+                // Convert to km/s (assuming 1 unit = 29.8 km/s, Earth's orbital speed)
+                const kmPerS = avgVelocity * 29.8;
+                
+                if (kmPerS < 1) {
+                    velocityScaleEl.textContent = `${(kmPerS * 1000).toFixed(0)} m/s`;
+                } else if (kmPerS < 300000) {
+                    velocityScaleEl.textContent = `${kmPerS.toFixed(1)} km/s`;
+                } else {
+                    velocityScaleEl.textContent = `${(kmPerS / 299792458).toFixed(3)}c`;
+                }
+            }
+        }
+    }
+    
+    updatePlanetaryAnimations() {
+        // Add sparkle effects to unit bars
+        const unitBars = document.querySelectorAll('.unit-bar .bar-spark');
+        unitBars.forEach((spark, index) => {
+            // Stagger the animation start times
+            spark.style.animationDelay = `${index * 0.5}s`;
+        });
+        
+        // Update power scale highlighting based on current system scale
+        const powerScales = document.querySelectorAll('.power-scale');
+        powerScales.forEach(scale => {
+            scale.classList.remove('active');
+        });
+        
+        // Highlight the most relevant power scale (can be enhanced based on actual system size)
+        const defaultPowerScale = document.querySelector('.power-scale[data-power="0"]');
+        if (defaultPowerScale) {
+            defaultPowerScale.classList.add('active');
+        }
+    }
+    
+    // Initialize Scale Reference interactive features
+    initializeScaleReference() {
+        // Add hover effects for planets
+        const planets = document.querySelectorAll('.planet');
+        planets.forEach(planet => {
+            planet.addEventListener('click', (e) => {
+                this.showPlanetDetails(e.target.closest('.planet'));
+            });
+        });
+        
+        // Add click handlers for power scales
+        const powerScales = document.querySelectorAll('.power-scale');
+        powerScales.forEach(scale => {
+            scale.addEventListener('click', () => {
+                powerScales.forEach(s => s.classList.remove('active'));
+                scale.classList.add('active');
+                this.onPowerScaleSelect(scale.dataset.power);
+            });
+        });
+        
+        // Add journey step interactions
+        const journeySteps = document.querySelectorAll('.journey-step');
+        journeySteps.forEach(step => {
+            step.addEventListener('click', () => {
+                this.showScaleJourneyDetails(step);
+            });
+        });
+    }
+    
+    showPlanetDetails(planetElement) {
+        if (!planetElement) return;
+        
+        const distance = planetElement.dataset.distance;
+        const planetName = planetElement.querySelector('.planet-tooltip')?.textContent.split('\n')[0];
+        
+        if (planetName && distance) {
+            console.log(`Planet ${planetName} selected - Distance: ${distance} AU`);
+            // Could show detailed information in a modal or tooltip
+        }
+    }
+    
+    onPowerScaleSelect(power) {
+        console.log(`Power scale selected: 10^${power}`);
+        // Could update the simulation view or provide scale context
+    }
+    
+    showScaleJourneyDetails(stepElement) {
+        const stepType = stepElement.classList.contains('local') ? 'local' :
+                        stepElement.classList.contains('stellar') ? 'stellar' :
+                        stepElement.classList.contains('galactic') ? 'galactic' : 'universal';
+        
+        console.log(`Scale journey step selected: ${stepType}`);
+        // Could show detailed information about this scale range
     }
 }

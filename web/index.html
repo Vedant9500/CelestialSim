@@ -433,50 +433,336 @@
 
                         <!-- Reference Tab -->
                         <div class="tab-panel" id="reference-tab">
-                            <div class="reference-content">
-                                <h4><i class="fas fa-ruler"></i> Scale Reference</h4>
-                                <div class="reference-scales">
-                                    <div class="scale-item">
-                                        <div class="scale-title">Current System Scale</div>
-                                        <div class="scale-comparison">
-                                            <div class="scale-metric">
-                                                <span class="metric-label">1 simulation unit =</span>
-                                                <span id="distance-scale" class="metric-value">1.00 AU</span>
+                            <div class="tab-header cosmic">
+                                <h3>
+                                    <i class="fas fa-ruler-combined"></i>
+                                    Scale Reference
+                                </h3>
+                                <p>Journey through the cosmic scale of your simulation</p>
+                                <div class="cosmic-background"></div>
+                            </div>
+                            
+                            <div class="tab-content">
+                                <!-- Real-time Scale Dashboard -->
+                                <div class="scale-dashboard">
+                                    <div class="dashboard-stats">
+                                        <div class="stat-card bodies">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-circle"></i>
                                             </div>
-                                            <div class="scale-metric">
-                                                <span class="metric-label">1 mass unit =</span>
-                                                <span id="mass-scale" class="metric-value">1.00 M☉</span>
+                                            <div class="stat-content">
+                                                <div class="stat-value" id="current-bodies-count">0</div>
+                                                <div class="stat-label">Active Bodies</div>
                                             </div>
-                                            <div class="scale-metric">
-                                                <span class="metric-label">1 time unit =</span>
-                                                <span id="time-scale-ref" class="metric-value">1.00 years</span>
+                                        </div>
+                                        <div class="stat-card extent">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-expand-arrows-alt"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <div class="stat-value" id="simulation-extent">N/A</div>
+                                                <div class="stat-label">System Size</div>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card time">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <div class="stat-value" id="time-elapsed">0.0 yr</div>
+                                                <div class="stat-label">Time Elapsed</div>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Fundamental Units -->
+                                <div class="scale-card units-card">
+                                    <div class="scale-card-header">
+                                        <div class="header-content">
+                                            <i class="fas fa-atom"></i>
+                                            <span>Fundamental Units</span>
+                                        </div>
+                                        <div class="header-badge current">ACTIVE</div>
+                                    </div>
+                                    <div class="units-grid">
+                                        <div class="unit-item distance">
+                                            <div class="unit-visual">
+                                                <div class="unit-icon distance">
+                                                    <i class="fas fa-arrows-alt-h"></i>
+                                                </div>
+                                                <div class="unit-bar">
+                                                    <div class="bar-fill distance-fill"></div>
+                                                    <div class="bar-spark"></div>
+                                                </div>
+                                            </div>
+                                            <div class="unit-info">
+                                                <div class="unit-name">Distance</div>
+                                                <div class="unit-value" id="distance-scale">1.00 AU</div>
+                                                <div class="unit-desc">149.6 million km</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="unit-item mass">
+                                            <div class="unit-visual">
+                                                <div class="unit-icon mass">
+                                                    <i class="fas fa-weight-hanging"></i>
+                                                </div>
+                                                <div class="unit-bar">
+                                                    <div class="bar-fill mass-fill"></div>
+                                                    <div class="bar-spark"></div>
+                                                </div>
+                                            </div>
+                                            <div class="unit-info">
+                                                <div class="unit-name">Mass</div>
+                                                <div class="unit-value" id="mass-scale">1.00 M☉</div>
+                                                <div class="unit-desc">1.989 × 10³⁰ kg</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="unit-item time">
+                                            <div class="unit-visual">
+                                                <div class="unit-icon time">
+                                                    <i class="fas fa-clock"></i>
+                                                </div>
+                                                <div class="unit-bar">
+                                                    <div class="bar-fill time-fill"></div>
+                                                    <div class="bar-spark"></div>
+                                                </div>
+                                            </div>
+                                            <div class="unit-info">
+                                                <div class="unit-name">Time</div>
+                                                <div class="unit-value" id="time-scale-ref">1.00 years</div>
+                                                <div class="unit-desc">365.25 days</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="unit-item velocity">
+                                            <div class="unit-visual">
+                                                <div class="unit-icon velocity">
+                                                    <i class="fas fa-tachometer-alt"></i>
+                                                </div>
+                                                <div class="unit-bar">
+                                                    <div class="bar-fill velocity-fill"></div>
+                                                    <div class="bar-spark"></div>
+                                                </div>
+                                            </div>
+                                            <div class="unit-info">
+                                                <div class="unit-name">Velocity</div>
+                                                <div class="unit-value" id="velocity-scale">29.8 km/s</div>
+                                                <div class="unit-desc">Earth's orbital speed</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Interactive Solar System -->
+                                <div class="scale-card solar-system">
+                                    <div class="scale-card-header">
+                                        <div class="header-content">
+                                            <i class="fas fa-sun"></i>
+                                            <span>Solar System Explorer</span>
+                                        </div>
+                                        <div class="header-badge solar">LOCAL</div>
+                                    </div>
                                     
-                                    <div class="scale-item">
-                                        <div class="scale-title">Real-World Comparisons</div>
-                                        <div class="comparison-list">
-                                            <div class="comparison-item">
-                                                <span class="object-name">Earth-Sun Distance:</span>
-                                                <span id="earth-sun-sim" class="sim-value">1.0 units</span>
+                                    <div class="solar-system-visual">
+                                        <!-- Concentric Orbital Rings -->
+                                        <div class="orbital-rings">
+                                            <div class="sun-center">
+                                                <div class="sun-icon">☉</div>
+                                                <div class="sun-glow"></div>
                                             </div>
-                                            <div class="comparison-item">
-                                                <span class="object-name">Jupiter-Sun Distance:</span>
-                                                <span id="jupiter-sun-sim" class="sim-value">5.2 units</span>
+                                            
+                                            <!-- Orbital Rings with Planets -->
+                                            <div class="orbit-ring mercury-ring">
+                                                <div class="orbit-line"></div>
+                                                <div class="planet-marker mercury">
+                                                    <div class="planet-dot"></div>
+                                                    <div class="planet-label">Mercury<br><span>0.39 AU</span></div>
+                                                </div>
                                             </div>
-                                            <div class="comparison-item">
-                                                <span class="object-name">Solar System Width:</span>
-                                                <span id="solar-system-sim" class="sim-value">~80 units</span>
+                                            
+                                            <div class="orbit-ring venus-ring">
+                                                <div class="orbit-line"></div>
+                                                <div class="planet-marker venus">
+                                                    <div class="planet-dot"></div>
+                                                    <div class="planet-label">Venus<br><span>0.72 AU</span></div>
+                                                </div>
                                             </div>
-                                            <div class="comparison-item">
-                                                <span class="object-name">Neptune's Orbit:</span>
-                                                <span class="sim-value">30.1 units</span>
+                                            
+                                            <div class="orbit-ring earth-ring">
+                                                <div class="orbit-line"></div>
+                                                <div class="planet-marker earth">
+                                                    <div class="planet-dot"></div>
+                                                    <div class="planet-label">Earth<br><span>1.0 AU</span></div>
+                                                </div>
                                             </div>
-                                            <div class="comparison-item">
-                                                <span class="object-name">Moon-Earth Distance:</span>
-                                                <span class="sim-value">0.003 units</span>
+                                            
+                                            <div class="orbit-ring mars-ring">
+                                                <div class="orbit-line"></div>
+                                                <div class="planet-marker mars">
+                                                    <div class="planet-dot"></div>
+                                                    <div class="planet-label">Mars<br><span>1.52 AU</span></div>
+                                                </div>
                                             </div>
+                                            
+                                            <div class="orbit-ring jupiter-ring">
+                                                <div class="orbit-line"></div>
+                                                <div class="planet-marker jupiter">
+                                                    <div class="planet-dot"></div>
+                                                    <div class="planet-label">Jupiter<br><span>5.2 AU</span></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="orbit-ring saturn-ring">
+                                                <div class="orbit-line"></div>
+                                                <div class="planet-marker saturn">
+                                                    <div class="planet-dot"></div>
+                                                    <div class="planet-label">Saturn<br><span>9.5 AU</span></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="orbit-ring neptune-ring">
+                                                <div class="orbit-line"></div>
+                                                <div class="planet-marker neptune">
+                                                    <div class="planet-dot"></div>
+                                                    <div class="planet-label">Neptune<br><span>30.1 AU</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Scale Legend -->
+                                        <div class="orbit-legend">
+                                            <div class="legend-item">
+                                                <div class="legend-color inner"></div>
+                                                <span>Inner Planets (0-2 AU)</span>
+                                            </div>
+                                            <div class="legend-item">
+                                                <div class="legend-color outer"></div>
+                                                <span>Outer Planets (5-30 AU)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Cosmic Scale Journey -->
+                                <div class="scale-card cosmic-journey">
+                                    <div class="scale-card-header">
+                                        <div class="header-content">
+                                            <i class="fas fa-rocket"></i>
+                                            <span>Cosmic Scale Journey</span>
+                                        </div>
+                                        <div class="header-badge cosmic">UNIVERSAL</div>
+                                    </div>
+                                    
+                                    <div class="journey-timeline">
+                                        <div class="journey-step local">
+                                            <div class="step-icon">
+                                                <i class="fas fa-home"></i>
+                                            </div>
+                                            <div class="step-content">
+                                                <h4>Local System</h4>
+                                                <div class="step-scale">1 - 100 AU</div>
+                                                <div class="step-desc">Our solar system neighborhood</div>
+                                                <div class="step-examples">
+                                                    <span>Earth-Sun: 1 AU</span>
+                                                    <span>Neptune: 30 AU</span>
+                                                    <span>Kuiper Belt: 50 AU</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="journey-step stellar">
+                                            <div class="step-icon">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div class="step-content">
+                                                <h4>Stellar Neighborhood</h4>
+                                                <div class="step-scale">10³ - 10⁶ AU</div>
+                                                <div class="step-desc">Nearby star systems</div>
+                                                <div class="step-examples">
+                                                    <span>Proxima Centauri: 268,000 AU</span>
+                                                    <span>Sirius: 550,000 AU</span>
+                                                    <span>Vega: 1.6 × 10⁶ AU</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="journey-step galactic">
+                                            <div class="step-icon">
+                                                <i class="fas fa-circle-notch"></i>
+                                            </div>
+                                            <div class="step-content">
+                                                <h4>Galactic Scale</h4>
+                                                <div class="step-scale">10⁶ - 10¹⁰ AU</div>
+                                                <div class="step-desc">The Milky Way galaxy</div>
+                                                <div class="step-examples">
+                                                    <span>Galactic Center: 1.7 × 10⁹ AU</span>
+                                                    <span>Galaxy Diameter: 6.3 × 10⁹ AU</span>
+                                                    <span>Magellanic Clouds: 10¹⁰ AU</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="journey-step universal">
+                                            <div class="step-icon">
+                                                <i class="fas fa-infinity"></i>
+                                            </div>
+                                            <div class="step-content">
+                                                <h4>Universal Scale</h4>
+                                                <div class="step-scale">10¹⁰+ AU</div>
+                                                <div class="step-desc">Intergalactic distances</div>
+                                                <div class="step-examples">
+                                                    <span>Andromeda: 1.6 × 10¹¹ AU</span>
+                                                    <span>Local Group: 10¹² AU</span>
+                                                    <span>Observable Universe: 6 × 10¹⁷ AU</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Powers of Ten Reference -->
+                                <div class="scale-card powers-reference">
+                                    <div class="scale-card-header">
+                                        <div class="header-content">
+                                            <i class="fas fa-calculator"></i>
+                                            <span>Powers of Ten</span>
+                                        </div>
+                                        <div class="header-badge reference">GUIDE</div>
+                                    </div>
+                                    
+                                    <div class="powers-slider">
+                                        <div class="power-scale" data-power="-6">
+                                            <div class="power-number">10⁻⁶</div>
+                                            <div class="power-label">Microscale</div>
+                                            <div class="power-example">Earth diameter: 8.5 × 10⁻⁶ AU</div>
+                                        </div>
+                                        <div class="power-scale" data-power="-3">
+                                            <div class="power-number">10⁻³</div>
+                                            <div class="power-label">Lunar Scale</div>
+                                            <div class="power-example">Earth-Moon: 2.6 × 10⁻³ AU</div>
+                                        </div>
+                                        <div class="power-scale active" data-power="0">
+                                            <div class="power-number">10⁰</div>
+                                            <div class="power-label">Planetary</div>
+                                            <div class="power-example">Earth-Sun: 1.0 AU</div>
+                                        </div>
+                                        <div class="power-scale" data-power="3">
+                                            <div class="power-number">10³</div>
+                                            <div class="power-label">Heliosphere</div>
+                                            <div class="power-example">Voyager: 1.6 × 10³ AU</div>
+                                        </div>
+                                        <div class="power-scale" data-power="6">
+                                            <div class="power-number">10⁶</div>
+                                            <div class="power-label">Stellar</div>
+                                            <div class="power-example">Nearest stars: ~10⁶ AU</div>
+                                        </div>
+                                        <div class="power-scale" data-power="9">
+                                            <div class="power-number">10⁹</div>
+                                            <div class="power-label">Galactic</div>
+                                            <div class="power-example">Milky Way: 6.3 × 10⁹ AU</div>
                                         </div>
                                     </div>
                                 </div>
@@ -545,64 +831,134 @@
                         <!-- Performance Tab -->
                         <div class="tab-panel" id="performance-tab">
                             <div class="performance-content">
-                                <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
-                                <div class="performance-settings">
-                                    <div class="setting-group">
-                                        <label for="compute-mode">Compute Mode:</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="gpu-toggle" class="toggle-input">
-                                            <label for="gpu-toggle" class="toggle-label">
-                                                <span class="toggle-text">CPU</span>
-                                                <span class="toggle-slider"></span>
-                                                <span class="toggle-text">GPU</span>
-                                            </label>
+                                <div class="performance-header">
+                                    <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
+                                    <p class="performance-subtitle">Real-time system performance & optimization</p>
+                                </div>
+                                
+                                <!-- Compute Mode Card -->
+                                <div class="performance-card compute-mode-card">
+                                    <div class="card-header">
+                                        <i class="fas fa-microchip"></i>
+                                        <span>Compute Mode</span>
+                                        <div class="performance-indicator">
+                                            <div id="performance-status-dot" class="status-dot cpu"></div>
+                                            <span id="performance-status-text">CPU</span>
                                         </div>
                                     </div>
-                                    <div class="setting-group">
-                                        <label for="physics-method">Physics Method:</label>
-                                        <select id="physics-method" class="setting-select">
-                                            <option value="verlet">Verlet Integration</option>
-                                            <option value="rk4">Runge-Kutta 4</option>
-                                            <option value="euler">Euler Method</option>
-                                        </select>
-                                    </div>
-                                    <div class="setting-group">
-                                        <label>
-                                            <input type="checkbox" id="adaptive-timestep" class="setting-checkbox">
-                                            <span class="checkbox-label">Adaptive Timestep</span>
-                                        </label>
+                                    <div class="compute-toggle">
+                                        <div class="toggle-container">
+                                            <div class="toggle-option cpu">
+                                                <i class="fas fa-desktop"></i>
+                                                <span>CPU</span>
+                                            </div>
+                                            <div class="toggle-switch">
+                                                <input type="checkbox" id="gpu-toggle" class="toggle-input">
+                                                <label for="gpu-toggle" class="toggle-slider"></label>
+                                            </div>
+                                            <div class="toggle-option gpu">
+                                                <i class="fas fa-bolt"></i>
+                                                <span>GPU</span>
+                                            </div>
+                                        </div>
+                                        <div class="compute-info">
+                                            <div class="compute-details">
+                                                <span id="compute-capability">Multi-core processing available</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="performance-stats">
-                                    <h5><i class="fas fa-chart-line"></i> Performance Statistics</h5>
-                                    <div class="stat-grid">
-                                        <div class="stat-item">
-                                            <span class="stat-label">Frame Rate:</span>
-                                            <span id="performance-fps" class="stat-value">60 FPS</span>
+                                
+                                <!-- Physics Settings Card -->
+                                <div class="performance-card physics-settings-card">
+                                    <div class="card-header">
+                                        <i class="fas fa-cog"></i>
+                                        <span>Physics Settings</span>
+                                    </div>
+                                    <div class="physics-controls">
+                                        <div class="setting-row">
+                                            <label for="physics-method">Integration Method:</label>
+                                            <select id="physics-method" class="enhanced-select">
+                                                <option value="verlet">Verlet Integration</option>
+                                                <option value="rk4">Runge-Kutta 4</option>
+                                                <option value="euler">Euler Method</option>
+                                            </select>
                                         </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Physics Time:</span>
-                                            <span id="performance-physics-time" class="stat-value">0.0 ms</span>
+                                        <div class="setting-row checkbox-row">
+                                            <label class="checkbox-container">
+                                                <input type="checkbox" id="adaptive-timestep">
+                                                <span class="checkmark"></span>
+                                                <span class="checkbox-text">Adaptive Timestep</span>
+                                            </label>
+                                            <div class="setting-help" data-tooltip="Automatically adjusts time step for better accuracy and stability">
+                                                <i class="fas fa-question-circle"></i>
+                                            </div>
                                         </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Force Calc:</span>
-                                            <span id="performance-force-time" class="stat-value">0.0 ms</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Real-time Stats Card -->
+                                <div class="performance-card stats-card">
+                                    <div class="card-header">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>Real-time Statistics</span>
+                                        <div class="fps-indicator">
+                                            <div class="fps-dot"></div>
+                                            <span id="performance-fps">60 FPS</span>
                                         </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Integration:</span>
-                                            <span id="performance-integration-time" class="stat-value">0.0 ms</span>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-group timing">
+                                            <div class="stat-group-header">
+                                                <i class="fas fa-stopwatch"></i>
+                                                <span>Timing (per frame)</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-bar">
+                                                    <div class="stat-fill physics" style="width: 0%"></div>
+                                                </div>
+                                                <div class="stat-info">
+                                                    <span class="stat-label">Physics</span>
+                                                    <span id="performance-physics-time" class="stat-value">0.0 ms</span>
+                                                </div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-bar">
+                                                    <div class="stat-fill forces" style="width: 0%"></div>
+                                                </div>
+                                                <div class="stat-info">
+                                                    <span class="stat-label">Force Calc</span>
+                                                    <span id="performance-force-time" class="stat-value">0.0 ms</span>
+                                                </div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-bar">
+                                                    <div class="stat-fill integration" style="width: 0%"></div>
+                                                </div>
+                                                <div class="stat-info">
+                                                    <span class="stat-label">Integration</span>
+                                                    <span id="performance-integration-time" class="stat-value">0.0 ms</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Body Count:</span>
-                                            <span id="performance-body-count" class="stat-value">0</span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Method:</span>
-                                            <span id="performance-current-method" class="stat-value">Verlet</span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Compute:</span>
-                                            <span id="performance-compute-mode" class="stat-value">CPU</span>
+                                        
+                                        <div class="stat-group system">
+                                            <div class="stat-group-header">
+                                                <i class="fas fa-info-circle"></i>
+                                                <span>System Info</span>
+                                            </div>
+                                            <div class="stat-item simple">
+                                                <span class="stat-label">Bodies:</span>
+                                                <span id="performance-body-count" class="stat-value highlight">0</span>
+                                            </div>
+                                            <div class="stat-item simple">
+                                                <span class="stat-label">Method:</span>
+                                                <span id="performance-current-method" class="stat-value">Verlet/Naive</span>
+                                            </div>
+                                            <div class="stat-item simple">
+                                                <span class="stat-label">Compute:</span>
+                                                <span id="performance-compute-mode" class="stat-value">CPU</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
