@@ -1049,7 +1049,7 @@ class NBodyApp {
                 this.physics.setConfiguration({ integrationMethod: value });
                 break;
             case 'physics-method':
-                this.physics.setConfiguration({ integrationMethod: value });
+                this.physics.setConfiguration({ forceCalculationMethod: value });
                 break;
             case 'force-method':
                 this.physics.setConfiguration({ forceCalculationMethod: value });
@@ -1061,7 +1061,7 @@ class NBodyApp {
                 this.setGPUEnabled(value);
                 break;
             case 'adaptive-timestep':
-                this.physics.setConfiguration({ adaptiveTimestep: value });
+                this.physics.setConfiguration({ adaptiveTimeStep: value });
                 break;
         }
     }

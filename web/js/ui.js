@@ -1361,6 +1361,14 @@ class UIManager {
     
     // Setup tooltip for a single element
     setupTooltipForElement(element) {
+        // Remove existing listeners first to prevent duplicates
+        element.removeEventListener('mouseenter', this.boundShowTooltip);
+        element.removeEventListener('mouseleave', this.boundHideTooltip);
+        element.removeEventListener('mousemove', this.boundUpdatePosition);
+        element.removeEventListener('focus', this.boundShowTooltip);
+        element.removeEventListener('blur', this.boundHideTooltip);
+        
+        // Add new listeners
         element.addEventListener('mouseenter', this.boundShowTooltip);
         element.addEventListener('mouseleave', this.boundHideTooltip);
         element.addEventListener('mousemove', this.boundUpdatePosition);

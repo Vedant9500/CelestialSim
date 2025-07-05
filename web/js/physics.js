@@ -23,6 +23,7 @@ class PhysicsEngine {
         this.totalEnergy = 0;
         this.energyHistory = [];
         this.maxEnergyHistory = 1000;
+        this.energyCacheValid = false;
         
         // Performance tracking
         this.lastFrameTime = 0;
@@ -96,6 +97,9 @@ class PhysicsEngine {
             // Validate body state for numerical stability
             this.validateBodyState(body);
         });
+        
+        // Invalidate energy cache since bodies have moved
+        this.energyCacheValid = false;
         
         this.timeAccumulator += deltaTime * this.timeScale;
         
