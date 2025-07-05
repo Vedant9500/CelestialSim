@@ -800,8 +800,13 @@ class Renderer {
             completed: false
         };
         
+        // Simulation parameters with safety limits
+        const maxSteps = Math.min(this.longTermPreviewSteps, 50000); // Cap max steps
+        const maxPoints = Math.min(this.longTermPreviewMaxPoints, 10000); // Cap max points
+        const maxTime = Math.min(this.longTermPreviewMaxTime, 5000); // Cap max time
+        
         let step = 0;
-        for (step = 0; step < this.longTermPreviewSteps && simulationTime < this.longTermPreviewMaxTime; step++) {
+        for (step = 0; step < maxSteps && simulationTime < maxTime && this.longTermPreviewPoints.length < maxPoints; step++) {
             // Record position at intervals
             if (simulationTime - lastRecordTime >= recordInterval) {
                 this.longTermPreviewPoints.push({

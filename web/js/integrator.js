@@ -111,10 +111,25 @@ class Integrator {
     /**
      * Adaptive timestep RK4 - adjusts timestep based on local truncation error
      */
-    integrateAdaptiveRK4(bodies, dt, forceCalculator, tolerance = 1e-6) {
+    integrateAdaptiveRK4(bodies, dt, forceCalculator, tolerance = 1e-6, maxRecursionDepth = 5) {
         const originalDt = dt;
         let currentDt = dt;
         let maxError = 0;
+        
+        // Prevent infinite recursion
+        if (maxRecursionDepth <= 0) {
+            console.warn('Integrator: Maximum recursion depth reached, using current timestep');
+            this.integrateRK4(bodies, currentDt, forceCalculator);
+            return currentDt;
+        }
+        
+        // Ensure minimum timestep to prevent infinite recursion
+        const minTimestep = 1e-8;
+        if (currentDt < minTimestep) {
+            console.warn('Integrator: Timestep too small, using minimum timestep');
+            this.integrateRK4(bodies, minTimestep, forceCalculator);
+            return minTimestep;
+        }
 
         // Take one full step
         const fullStepBodies = bodies.map(body => body.clone());
@@ -134,8 +149,13 @@ class Integrator {
 
         // Adjust timestep based on error
         if (maxError > tolerance) {
-            currentDt *= 0.8 * Math.pow(tolerance / maxError, 0.25);
-            return this.integrateAdaptiveRK4(bodies, currentDt, forceCalculator, tolerance);
+            const newDt = currentDt * 0.8 * Math.pow(tolerance / maxError, 0.25);
+            // Ensure we don't make timestep too small
+            if (newDt >= minTimestep) {
+                return this.integrateAdaptiveRK4(bodies, newDt, forceCalculator, tolerance, maxRecursionDepth - 1);
+            } else {
+                console.warn('Integrator: Would create timestep below minimum, using half-step result');
+            }
         } else if (maxError < tolerance * 0.1) {
             currentDt = Math.min(originalDt * 1.2, originalDt * 2);
         }

@@ -69,17 +69,35 @@ class PhysicsWorker {
     
     // Perform physics simulation step
     simulateStep(bodiesData, deltaTime, config) {
-        // Reconstruct body objects from serialized data
-        const bodies = bodiesData.map(bodyData => {
+        // Validate input parameters
+        if (!Array.isArray(bodiesData) || typeof deltaTime !== 'number' || deltaTime <= 0 || !isFinite(deltaTime)) {
+            throw new Error('Invalid simulation parameters');
+        }
+        
+        // Reconstruct body objects from serialized data with validation
+        const bodies = bodiesData.map((bodyData, index) => {
+            // Validate body data structure
+            if (!bodyData || !bodyData.position || !bodyData.velocity || 
+                typeof bodyData.mass !== 'number' || bodyData.mass <= 0) {
+                throw new Error(`Invalid body data at index ${index}`);
+            }
+            
+            // Validate numerical values
+            if (!isFinite(bodyData.position.x) || !isFinite(bodyData.position.y) ||
+                !isFinite(bodyData.velocity.x) || !isFinite(bodyData.velocity.y) ||
+                !isFinite(bodyData.mass)) {
+                throw new Error(`Non-finite values in body data at index ${index}`);
+            }
+            
             const body = new Body(
                 new Vector2D(bodyData.position.x, bodyData.position.y),
                 new Vector2D(bodyData.velocity.x, bodyData.velocity.y),
                 bodyData.mass,
-                bodyData.color,
+                bodyData.color || '#ff4757',
                 bodyData.trailLength || 50
             );
-            body.id = bodyData.id;
-            body.trail = bodyData.trail || [];
+            body.id = bodyData.id || index;
+            body.trail = Array.isArray(bodyData.trail) ? bodyData.trail : [];
             return body;
         });
         
@@ -107,18 +125,25 @@ class PhysicsWorker {
         // Calculate energy
         const energy = this.calculateTotalEnergy(bodies);
         
-        // Serialize bodies back to transferable data
-        const serializedBodies = bodies.map(body => ({
-            id: body.id,
-            position: { x: body.position.x, y: body.position.y },
-            velocity: { x: body.velocity.x, y: body.velocity.y },
-            mass: body.mass,
-            radius: body.radius,
-            color: body.color,
-            trail: body.trail,
-            kineticEnergy: body.kineticEnergy || 0,
-            potentialEnergy: body.potentialEnergy || 0
-        }));
+        // Serialize bodies back to transferable data with validation
+        const serializedBodies = bodies.map(body => {
+            // Validate body state before serialization
+            if (!body.validateState()) {
+                body.correctState();
+            }
+            
+            return {
+                id: body.id,
+                position: { x: body.position.x, y: body.position.y },
+                velocity: { x: body.velocity.x, y: body.velocity.y },
+                mass: body.mass,
+                radius: body.radius,
+                color: body.color,
+                trail: body.trail,
+                kineticEnergy: body.kineticEnergy || 0,
+                potentialEnergy: body.potentialEnergy || 0
+            };
+        });
         
         return {
             bodies: serializedBodies,

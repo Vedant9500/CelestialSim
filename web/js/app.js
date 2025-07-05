@@ -1129,16 +1129,34 @@ class NBodyApp {
                             return;
                         }
                         
+                        // Validate worker data before using it
+                        if (!data || !Array.isArray(data.bodies)) {
+                            console.warn('Invalid worker data received, ignoring');
+                            this.workerBusy = false;
+                            return;
+                        }
+                        
                         // Update bodies with worker results
                         this.updateBodiesFromWorker(data.bodies);
                         
                         // Update energy tracking
-                        this.physics.totalKineticEnergy = data.energy.kinetic;
-                        this.physics.totalPotentialEnergy = data.energy.potential;
-                        this.physics.totalEnergy = data.energy.total;
+                        if (data.energy) {
+                            this.physics.totalKineticEnergy = data.energy.kinetic || 0;
+                            this.physics.totalPotentialEnergy = data.energy.potential || 0;
+                            this.physics.totalEnergy = data.energy.total || 0;
+                        }
                         
                         // Mark worker as no longer busy
                         this.workerBusy = false;
+                        
+                        // Clear timeout since worker completed successfully
+                        if (this.workerTimeoutId) {
+                            clearTimeout(this.workerTimeoutId);
+                            this.workerTimeoutId = null;
+                        }
+                        
+                        // Reset timeout counter on successful completion
+                        this.workerTimeoutCount = 0;
                         break;
                         
                     case 'error':
@@ -1177,18 +1195,44 @@ class NBodyApp {
 
     // Update bodies from worker results
     updateBodiesFromWorker(workerBodies) {
+        if (!Array.isArray(workerBodies)) {
+            console.warn('Invalid worker bodies data received');
+            return;
+        }
+        
         workerBodies.forEach((workerBody, index) => {
-            if (index < this.bodies.length) {
+            if (index < this.bodies.length && workerBody) {
                 const body = this.bodies[index];
-                body.position.x = workerBody.position.x;
-                body.position.y = workerBody.position.y;
-                body.velocity.x = workerBody.velocity.x;
-                body.velocity.y = workerBody.velocity.y;
-                body.kineticEnergy = workerBody.kineticEnergy;
-                body.potentialEnergy = workerBody.potentialEnergy;
                 
-                // Update trails if needed
-                if (workerBody.trail) {
+                // Validate worker body data before applying
+                if (workerBody.position && 
+                    typeof workerBody.position.x === 'number' && 
+                    typeof workerBody.position.y === 'number' &&
+                    isFinite(workerBody.position.x) && 
+                    isFinite(workerBody.position.y)) {
+                    body.position.x = workerBody.position.x;
+                    body.position.y = workerBody.position.y;
+                }
+                
+                if (workerBody.velocity && 
+                    typeof workerBody.velocity.x === 'number' && 
+                    typeof workerBody.velocity.y === 'number' &&
+                    isFinite(workerBody.velocity.x) && 
+                    isFinite(workerBody.velocity.y)) {
+                    body.velocity.x = workerBody.velocity.x;
+                    body.velocity.y = workerBody.velocity.y;
+                }
+                
+                // Update energy values with validation
+                if (typeof workerBody.kineticEnergy === 'number' && isFinite(workerBody.kineticEnergy)) {
+                    body.kineticEnergy = workerBody.kineticEnergy;
+                }
+                if (typeof workerBody.potentialEnergy === 'number' && isFinite(workerBody.potentialEnergy)) {
+                    body.potentialEnergy = workerBody.potentialEnergy;
+                }
+                
+                // Update trails if needed (with validation)
+                if (Array.isArray(workerBody.trail)) {
                     body.trail = workerBody.trail;
                 }
             }
@@ -1283,12 +1327,18 @@ class NBodyApp {
             });
             
             // Set a timeout to prevent worker from hanging indefinitely
-            setTimeout(() => {
+            this.workerTimeoutId = setTimeout(() => {
                 if (this.workerBusy) {
                     console.warn('Worker timeout - forcing worker busy flag reset');
                     this.workerBusy = false;
+                    // Optionally restart the worker if it's consistently timing out
+                    this.workerTimeoutCount = (this.workerTimeoutCount || 0) + 1;
+                    if (this.workerTimeoutCount > 3) {
+                        console.warn('Worker has timed out multiple times, disabling Web Worker');
+                        this.setWebWorkersEnabled(false);
+                    }
                 }
-            }, 100); // 100ms timeout
+            }, 150); // 150ms timeout
             
         } catch (error) {
             console.error('Error sending data to worker:', error);
@@ -1365,9 +1415,12 @@ class NBodyApp {
 
     getMousePosition(event) {
         const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        
         return new Vector2D(
-            (event.clientX - rect.left) * this.renderer.devicePixelRatio,
-            (event.clientY - rect.top) * this.renderer.devicePixelRatio
+            (event.clientX - rect.left) * scaleX,
+            (event.clientY - rect.top) * scaleY
         );
     }
 

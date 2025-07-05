@@ -541,6 +541,12 @@ class UIManager {
     }
 
     updatePerformanceStats(stats) {
+        // Validate input to prevent errors
+        if (!stats || typeof stats !== 'object') {
+            console.warn('Invalid performance stats provided');
+            return;
+        }
+        
         // Use cached elements to avoid repeated DOM lookups
         const elements = {
             fpsDisplay: this.getElement('performance-fps'),
@@ -556,42 +562,51 @@ class UIManager {
 
         // Update FPS display
         if (elements.fpsDisplay) {
-            elements.fpsDisplay.textContent = `${Math.round(stats.fps || 0)} FPS`;
+            const fps = typeof stats.fps === 'number' ? Math.round(stats.fps) : 0;
+            elements.fpsDisplay.textContent = `${fps} FPS`;
         }
         
         // Helper function to format time values consistently
-        const formatTime = (value) => value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+        const formatTime = (value) => {
+            if (typeof value !== 'number' || !isFinite(value)) return '0.00 ms';
+            return value < 0.01 ? '<0.01 ms' : `${value.toFixed(2)} ms`;
+        };
         
-        // Update timing displays
+        // Update timing displays with validation
         if (elements.physicsTime) {
-            elements.physicsTime.textContent = formatTime(stats.physicsTime || 0);
+            elements.physicsTime.textContent = formatTime(stats.physicsTime);
         }
         if (elements.forceTime) {
-            elements.forceTime.textContent = formatTime(stats.forceCalculationTime || 0);
+            elements.forceTime.textContent = formatTime(stats.forceCalculationTime);
         }
         if (elements.integrationTime) {
-            elements.integrationTime.textContent = formatTime(stats.integrationTime || 0);
+            elements.integrationTime.textContent = formatTime(stats.integrationTime);
         }
         
         // Update other stats
-        if (elements.bodyCount) elements.bodyCount.textContent = stats.bodyCount || 0;
+        if (elements.bodyCount) {
+            const bodyCount = typeof stats.bodyCount === 'number' ? stats.bodyCount : 0;
+            elements.bodyCount.textContent = bodyCount;
+        }
         if (elements.currentMethod) {
-            elements.currentMethod.textContent = `${stats.method || 'N/A'}/${stats.forceMethod || 'N/A'}`;
+            const method = stats.method || 'N/A';
+            const forceMethod = stats.forceMethod || 'N/A';
+            elements.currentMethod.textContent = `${method}/${forceMethod}`;
         }
         
         // Update performance tab elements (avoiding code duplication)
         if (elements.physicsTimeElement) {
-            elements.physicsTimeElement.textContent = `${(stats.physicsTime || 0).toFixed(2)}ms`;
+            elements.physicsTimeElement.textContent = formatTime(stats.physicsTime);
         }
         if (elements.forceTimeElement) {
-            elements.forceTimeElement.textContent = `${(stats.forceCalculationTime || 0).toFixed(2)}ms`;
+            elements.forceTimeElement.textContent = formatTime(stats.forceCalculationTime);
         }
         if (elements.integrationTimeElement) {
-            elements.integrationTimeElement.textContent = `${(stats.integrationTime || 0).toFixed(2)}ms`;
+            elements.integrationTimeElement.textContent = formatTime(stats.integrationTime);
         }
         
         // Update GPU status if available
-        if (stats.gpu && stats.gpu.isSupported) {
+        if (stats.gpu && typeof stats.gpu === 'object' && stats.gpu.isSupported) {
             const gpuModeElement = this.getElement('gpu-mode');
             const gpuTimeElement = this.getElement('gpu-time');
             
@@ -599,7 +614,8 @@ class UIManager {
                 gpuModeElement.textContent = stats.gpu.mode || 'gpu';
             }
             if (gpuTimeElement) {
-                gpuTimeElement.textContent = `${(stats.gpu.lastGpuTime || 0).toFixed(2)}ms`;
+                const gpuTime = typeof stats.gpu.lastGpuTime === 'number' ? stats.gpu.lastGpuTime : 0;
+                gpuTimeElement.textContent = formatTime(gpuTime);
             }
         }
     }

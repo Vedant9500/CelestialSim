@@ -194,6 +194,24 @@ class GPUPhysicsEngine {
             console.warn(`GPU.js Physics: Too many bodies (${bodies.length}), max supported: ${this.maxBodies}`);
             return false;
         }
+        
+        // Validate input parameters
+        if (!Array.isArray(bodies) || typeof deltaTime !== 'number' || deltaTime <= 0 || !isFinite(deltaTime)) {
+            console.warn('GPU Physics: Invalid input parameters');
+            return false;
+        }
+        
+        // Validate all bodies have valid numerical values
+        for (let i = 0; i < bodies.length; i++) {
+            const body = bodies[i];
+            if (!body || !body.position || !body.velocity || 
+                !isFinite(body.position.x) || !isFinite(body.position.y) ||
+                !isFinite(body.velocity.x) || !isFinite(body.velocity.y) ||
+                !isFinite(body.mass) || body.mass <= 0) {
+                console.warn(`GPU Physics: Invalid body data detected at index ${i}, falling back to CPU`);
+                return false;
+            }
+        }
 
         try {
             const startTime = performance.now();
@@ -223,13 +241,24 @@ class GPUPhysicsEngine {
                 this.gravitationalConstant, this.softeningFactor, bodies.length
             );
             
+            // Validate force calculation results
+            if (!forces || !Array.isArray(forces) || forces.length < bodies.length) {
+                console.warn('GPU Physics: Invalid force calculation results');
+                return false;
+            }
+            
             // Extract force components
             const forcesX = new Float32Array(this.maxBodies);
             const forcesY = new Float32Array(this.maxBodies);
             
             for (let i = 0; i < this.maxBodies; i++) {
-                forcesX[i] = forces[i][0];
-                forcesY[i] = forces[i][1];
+                if (forces[i] && Array.isArray(forces[i]) && forces[i].length >= 2) {
+                    forcesX[i] = forces[i][0];
+                    forcesY[i] = forces[i][1];
+                } else {
+                    forcesX[i] = 0;
+                    forcesY[i] = 0;
+                }
             }
             
             // Update positions and velocities on GPU
@@ -238,13 +267,37 @@ class GPUPhysicsEngine {
                 forcesX, forcesY, deltaTime, bodies.length
             );
             
-            // Copy results back to bodies
+            // Validate position update results
+            if (!newState || !Array.isArray(newState) || newState.length < bodies.length) {
+                console.warn('GPU Physics: Invalid position update results');
+                return false;
+            }
+            
+            // Copy results back to bodies with validation
             for (let i = 0; i < bodies.length; i++) {
                 const body = bodies[i];
-                body.position.x = newState[i][0];
-                body.position.y = newState[i][1];
-                body.velocity.x = newState[i][2];
-                body.velocity.y = newState[i][3];
+                const result = newState[i];
+                
+                if (!result || !Array.isArray(result) || result.length < 4) {
+                    console.warn(`GPU Physics: Invalid result for body ${i}`);
+                    return false;
+                }
+                
+                // Validate each component before assignment
+                const newPosX = result[0];
+                const newPosY = result[1];
+                const newVelX = result[2];
+                const newVelY = result[3];
+                
+                if (!isFinite(newPosX) || !isFinite(newPosY) || !isFinite(newVelX) || !isFinite(newVelY)) {
+                    console.warn(`GPU Physics: Non-finite values detected for body ${i}`);
+                    return false;
+                }
+                
+                body.position.x = newPosX;
+                body.position.y = newPosY;
+                body.velocity.x = newVelX;
+                body.velocity.y = newVelY;
             }
             
             this.performanceStats.gpuTime = performance.now() - startTime;
