@@ -31,8 +31,11 @@ class UIManager {
         this.initializeEnergyChart();
         this.initializeCollisionControls();
         this.initializeScaleReference();
+        this.initializeUnitConverter();
         this.setupEventListeners();
         this.initializeTooltips();
+        this.initializeExpandablePanels();
+        this.initializeUnitConverter();
     }
 
     setRenderer(renderer) {
@@ -1708,5 +1711,191 @@ class UIManager {
         
         console.log(`Scale journey step selected: ${stepType}`);
         // Could show detailed information about this scale range
+    }
+
+    initializeExpandablePanels() {
+        const panels = document.querySelectorAll('.expandable-panel');
+        panels.forEach(panel => {
+            const header = panel.querySelector('.expandable-header');
+            const content = panel.querySelector('.expandable-content');
+            if (!header || !content) return;
+            header.addEventListener('click', () => {
+                const expanded = header.getAttribute('aria-expanded') === 'true';
+                header.setAttribute('aria-expanded', !expanded);
+                if (expanded) {
+                    content.style.display = 'none';
+                } else {
+                    content.style.display = '';
+                }
+            });
+        });
+    }
+
+    initializeUnitConverter() {
+        // Unit conversion constants
+        this.unitConversions = {
+            distance: {
+                au: 1,
+                km: 149597870.7,
+                m: 149597870700,
+                ly: 1/63241.077,
+                pc: 1/206264.806
+            },
+            mass: {
+                solar: 1,
+                earth: 333000,
+                jupiter: 1047.35,
+                kg: 1.989e30
+            },
+            velocity: {
+                au_year: 1,
+                km_s: 29.7847,
+                m_s: 29784.7,
+                km_h: 107223.6
+            }
+        };
+
+        // Initialize converters
+        this.setupDistanceConverter();
+        this.setupMassConverter();
+        this.setupVelocityConverter();
+        this.setupScaleSettings();
+    }
+
+    setupDistanceConverter() {
+        const input = document.getElementById('distance-input');
+        const fromUnit = document.getElementById('distance-from-unit');
+        const toUnit = document.getElementById('distance-to-unit');
+        const result = document.getElementById('distance-result');
+
+        const convert = () => {
+            const value = parseFloat(input.value) || 0;
+            const from = fromUnit.value;
+            const to = toUnit.value;
+            
+            // Convert to AU first, then to target unit
+            const auValue = value / this.unitConversions.distance[from];
+            const convertedValue = auValue * this.unitConversions.distance[to];
+            
+            result.textContent = this.formatNumber(convertedValue);
+        };
+
+        input.addEventListener('input', convert);
+        fromUnit.addEventListener('change', convert);
+        toUnit.addEventListener('change', convert);
+    }
+
+    setupMassConverter() {
+        const input = document.getElementById('mass-input');
+        const fromUnit = document.getElementById('mass-from-unit');
+        const toUnit = document.getElementById('mass-to-unit');
+        const result = document.getElementById('mass-result');
+
+        const convert = () => {
+            const value = parseFloat(input.value) || 0;
+            const from = fromUnit.value;
+            const to = toUnit.value;
+            
+            // Convert to solar masses first, then to target unit
+            const solarValue = value / this.unitConversions.mass[from];
+            const convertedValue = solarValue * this.unitConversions.mass[to];
+            
+            result.textContent = this.formatNumber(convertedValue);
+        };
+
+        input.addEventListener('input', convert);
+        fromUnit.addEventListener('change', convert);
+        toUnit.addEventListener('change', convert);
+    }
+
+    setupVelocityConverter() {
+        const input = document.getElementById('velocity-input');
+        const fromUnit = document.getElementById('velocity-from-unit');
+        const toUnit = document.getElementById('velocity-to-unit');
+        const result = document.getElementById('velocity-result');
+
+        const convert = () => {
+            const value = parseFloat(input.value) || 0;
+            const from = fromUnit.value;
+            const to = toUnit.value;
+            
+            // Convert to AU/year first, then to target unit
+            const auYearValue = value / this.unitConversions.velocity[from];
+            const convertedValue = auYearValue * this.unitConversions.velocity[to];
+            
+            result.textContent = this.formatNumber(convertedValue);
+        };
+
+        input.addEventListener('input', convert);
+        fromUnit.addEventListener('change', convert);
+        toUnit.addEventListener('change', convert);
+    }
+
+    setupScaleSettings() {
+        const distanceSelect = document.getElementById('distance-unit-select');
+        const massSelect = document.getElementById('mass-unit-select');
+        const timeSelect = document.getElementById('time-unit-select');
+        
+        const distanceDisplay = document.getElementById('distance-scale-display');
+        const massDisplay = document.getElementById('mass-scale-display');
+        const timeDisplay = document.getElementById('time-scale-display');
+
+        const updateDisplays = () => {
+            const distanceUnit = distanceSelect.value;
+            const massUnit = massSelect.value;
+            const timeUnit = timeSelect.value;
+
+            // Update display values based on selections
+            switch(distanceUnit) {
+                case 'au': distanceDisplay.textContent = '1 AU = 149.6M km'; break;
+                case 'km': distanceDisplay.textContent = '1 km = 6.68×10⁻⁹ AU'; break;
+                case 'm': distanceDisplay.textContent = '1 m = 6.68×10⁻¹² AU'; break;
+                case 'ly': distanceDisplay.textContent = '1 ly = 63,241 AU'; break;
+                case 'pc': distanceDisplay.textContent = '1 pc = 206,265 AU'; break;
+            }
+
+            switch(massUnit) {
+                case 'solar': massDisplay.textContent = '1 M☉ = 1.989×10³⁰ kg'; break;
+                case 'earth': massDisplay.textContent = '1 M⊕ = 5.97×10²⁴ kg'; break;
+                case 'jupiter': massDisplay.textContent = '1 M♃ = 1.90×10²⁷ kg'; break;
+                case 'kg': massDisplay.textContent = '1 kg = 5.03×10⁻³¹ M☉'; break;
+            }
+
+            switch(timeUnit) {
+                case 'year': timeDisplay.textContent = '1 year = 365.25 days'; break;
+                case 'day': timeDisplay.textContent = '1 day = 24 hours'; break;
+                case 'hour': timeDisplay.textContent = '1 hour = 3600 seconds'; break;
+                case 'second': timeDisplay.textContent = '1 second = 1/31,557,600 year'; break;
+            }
+        };
+
+        distanceSelect.addEventListener('change', updateDisplays);
+        massSelect.addEventListener('change', updateDisplays);
+        timeSelect.addEventListener('change', updateDisplays);
+        
+        // Initialize displays
+        updateDisplays();
+    }
+
+    formatNumber(num) {
+        if (num === 0) return '0';
+        
+        const absNum = Math.abs(num);
+        
+        if (absNum >= 1e12) {
+            return (num / 1e12).toFixed(2) + 'T';
+        } else if (absNum >= 1e9) {
+            return (num / 1e9).toFixed(2) + 'B';
+        } else if (absNum >= 1e6) {
+            return (num / 1e6).toFixed(2) + 'M';
+        } else if (absNum >= 1e3) {
+            return (num / 1e3).toFixed(2) + 'K';
+        } else if (absNum >= 1) {
+            return num.toFixed(3);
+        } else if (absNum >= 1e-3) {
+            return num.toFixed(6);
+        } else {
+            return num.toExponential(2);
+        }
     }
 }
