@@ -329,34 +329,6 @@
                                 </div>
                             </div>
 
-                            <div class="panel-section">
-                                <h3><i class="fas fa-info-circle"></i> System Information</h3>
-                                <div class="info-display">
-                                    <div class="info-grid">
-                                        <div class="info-item">
-                                            <span class="info-label">Bodies:</span>
-                                            <span id="body-count">0</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Total Mass:</span>
-                                            <span id="total-mass">0</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Kinetic Energy:</span>
-                                            <span id="kinetic-energy">0</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Potential Energy:</span>
-                                            <span id="potential-energy">0</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Mouse Position:</span>
-                                            <span id="mouse-position">(0, 0)</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Selected Body Info -->
                             <div id="selected-body-panel" class="panel-section" style="display: none;">
                                 <h3><i class="fas fa-crosshairs"></i> Selected Body</h3>
@@ -433,13 +405,10 @@
 
                         <!-- Reference Tab -->
                         <div class="tab-panel" id="reference-tab">
-                            <div class="tab-header">
+                            <div class="panel-section">
                                 <h3><i class="fas fa-ruler-combined"></i> Scale Reference</h3>
-                                <p>Unit conversion and scaling for accurate simulations</p>
-                            </div>
-                            
-                            <div class="tab-content">
-                                <!-- Current Scale Settings -->
+                                <p class="section-subtitle">Unit conversion and scaling for accurate simulations</p>
+                                
                                 <div class="scale-settings-card">
                                     <div class="card-header">
                                         <i class="fas fa-cog"></i>
@@ -479,14 +448,12 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Unit Converter -->
-                                <div class="converter-card">
-                                    <div class="card-header">
-                                        <i class="fas fa-exchange-alt"></i>
-                                        <span>Unit Converter</span>
-                                    </div>
-                                    <div class="converter-section">
+                            <div class="panel-section">
+                                <h3><i class="fas fa-exchange-alt"></i> Unit Converter</h3>
+                                
+                                <div class="converter-section">
                                         <h4>Distance Conversion</h4>
                                         <div class="conversion-row">
                                             <input type="number" id="distance-input" placeholder="Enter value" step="any">
@@ -551,44 +518,14 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Quick Reference -->
-                                <div class="reference-card">
-                                    <div class="card-header">
-                                        <i class="fas fa-book"></i>
-                                        <span>Quick Reference</span>
-                                    </div>
-                                    <div class="reference-grid">
-                                        <div class="ref-section">
-                                            <h5>Common Distances</h5>
-                                            <div class="ref-item">Earth-Moon: <span>384,400 km</span></div>
-                                            <div class="ref-item">Earth-Sun: <span>1 AU (149.6M km)</span></div>
-                                            <div class="ref-item">Sun-Jupiter: <span>5.2 AU</span></div>
-                                            <div class="ref-item">Sun-Neptune: <span>30.1 AU</span></div>
-                                        </div>
-                                        <div class="ref-section">
-                                            <h5>Common Masses</h5>
-                                            <div class="ref-item">Earth: <span>5.97×10²⁴ kg</span></div>
-                                            <div class="ref-item">Jupiter: <span>317.8 M⊕</span></div>
-                                            <div class="ref-item">Sun: <span>333,000 M⊕</span></div>
-                                            <div class="ref-item">Alpha Centauri A: <span>1.1 M☉</span></div>
-                                        </div>
-                                        <div class="ref-section">
-                                            <h5>Common Velocities</h5>
-                                            <div class="ref-item">Earth orbit: <span>29.8 km/s</span></div>
-                                            <div class="ref-item">Jupiter orbit: <span>13.1 km/s</span></div>
-                                            <div class="ref-item">Escape velocity: <span>11.2 km/s</span></div>
-                                            <div class="ref-item">Solar escape: <span>42.1 km/s</span></div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         
                         <!-- Energy Tab -->
                         <div class="tab-panel" id="energy-tab">
-                            <div class="energy-content">
-                                <h4><i class="fas fa-bolt"></i> Energy Monitor</h4>
+                            <div class="panel-section">
+                                <h3><i class="fas fa-bolt"></i> Energy Monitor</h3>
+                                
                                 <div class="energy-values">
                                     <div class="energy-item kinetic">
                                         <div class="energy-icon"><i class="fas fa-running"></i></div>
@@ -612,6 +549,11 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3><i class="fas fa-chart-line"></i> Energy Statistics</h3>
+                                
                                 <div class="energy-stats">
                                     <div class="energy-stat">
                                         <span class="stat-label">K.E. Ratio:</span>
@@ -638,6 +580,11 @@
                                         <span id="specific-energy" class="stat-value">0.00</span>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3><i class="fas fa-chart-area"></i> Energy Graph</h3>
+                                
                                 <div class="energy-graph">
                                     <canvas id="energy-chart" width="300" height="150"></canvas>
                                 </div>
@@ -646,135 +593,100 @@
                         
                         <!-- Performance Tab -->
                         <div class="tab-panel" id="performance-tab">
-                            <div class="performance-content">
-                                <div class="performance-header">
-                                    <h4><i class="fas fa-tachometer-alt"></i> Performance Monitor</h4>
-                                    <p class="performance-subtitle">Real-time system performance & optimization</p>
-                                </div>
+                            <div class="panel-section">
+                                <h3><i class="fas fa-tachometer-alt"></i> Performance Monitor</h3>
+                                <p class="section-subtitle">Real-time system performance & optimization</p>
                                 
-                                <!-- Compute Mode Card -->
-                                <div class="performance-card compute-mode-card">
-                                    <div class="card-header">
-                                        <i class="fas fa-microchip"></i>
-                                        <span>Compute Mode</span>
-                                        <div class="performance-indicator">
-                                            <div id="performance-status-dot" class="status-dot cpu"></div>
-                                            <span id="performance-status-text">CPU</span>
+                                <div class="performance-stats">
+                                    <div class="perf-stat-item">
+                                        <div class="perf-icon"><i class="fas fa-chart-line"></i></div>
+                                        <div class="perf-info">
+                                            <span class="perf-label">Frame Rate</span>
+                                            <span id="performance-fps" class="perf-value">60 FPS</span>
                                         </div>
                                     </div>
-                                    <div class="compute-toggle">
-                                        <div class="toggle-container">
-                                            <div class="toggle-option cpu">
-                                                <i class="fas fa-desktop"></i>
-                                                <span>CPU</span>
-                                            </div>
-                                            <div class="toggle-switch">
-                                                <input type="checkbox" id="gpu-toggle" class="toggle-input">
-                                                <label for="gpu-toggle" class="toggle-slider"></label>
-                                            </div>
-                                            <div class="toggle-option gpu">
-                                                <i class="fas fa-bolt"></i>
-                                                <span>GPU</span>
-                                            </div>
+                                    <div class="perf-stat-item">
+                                        <div class="perf-icon"><i class="fas fa-microchip"></i></div>
+                                        <div class="perf-info">
+                                            <span class="perf-label">Compute Mode</span>
+                                            <span id="performance-compute-mode" class="perf-value">CPU</span>
                                         </div>
-                                        <div class="compute-info">
-                                            <div class="compute-details">
-                                                <span id="compute-capability">Multi-core processing available</span>
-                                            </div>
+                                    </div>
+                                    <div class="perf-stat-item">
+                                        <div class="perf-icon"><i class="fas fa-cog"></i></div>
+                                        <div class="perf-info">
+                                            <span class="perf-label">Method</span>
+                                            <span id="performance-current-method" class="perf-value">Verlet</span>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3><i class="fas fa-microchip"></i> Compute Settings</h3>
                                 
-                                <!-- Physics Settings Card -->
-                                <div class="performance-card physics-settings-card">
-                                    <div class="card-header">
-                                        <i class="fas fa-cog"></i>
-                                        <span>Physics Settings</span>
+                                <div class="compute-toggle-group">
+                                    <label class="toggle-label">Compute Mode:</label>
+                                    <div class="toggle-container">
+                                        <div class="toggle-option cpu">
+                                            <i class="fas fa-desktop"></i>
+                                            <span>CPU</span>
+                                        </div>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="gpu-toggle" class="toggle-input">
+                                            <label for="gpu-toggle" class="toggle-slider"></label>
+                                        </div>
+                                        <div class="toggle-option gpu">
+                                            <i class="fas fa-bolt"></i>
+                                            <span>GPU</span>
+                                        </div>
                                     </div>
-                                    <div class="physics-controls">
-                                        <div class="setting-row">
-                                            <label for="physics-method">Integration Method:</label>
-                                            <select id="physics-method" class="enhanced-select">
-                                                <option value="verlet">Verlet Integration</option>
-                                                <option value="rk4">Runge-Kutta 4</option>
-                                                <option value="euler">Euler Method</option>
-                                            </select>
-                                        </div>
-                                        <div class="setting-row checkbox-row">
-                                            <label class="checkbox-container">
-                                                <input type="checkbox" id="adaptive-timestep">
-                                                <span class="checkmark"></span>
-                                                <span class="checkbox-text">Adaptive Timestep</span>
-                                            </label>
-                                            <div class="setting-help" data-tooltip="Automatically adjusts time step for better accuracy and stability">
-                                                <i class="fas fa-question-circle"></i>
-                                            </div>
-                                        </div>
+                                    <div class="compute-info">
+                                        <span id="compute-capability">Multi-core processing available</span>
                                     </div>
                                 </div>
+
+                                <div class="setting-group">
+                                    <label for="physics-method">Integration Method:</label>
+                                    <select id="physics-method" class="setting-select">
+                                        <option value="verlet">Verlet Integration</option>
+                                        <option value="rk4">Runge-Kutta 4</option>
+                                        <option value="euler">Euler Method</option>
+                                    </select>
+                                </div>
+
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="adaptive-timestep">
+                                        <span class="checkmark"></span>
+                                        Adaptive Timestep
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="panel-section">
+                                <h3><i class="fas fa-stopwatch"></i> Performance Timings</h3>
                                 
-                                <!-- Real-time Stats Card -->
-                                <div class="performance-card stats-card">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-line"></i>
-                                        <span>Real-time Statistics</span>
-                                        <div class="fps-indicator">
-                                            <div class="fps-dot"></div>
-                                            <span id="performance-fps">60 FPS</span>
+                                <div class="timing-stats">
+                                    <div class="timing-item">
+                                        <span class="timing-label">Physics:</span>
+                                        <span id="performance-physics-time" class="timing-value">0.0 ms</span>
+                                        <div class="timing-bar">
+                                            <div class="timing-fill physics" style="width: 0%"></div>
                                         </div>
                                     </div>
-                                    <div class="stats-grid">
-                                        <div class="stat-group timing">
-                                            <div class="stat-group-header">
-                                                <i class="fas fa-stopwatch"></i>
-                                                <span>Timing (per frame)</span>
-                                            </div>
-                                            <div class="stat-item">
-                                                <div class="stat-bar">
-                                                    <div class="stat-fill physics" style="width: 0%"></div>
-                                                </div>
-                                                <div class="stat-info">
-                                                    <span class="stat-label">Physics</span>
-                                                    <span id="performance-physics-time" class="stat-value">0.0 ms</span>
-                                                </div>
-                                            </div>
-                                            <div class="stat-item">
-                                                <div class="stat-bar">
-                                                    <div class="stat-fill forces" style="width: 0%"></div>
-                                                </div>
-                                                <div class="stat-info">
-                                                    <span class="stat-label">Force Calc</span>
-                                                    <span id="performance-force-time" class="stat-value">0.0 ms</span>
-                                                </div>
-                                            </div>
-                                            <div class="stat-item">
-                                                <div class="stat-bar">
-                                                    <div class="stat-fill integration" style="width: 0%"></div>
-                                                </div>
-                                                <div class="stat-info">
-                                                    <span class="stat-label">Integration</span>
-                                                    <span id="performance-integration-time" class="stat-value">0.0 ms</span>
-                                                </div>
-                                            </div>
+                                    <div class="timing-item">
+                                        <span class="timing-label">Force Calc:</span>
+                                        <span id="performance-force-time" class="timing-value">0.0 ms</span>
+                                        <div class="timing-bar">
+                                            <div class="timing-fill forces" style="width: 0%"></div>
                                         </div>
-                                        
-                                        <div class="stat-group system">
-                                            <div class="stat-group-header">
-                                                <i class="fas fa-info-circle"></i>
-                                                <span>System Info</span>
-                                            </div>
-                                            <div class="stat-item simple">
-                                                <span class="stat-label">Bodies:</span>
-                                                <span id="performance-body-count" class="stat-value highlight">0</span>
-                                            </div>
-                                            <div class="stat-item simple">
-                                                <span class="stat-label">Method:</span>
-                                                <span id="performance-current-method" class="stat-value">Verlet/Naive</span>
-                                            </div>
-                                            <div class="stat-item simple">
-                                                <span class="stat-label">Compute:</span>
-                                                <span id="performance-compute-mode" class="stat-value">CPU</span>
-                                            </div>
+                                    </div>
+                                    <div class="timing-item">
+                                        <span class="timing-label">Integration:</span>
+                                        <span id="performance-integration-time" class="timing-value">0.0 ms</span>
+                                        <div class="timing-bar">
+                                            <div class="timing-fill integration" style="width: 0%"></div>
                                         </div>
                                     </div>
                                 </div>
