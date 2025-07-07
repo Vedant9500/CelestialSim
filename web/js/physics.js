@@ -148,20 +148,17 @@ class PhysicsEngine {
             
             // Only do CPU integration if not using GPU physics
             if (!this.shouldUseGPUPhysics(bodies.length)) {
-                // Set the integration method on the integrator
-                this.integrator.setMethod(this.integrationMethod);
-                
-                // Use the unified integration interface
-                this.integrator.integrate(bodies, currentTimeStep, (bodies) => {
-                    if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
-                        this.calculateForcesBarnesHut(bodies);
-                    } else {
-                        this.calculateForcesNaive(bodies);
-                    }
-                });
-            } else {
-                // GPU physics fallback
-                this.updateBodies(bodies, currentTimeStep);
+                if (this.integrationMethod === 'rk4') {
+                    this.integrator.integrateRK4(bodies, currentTimeStep, (bodies) => {
+                        if (this.forceCalculationMethod === 'barnes-hut' && bodies.length > 5) {
+                            this.calculateForcesBarnesHut(bodies);
+                        } else {
+                            this.calculateForcesNaive(bodies);
+                        }
+                    });
+                } else {
+                    this.updateBodies(bodies, currentTimeStep);
+                }
             }
             
             totalIntegrationTime += performance.now() - integrationStart;

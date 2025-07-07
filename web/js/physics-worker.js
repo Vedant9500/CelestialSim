@@ -108,15 +108,19 @@ class PhysicsWorker {
             this.calculateForcesNaive(bodies);
         }
         
-        // Update positions using the integrator
-        this.integrator.setMethod(config.integrationMethod);
-        this.integrator.integrate(bodies, deltaTime, (bodies) => {
-            if (config.forceMethod === 'barnes-hut' && bodies.length > 8) {
-                this.calculateForcesBarnesHut(bodies);
-            } else {
-                this.calculateForcesNaive(bodies);
-            }
-        });
+        // Update positions using RK4 integrator
+        if (config.integrationMethod === 'rk4') {
+            this.integrator.integrateRK4(bodies, deltaTime, (bodies) => {
+                if (config.forceMethod === 'barnes-hut' && bodies.length > 8) {
+                    this.calculateForcesBarnesHut(bodies);
+                } else {
+                    this.calculateForcesNaive(bodies);
+                }
+            });
+        } else {
+            // Fallback to simple Verlet integration
+            bodies.forEach(body => body.update(deltaTime));
+        }
         
         // Calculate energy
         const energy = this.calculateTotalEnergy(bodies);

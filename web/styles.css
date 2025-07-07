@@ -594,7 +594,17 @@ body {
     gap: 0.4rem;
 }
 
-
+/* Content Sections */
+.energy-content,
+.performance-content,
+.reference-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0.75rem;
+    height: 100%;
+    overflow-y: auto;
+}
 
 /* Enhanced Panel Sections */
 .panel-section {
@@ -2037,281 +2047,532 @@ body {
     font-weight: 500;
 }
 
-/* Consistent Section Subtitle */
-.section-subtitle {
-    font-size: 0.75rem;
-    color: #aaaaaa;
-    margin-bottom: 1rem;
-    opacity: 0.8;
+/* Enhanced Units Card */
+.units-card {
+    margin-bottom: 2rem;
 }
 
-/* Energy Tab Styles */
-.energy-values {
+.scale-card-header {
     display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
 }
 
-.energy-item {
+.header-content {
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    padding: 0.8rem;
-    background: rgba(255,255,255,0.02);
-    border-radius: 6px;
-    border-left: 3px solid transparent;
-    transition: all 0.3s ease;
+    color: #64ffda;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
-.energy-item.kinetic { border-left-color: #ff6b6b; }
-.energy-item.potential { border-left-color: #ffd43b; }
-.energy-item.total { border-left-color: #64ffda; }
-
-.energy-item:hover {
-    background: rgba(255,255,255,0.04);
+.header-content i {
+    font-size: 1rem;
+    padding: 0.5rem;
+    background: rgba(100, 255, 218, 0.15);
+    border-radius: 8px;
 }
 
-.energy-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    flex-shrink: 0;
+.header-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.energy-item.kinetic .energy-icon {
-    background: linear-gradient(135deg, #ff6b6b, #fa5252);
-    color: #ffffff;
+.header-badge.current {
+    background: linear-gradient(135deg, #64ffda, #4ecdc4);
+    color: #000000;
 }
 
-.energy-item.potential .energy-icon {
+.header-badge.solar {
     background: linear-gradient(135deg, #ffd43b, #ff922b);
     color: #000000;
 }
 
-.energy-item.total .energy-icon {
-    background: linear-gradient(135deg, #64ffda, #4ecdc4);
-    color: #000000;
-}
-
-.energy-info {
-    flex: 1;
-}
-
-.energy-label {
-    display: block;
-    font-size: 0.8rem;
+.header-badge.cosmic {
+    background: linear-gradient(135deg, #bb86fc, #9c27b0);
     color: #ffffff;
-    margin-bottom: 0.2rem;
 }
 
-.energy-value {
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #64ffda;
+.header-badge.reference {
+    background: linear-gradient(135deg, #ff6b6b, #ff8787);
+    color: #ffffff;
 }
 
-.energy-stats {
+/* Units Grid */
+.units-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
 }
 
-.energy-stat {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(100,255,218,0.1);
-}
-
-.energy-stat:last-child,
-.energy-stat:nth-last-child(2) {
-    border-bottom: none;
-}
-
-.stat-label {
-    font-size: 0.75rem;
-    color: #aaaaaa;
-}
-
-.stat-value {
-    font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #ffffff;
-}
-
-.energy-graph {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    background: rgba(255,255,255,0.02);
-    border-radius: 6px;
-    border: 1px solid rgba(100,255,218,0.1);
-}
-
-/* Performance Tab Styles */
-.performance-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
-}
-
-.perf-stat-item {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.8rem;
-    background: rgba(255,255,255,0.02);
-    border-radius: 6px;
-    border-left: 3px solid #64ffda;
-    transition: all 0.3s ease;
-}
-
-.perf-stat-item:hover {
-    background: rgba(255,255,255,0.04);
-}
-
-.perf-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-    background: linear-gradient(135deg, #64ffda, #4ecdc4);
-    color: #000000;
-}
-
-.perf-info {
-    flex: 1;
-}
-
-.perf-label {
-    display: block;
-    font-size: 0.8rem;
-    color: #ffffff;
-    margin-bottom: 0.2rem;
-}
-
-.perf-value {
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #64ffda;
-}
-
-.compute-toggle-group {
-    margin-bottom: 1rem;
-}
-
-.toggle-label {
-    display: block;
-    font-size: 0.8rem;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
-}
-
-.compute-info {
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    color: #aaaaaa;
-}
-
-.timing-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-}
-
-.timing-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    padding: 0.6rem;
-    background: rgba(255,255,255,0.02);
-    border-radius: 6px;
-}
-
-.timing-item > div:first-child {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.timing-label {
-    font-size: 0.75rem;
-    color: #ffffff;
-}
-
-.timing-value {
-    font-family: 'Courier New', monospace;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #64ffda;
-}
-
-.timing-bar {
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
+.unit-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(100, 255, 218, 0.15);
+    border-radius: 12px;
+    padding: 1.2rem;
+    transition: all 0.4s ease;
+    position: relative;
     overflow: hidden;
 }
 
-.timing-fill {
+.unit-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(100, 255, 218, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(100, 255, 218, 0.15);
+}
+
+.unit-visual {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.unit-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.unit-icon.distance {
+    background: linear-gradient(135deg, #ff6b6b, #fa5252);
+    color: #ffffff;
+}
+
+.unit-icon.mass {
+    background: linear-gradient(135deg, #ffd43b, #ff922b);
+    color: #000000;
+}
+
+.unit-icon.time {
+    background: linear-gradient(135deg, #64ffda, #4ecdc4);
+    color: #000000;
+}
+
+.unit-icon.velocity {
+    background: linear-gradient(135deg, #bb86fc, #9c27b0);
+    color: #ffffff;
+}
+
+.unit-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bar-fill {
     height: 100%;
-    transition: width 0.3s ease;
+    border-radius: 10px;
+    position: relative;
+    width: 100%;
+    animation: barFill 2s ease-out;
+}
+
+.distance-fill {
+    background: linear-gradient(90deg, #ff6b6b, #fa5252);
+}
+
+.mass-fill {
+    background: linear-gradient(90deg, #ffd43b, #ff922b);
+}
+
+.time-fill {
+    background: linear-gradient(90deg, #64ffda, #4ecdc4);
+}
+
+.velocity-fill {
+    background: linear-gradient(90deg, #bb86fc, #9c27b0);
+}
+
+@keyframes barFill {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+.bar-spark {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 2px;
+    animation: spark 2s ease-out infinite;
 }
 
-.timing-fill.physics { background: #ff6b6b; }
-.timing-fill.forces { background: #ffd43b; }
-.timing-fill.integration { background: #64ffda; }
-
-/* Tools Tab Styles */
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 0.8rem;
+@keyframes spark {
+    0%, 90% { opacity: 0; }
+    95% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-.tool-btn {
+.unit-info {
     display: flex;
     flex-direction: column;
+    gap: 0.3rem;
+}
+
+.unit-name {
+    font-size: 0.8rem;
+    color: #aaaaaa;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.unit-value {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.unit-desc {
+    font-size: 0.7rem;
+    color: #888888;
+    font-style: italic;
+}
+
+/* Improved Solar System Visualization */
+.solar-system-visual {
+    position: relative;
+    background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+    border-radius: 15px;
+    padding: 1rem;
+    min-height: 280px;
+}
+
+.orbital-rings {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sun-icon {
+    font-size: 16px;
+    color: #ffd700;
+    text-shadow: 0 0 8px #ffd700;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: sunPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes sunPulse {
+    0% { text-shadow: 0 0 8px #ffd700; }
+    100% { text-shadow: 0 0 12px #ffd700, 0 0 16px #ffd700; }
+}
+
+.orbit-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.orbit-line {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid rgba(100, 255, 218, 0.15);
+    position: absolute;
+}
+
+/* Orbit Sizes - Proportional to actual distances */
+.mercury-ring { width: 40px; height: 40px; }
+.venus-ring { width: 60px; height: 60px; }
+.earth-ring { width: 80px; height: 80px; border-color: rgba(64, 224, 255, 0.4); }
+.mars-ring { width: 100px; height: 100px; }
+.jupiter-ring { width: 150px; height: 150px; }
+.saturn-ring { width: 180px; height: 180px; }
+.neptune-ring { width: 240px; height: 240px; }
+
+.planet-marker {
+    position: absolute;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.planet-marker:hover {
+    transform: scale(1.3);
+}
+
+.planet-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+}
+
+.planet-label {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.planet-label span {
+    display: block;
+    font-size: 0.6rem;
+    color: #aaaaaa;
+    text-align: center;
+}
+
+.planet-marker:hover .planet-label {
+    opacity: 1;
+}
+
+/* Planet Colors - Based on actual planet appearances */
+.mercury .planet-dot { background: #8c7853; }
+.venus .planet-dot { background: #ffc649; }
+.earth .planet-dot { background: #6b93d6; box-shadow: 0 0 4px #6b93d6; }
+.mars .planet-dot { background: #c1440e; }
+.jupiter .planet-dot { background: #d8ca9d; width: 10px; height: 10px; }
+.saturn .planet-dot { background: #fad5a5; width: 9px; height: 9px; }
+.neptune .planet-dot { background: #4b70dd; }
+
+/* Planet Positions on Orbits */
+.mercury-ring .planet-marker { left: calc(100% - 6px); }
+.venus-ring .planet-marker { left: calc(100% - 6px); }
+.earth-ring .planet-marker { left: calc(100% - 6px); }
+.mars-ring .planet-marker { left: calc(100% - 6px); }
+.jupiter-ring .planet-marker { left: calc(100% - 6px); }
+.saturn-ring .planet-marker { left: calc(100% - 6px); }
+.neptune-ring .planet-marker { left: calc(100% - 6px); }
+
+.orbit-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.legend-item {
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 1rem 0.8rem;
+    font-size: 0.75rem;
+    color: #aaaaaa;
+}
+
+.legend-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.legend-color.inner { background: #6b93d6; }
+.legend-color.outer { background: #d8ca9d; }
+
+/* Scale Reference Panel - Functional Unit Converter */
+.scale-settings-card, .converter-card, .reference-card {
     background: rgba(255,255,255,0.02);
     border: 1px solid rgba(100,255,218,0.1);
     border-radius: 8px;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    font-size: 0.8rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
 }
 
-.tool-btn:hover {
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1rem;
     background: rgba(100,255,218,0.05);
-    border-color: rgba(100,255,218,0.3);
-    transform: translateY(-2px);
-}
-
-.tool-btn i {
-    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(100,255,218,0.1);
+    font-size: 0.85rem;
+    font-weight: 600;
     color: #64ffda;
 }
 
-.tool-btn span {
-    font-weight: 500;
+.card-header i {
+    font-size: 0.8rem;
+}
+
+/* Scale Settings */
+.scale-grid {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.scale-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.scale-item label {
+    font-size: 0.75rem;
+    color: #aaaaaa;
+    font-weight: 600;
+}
+
+.scale-item select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(100,255,218,0.2);
+    border-radius: 6px;
+    padding: 0.5rem;
+    color: #ffffff;
+    font-size: 0.8rem;
+    outline: none;
+}
+
+.scale-item select:focus {
+    border-color: #64ffda;
+    box-shadow: 0 0 0 2px rgba(100,255,218,0.2);
+}
+
+.current-value {
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: #64ffda;
+    background: rgba(100,255,218,0.1);
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+    border-left: 3px solid #64ffda;
+}
+
+/* Unit Converter */
+.converter-section {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid rgba(100,255,218,0.05);
+}
+
+.converter-section:last-child {
+    border-bottom: none;
+}
+
+.converter-section h4 {
+    margin: 0 0 0.6rem 0;
+    font-size: 0.8rem;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.conversion-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.conversion-row input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(100,255,218,0.2);
+    border-radius: 6px;
+    padding: 0.5rem;
+    color: #ffffff;
+    font-size: 0.8rem;
+    outline: none;
+}
+
+.conversion-row input:focus {
+    border-color: #64ffda;
+    box-shadow: 0 0 0 2px rgba(100,255,218,0.2);
+}
+
+.conversion-row select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(100,255,218,0.2);
+    border-radius: 6px;
+    padding: 0.5rem;
+    color: #ffffff;
+    font-size: 0.75rem;
+    outline: none;
+    min-width: 80px;
+}
+
+.conversion-row select:focus {
+    border-color: #64ffda;
+}
+
+.conversion-row span {
+    color: #64ffda;
+    font-weight: 600;
+    text-align: center;
+}
+
+.conversion-row span:not(:nth-child(3)) {
+    font-family: 'Courier New', monospace;
+    background: rgba(100,255,218,0.1);
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(100,255,218,0.2);
+}
+
+/* Quick Reference */
+.reference-grid {
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.ref-section h5 {
+    margin: 0 0 0.6rem 0;
+    font-size: 0.8rem;
+    color: #64ffda;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(100,255,218,0.2);
+    padding-bottom: 0.3rem;
+}
+
+.ref-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    font-size: 0.75rem;
+    color: #cccccc;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.ref-item:last-child {
+    border-bottom: none;
+}
+
+.ref-item span {
+    font-family: 'Courier New', monospace;
+    color: #ffffff;
+    font-weight: 600;
 }
