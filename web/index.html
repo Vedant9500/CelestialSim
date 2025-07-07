@@ -649,9 +649,10 @@
                                 <div class="setting-group">
                                     <label for="physics-method">Integration Method:</label>
                                     <select id="physics-method" class="setting-select">
+                                        <option value="rk4">Runge-Kutta 4 (Default)</option>
+                                        <option value="adaptive-rk4">Adaptive RK4</option>
                                         <option value="verlet">Verlet Integration</option>
-                                        <option value="rk4">Runge-Kutta 4</option>
-                                        <option value="euler">Euler Method</option>
+                                        <option value="leapfrog">Leapfrog</option>
                                     </select>
                                 </div>
 

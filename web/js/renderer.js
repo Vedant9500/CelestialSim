@@ -449,12 +449,22 @@ class Renderer {
     }
 
     drawBodyCount(count) {
-        document.getElementById('body-count').textContent = count.toString();
+        const bodyCountElement = document.getElementById('body-count-display');
+        if (bodyCountElement) {
+            bodyCountElement.textContent = count.toString();
+        }
     }
 
     drawEnergyInfo(physicsEngine) {
-        document.getElementById('kinetic-energy').textContent = physicsEngine.totalKineticEnergy.toFixed(1);
-        document.getElementById('potential-energy').textContent = physicsEngine.totalPotentialEnergy.toFixed(1);
+        const kineticElement = document.getElementById('energy-kinetic');
+        const potentialElement = document.getElementById('energy-potential');
+        
+        if (kineticElement) {
+            kineticElement.textContent = physicsEngine.totalKineticEnergy.toFixed(1);
+        }
+        if (potentialElement) {
+            potentialElement.textContent = physicsEngine.totalPotentialEnergy.toFixed(1);
+        }
     }
 
     // Camera controls

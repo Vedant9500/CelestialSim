@@ -6,6 +6,62 @@
 class Integrator {
     constructor() {
         this.method = 'rk4'; // default to RK4
+        this.previousAccelerations = null; // for Verlet method
+    }
+
+    /**
+     * Main integration method that selects the appropriate integrator
+     */
+    integrate(bodies, dt, forceCalculator) {
+        switch (this.method) {
+            case 'rk4':
+                return this.integrateRK4(bodies, dt, forceCalculator);
+            case 'adaptive-rk4':
+                return this.integrateAdaptiveRK4(bodies, dt, forceCalculator);
+            case 'leapfrog':
+                return this.integrateLeapfrog(bodies, dt, forceCalculator);
+            case 'verlet':
+                const newAccelerations = this.integrateVerlet(bodies, dt, forceCalculator, this.previousAccelerations);
+                this.previousAccelerations = newAccelerations;
+                return dt;
+            default:
+                console.warn(`Unknown integration method: ${this.method}, using RK4`);
+                return this.integrateRK4(bodies, dt, forceCalculator);
+        }
+    }
+
+    /**
+     * Set the integration method
+     */
+    setMethod(method) {
+        if (['rk4', 'adaptive-rk4', 'leapfrog', 'verlet'].includes(method)) {
+            this.method = method;
+            // Reset state for new method
+            this.previousAccelerations = null;
+        } else {
+            console.warn(`Invalid integration method: ${method}`);
+        }
+    }
+
+    /**
+     * Update body properties consistently across all integrators
+     */
+    updateBodyProperties(body, dt) {
+        // Update kinetic energy
+        body.kineticEnergy = 0.5 * body.mass * body.velocity.magnitudeSquared();
+        
+        // Add to trail (if trail system is active)
+        if (typeof body.addToTrail === 'function') {
+            body.addToTrail();
+        }
+        
+        // Update visual effects
+        if (typeof body.updateVisualEffects === 'function') {
+            body.updateVisualEffects(dt);
+        }
+        
+        // Reset force for next iteration
+        body.resetForce();
     }
 
     /**
@@ -86,12 +142,11 @@ class Integrator {
             body.position = initial.position.add(pos_update);
             body.velocity = initial.velocity.add(vel_update);
             
-            // Update body properties that are normally handled in update methods
-            body.kineticEnergy = 0.5 * body.mass * body.velocity.magnitudeSquared();
-            body.addToTrail();
-            body.updateVisualEffects(dt);
-            body.resetForce();
+            // Update body properties consistently
+            this.updateBodyProperties(body, dt);
         }
+        
+        return dt;
     }
 
     /**
@@ -182,6 +237,7 @@ class Integrator {
 
         // Update positions by full timestep
         for (const body of bodies) {
+            body.lastPosition = body.position.clone();
             body.position = body.position.add(body.velocity.clone().multiply(dt));
         }
 
@@ -193,7 +249,12 @@ class Integrator {
         for (const body of bodies) {
             const acceleration = body.force.clone().divide(body.mass);
             body.velocity = body.velocity.add(acceleration.multiply(dt * 0.5));
+            
+            // Update body properties consistently
+            this.updateBodyProperties(body, dt);
         }
+        
+        return dt;
     }
 
     /**
@@ -211,6 +272,9 @@ class Integrator {
         for (let i = 0; i < bodies.length; i++) {
             const body = bodies[i];
             const a = accelerations[i];
+            
+            // Store last position
+            body.lastPosition = body.position.clone();
             
             // Update position: x(t+dt) = x(t) + v(t)*dt + 0.5*a(t)*dt^2
             body.position = body.position.add(
@@ -233,6 +297,9 @@ class Integrator {
             const body = bodies[i];
             const avgAcceleration = accelerations[i].add(newAccelerations[i]).multiply(0.5);
             body.velocity = body.velocity.add(avgAcceleration.multiply(dt));
+            
+            // Update body properties consistently
+            this.updateBodyProperties(body, dt);
         }
 
         return newAccelerations; // Return for next iteration

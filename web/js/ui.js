@@ -557,8 +557,8 @@ class UIManager {
             physicsTime: this.getElement('performance-physics-time'),
             forceTime: this.getElement('performance-force-time'),
             integrationTime: this.getElement('performance-integration-time'),
-            bodyCount: this.getElement('performance-body-count'),
             currentMethod: this.getElement('performance-current-method'),
+            computeMode: this.getElement('performance-compute-mode'),
             physicsTimeElement: this.getElement('physics-time'),
             forceTimeElement: this.getElement('force-time'),
             integrationTimeElement: this.getElement('integration-time')
@@ -588,14 +588,13 @@ class UIManager {
         }
         
         // Update other stats
-        if (elements.bodyCount) {
-            const bodyCount = typeof stats.bodyCount === 'number' ? stats.bodyCount : 0;
-            elements.bodyCount.textContent = bodyCount;
-        }
         if (elements.currentMethod) {
             const method = stats.method || 'N/A';
             const forceMethod = stats.forceMethod || 'N/A';
             elements.currentMethod.textContent = `${method}/${forceMethod}`;
+        }
+        if (elements.computeMode) {
+            elements.computeMode.textContent = stats.computeMode || 'CPU';
         }
         
         // Update performance tab elements (avoiding code duplication)
@@ -1442,21 +1441,10 @@ class UIManager {
     }
     
     updateInfoPanel(info) {
-        // Update View tab system info
-        const bodyCountElement = document.getElementById('body-count');
-        if (bodyCountElement) {
-            bodyCountElement.textContent = info.bodyCount || 0;
-        }
-        
         // Update body count in Bodies tab
         const bodyCountDisplay = this.getElement('body-count-display');
         if (bodyCountDisplay) {
             bodyCountDisplay.textContent = info.bodyCount || 0;
-        }
-        
-        const totalMassElement = document.getElementById('total-mass');
-        if (totalMassElement) {
-            totalMassElement.textContent = (info.totalMass || 0).toFixed(1);
         }
         
         const kineticEnergyElement = document.getElementById('kinetic-energy');
@@ -1570,39 +1558,8 @@ class UIManager {
     }
     
     updateScaleDashboard(simulationData) {
-        const { bodies = [], timeElapsed = 0, systemExtent = null } = simulationData;
-        
-        // Update body count
-        const bodyCountEl = document.getElementById('current-bodies-count');
-        if (bodyCountEl) {
-            bodyCountEl.textContent = bodies.length.toString();
-        }
-        
-        // Update system size
-        const systemExtentEl = document.getElementById('simulation-extent');
-        if (systemExtentEl && systemExtent) {
-            if (systemExtent < 1) {
-                systemExtentEl.textContent = `${(systemExtent * 1000).toFixed(1)} km`;
-            } else if (systemExtent < 100) {
-                systemExtentEl.textContent = `${systemExtent.toFixed(2)} AU`;
-            } else {
-                systemExtentEl.textContent = `${(systemExtent / 63241).toFixed(2)} ly`;
-            }
-        }
-        
-        // Update time elapsed
-        const timeElapsedEl = document.getElementById('time-elapsed');
-        if (timeElapsedEl) {
-            if (timeElapsed < 0.1) {
-                timeElapsedEl.textContent = `${(timeElapsed * 365.25).toFixed(1)} days`;
-            } else if (timeElapsed < 1000) {
-                timeElapsedEl.textContent = `${timeElapsed.toFixed(2)} yr`;
-            } else if (timeElapsed < 1000000) {
-                timeElapsedEl.textContent = `${(timeElapsed / 1000).toFixed(2)} kyr`;
-            } else {
-                timeElapsedEl.textContent = `${(timeElapsed / 1000000).toFixed(2)} Myr`;
-            }
-        }
+        // Scale dashboard elements have been removed in favor of unit converter
+        // This function is kept for compatibility but does nothing
     }
     
     updateScaleUnits(simulationData) {
