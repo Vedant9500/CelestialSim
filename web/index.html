@@ -433,152 +433,176 @@
 
                         <!-- Reference Tab -->
                         <div class="tab-panel" id="reference-tab">
-                            <div class="tab-header">
+                            <div class="tab-header compact">
                                 <h3><i class="fas fa-ruler-combined"></i> Scale Reference</h3>
-                                <p>Unit conversion and scaling for accurate simulations</p>
+                                <p>Cosmic scale context for your simulation</p>
                             </div>
                             
                             <div class="tab-content">
-                                <!-- Current Scale Settings -->
-                                <div class="scale-settings-card">
-                                    <div class="card-header">
-                                        <i class="fas fa-cog"></i>
-                                        <span>Current Scale Settings</span>
-                                    </div>
-                                    <div class="scale-grid">
-                                        <div class="scale-item">
-                                            <label>Distance Unit:</label>
-                                            <select id="distance-unit-select">
-                                                <option value="au">Astronomical Units (AU)</option>
-                                                <option value="km">Kilometers</option>
-                                                <option value="m">Meters</option>
-                                                <option value="ly">Light Years</option>
-                                                <option value="pc">Parsecs</option>
-                                            </select>
-                                            <span class="current-value" id="distance-scale-display">1 AU = 149.6M km</span>
+                                <!-- Compact Dashboard -->
+                                <div class="compact-dashboard">
+                                    <div class="stat-row">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Bodies</span>
+                                            <span class="stat-value" id="current-bodies-count">0</span>
                                         </div>
-                                        <div class="scale-item">
-                                            <label>Mass Unit:</label>
-                                            <select id="mass-unit-select">
-                                                <option value="solar">Solar Masses (M☉)</option>
-                                                <option value="earth">Earth Masses</option>
-                                                <option value="jupiter">Jupiter Masses</option>
-                                                <option value="kg">Kilograms</option>
-                                            </select>
-                                            <span class="current-value" id="mass-scale-display">1 M☉ = 1.989×10³⁰ kg</span>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Size</span>
+                                            <span class="stat-value" id="simulation-extent">N/A</span>
                                         </div>
-                                        <div class="scale-item">
-                                            <label>Time Unit:</label>
-                                            <select id="time-unit-select">
-                                                <option value="year">Years</option>
-                                                <option value="day">Days</option>
-                                                <option value="hour">Hours</option>
-                                                <option value="second">Seconds</option>
-                                            </select>
-                                            <span class="current-value" id="time-scale-display">1 year = 365.25 days</span>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Time</span>
+                                            <span class="stat-value" id="time-elapsed">0.0 yr</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Unit Converter -->
-                                <div class="converter-card">
-                                    <div class="card-header">
-                                        <i class="fas fa-exchange-alt"></i>
-                                        <span>Unit Converter</span>
+                                <!-- Compact Units -->
+                                <div class="compact-card">
+                                    <div class="compact-header">
+                                        <i class="fas fa-atom"></i>
+                                        <span>Units</span>
+                                        <span class="badge active">CURRENT</span>
                                     </div>
-                                    <div class="converter-section">
-                                        <h4>Distance Conversion</h4>
-                                        <div class="conversion-row">
-                                            <input type="number" id="distance-input" placeholder="Enter value" step="any">
-                                            <select id="distance-from-unit">
-                                                <option value="au">AU</option>
-                                                <option value="km">km</option>
-                                                <option value="m">m</option>
-                                                <option value="ly">ly</option>
-                                                <option value="pc">pc</option>
-                                            </select>
-                                            <span>=</span>
-                                            <span id="distance-result">0</span>
-                                            <select id="distance-to-unit">
-                                                <option value="km">km</option>
-                                                <option value="au">AU</option>
-                                                <option value="m">m</option>
-                                                <option value="ly">ly</option>
-                                                <option value="pc">pc</option>
-                                            </select>
+                                    <div class="units-compact">
+                                        <div class="unit-row">
+                                            <span class="unit-type">Distance</span>
+                                            <span class="unit-value" id="distance-scale">1.00 AU</span>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="converter-section">
-                                        <h4>Mass Conversion</h4>
-                                        <div class="conversion-row">
-                                            <input type="number" id="mass-input" placeholder="Enter value" step="any">
-                                            <select id="mass-from-unit">
-                                                <option value="solar">M☉</option>
-                                                <option value="earth">M⊕</option>
-                                                <option value="jupiter">M♃</option>
-                                                <option value="kg">kg</option>
-                                            </select>
-                                            <span>=</span>
-                                            <span id="mass-result">0</span>
-                                            <select id="mass-to-unit">
-                                                <option value="kg">kg</option>
-                                                <option value="solar">M☉</option>
-                                                <option value="earth">M⊕</option>
-                                                <option value="jupiter">M♃</option>
-                                            </select>
+                                        <div class="unit-row">
+                                            <span class="unit-type">Mass</span>
+                                            <span class="unit-value" id="mass-scale">1.00 M☉</span>
                                         </div>
-                                    </div>
-
-                                    <div class="converter-section">
-                                        <h4>Velocity Conversion</h4>
-                                        <div class="conversion-row">
-                                            <input type="number" id="velocity-input" placeholder="Enter value" step="any">
-                                            <select id="velocity-from-unit">
-                                                <option value="au_year">AU/year</option>
-                                                <option value="km_s">km/s</option>
-                                                <option value="m_s">m/s</option>
-                                                <option value="km_h">km/h</option>
-                                            </select>
-                                            <span>=</span>
-                                            <span id="velocity-result">0</span>
-                                            <select id="velocity-to-unit">
-                                                <option value="km_s">km/s</option>
-                                                <option value="au_year">AU/year</option>
-                                                <option value="m_s">m/s</option>
-                                                <option value="km_h">km/h</option>
-                                            </select>
+                                        <div class="unit-row">
+                                            <span class="unit-type">Time</span>
+                                            <span class="unit-value" id="time-scale-ref">1.00 years</span>
+                                        </div>
+                                        <div class="unit-row">
+                                            <span class="unit-type">Velocity</span>
+                                            <span class="unit-value" id="velocity-scale">29.8 km/s</span>
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Quick Reference -->
-                                <div class="reference-card">
-                                    <div class="card-header">
-                                        <i class="fas fa-book"></i>
-                                        <span>Quick Reference</span>
+                                
+                                <!-- Compact Solar System -->
+                                <div class="compact-card">
+                                    <div class="compact-header">
+                                        <i class="fas fa-sun"></i>
+                                        <span>Solar System</span>
+                                        <span class="badge local">LOCAL</span>
                                     </div>
-                                    <div class="reference-grid">
-                                        <div class="ref-section">
-                                            <h5>Common Distances</h5>
-                                            <div class="ref-item">Earth-Moon: <span>384,400 km</span></div>
-                                            <div class="ref-item">Earth-Sun: <span>1 AU (149.6M km)</span></div>
-                                            <div class="ref-item">Sun-Jupiter: <span>5.2 AU</span></div>
-                                            <div class="ref-item">Sun-Neptune: <span>30.1 AU</span></div>
+                                    <div class="solar-compact">
+                                        <div class="solar-grid">
+                                            <div class="planet-item mercury">
+                                                <div class="planet-dot"></div>
+                                                <span>Mercury<br><small>0.39 AU</small></span>
+                                            </div>
+                                            <div class="planet-item venus">
+                                                <div class="planet-dot"></div>
+                                                <span>Venus<br><small>0.72 AU</small></span>
+                                            </div>
+                                            <div class="planet-item earth">
+                                                <div class="planet-dot"></div>
+                                                <span>Earth<br><small>1.0 AU</small></span>
+                                            </div>
+                                            <div class="planet-item mars">
+                                                <div class="planet-dot"></div>
+                                                <span>Mars<br><small>1.52 AU</small></span>
+                                            </div>
+                                            <div class="planet-item jupiter">
+                                                <div class="planet-dot"></div>
+                                                <span>Jupiter<br><small>5.2 AU</small></span>
+                                            </div>
+                                            <div class="planet-item neptune">
+                                                <div class="planet-dot"></div>
+                                                <span>Neptune<br><small>30.1 AU</small></span>
+                                            </div>
                                         </div>
-                                        <div class="ref-section">
-                                            <h5>Common Masses</h5>
-                                            <div class="ref-item">Earth: <span>5.97×10²⁴ kg</span></div>
-                                            <div class="ref-item">Jupiter: <span>317.8 M⊕</span></div>
-                                            <div class="ref-item">Sun: <span>333,000 M⊕</span></div>
-                                            <div class="ref-item">Alpha Centauri A: <span>1.1 M☉</span></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Expandable: Scale Journey -->
+                                <div class="expandable-panel compact">
+                                    <button class="expandable-header compact" aria-expanded="false">
+                                        <span><i class="fas fa-rocket"></i> Scale Journey</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                    <div class="expandable-content" style="display:none;">
+                                        <div class="journey-compact">
+                                            <div class="journey-item local">
+                                                <div class="journey-icon"><i class="fas fa-home"></i></div>
+                                                <div class="journey-info">
+                                                    <strong>Local System</strong>
+                                                    <span class="journey-scale">1-100 AU</span>
+                                                    <small>Solar system neighborhood</small>
+                                                </div>
+                                            </div>
+                                            <div class="journey-item stellar">
+                                                <div class="journey-icon"><i class="fas fa-star"></i></div>
+                                                <div class="journey-info">
+                                                    <strong>Stellar</strong>
+                                                    <span class="journey-scale">10³-10⁶ AU</span>
+                                                    <small>Nearby star systems</small>
+                                                </div>
+                                            </div>
+                                            <div class="journey-item galactic">
+                                                <div class="journey-icon"><i class="fas fa-circle-notch"></i></div>
+                                                <div class="journey-info">
+                                                    <strong>Galactic</strong>
+                                                    <span class="journey-scale">10⁶-10¹⁰ AU</span>
+                                                    <small>Milky Way galaxy</small>
+                                                </div>
+                                            </div>
+                                            <div class="journey-item universal">
+                                                <div class="journey-icon"><i class="fas fa-infinity"></i></div>
+                                                <div class="journey-info">
+                                                    <strong>Universal</strong>
+                                                    <span class="journey-scale">10¹⁰+ AU</span>
+                                                    <small>Intergalactic distances</small>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="ref-section">
-                                            <h5>Common Velocities</h5>
-                                            <div class="ref-item">Earth orbit: <span>29.8 km/s</span></div>
-                                            <div class="ref-item">Jupiter orbit: <span>13.1 km/s</span></div>
-                                            <div class="ref-item">Escape velocity: <span>11.2 km/s</span></div>
-                                            <div class="ref-item">Solar escape: <span>42.1 km/s</span></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Expandable: Powers Reference -->
+                                <div class="expandable-panel compact">
+                                    <button class="expandable-header compact" aria-expanded="false">
+                                        <span><i class="fas fa-calculator"></i> Powers Guide</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                    <div class="expandable-content" style="display:none;">
+                                        <div class="powers-compact">
+                                            <div class="power-row" data-power="-6">
+                                                <span class="power-exp">10⁻⁶</span>
+                                                <span class="power-desc">Microscale</span>
+                                                <small>Earth diameter: 8.5×10⁻⁶ AU</small>
+                                            </div>
+                                            <div class="power-row" data-power="-3">
+                                                <span class="power-exp">10⁻³</span>
+                                                <span class="power-desc">Lunar</span>
+                                                <small>Earth-Moon: 2.6×10⁻³ AU</small>
+                                            </div>
+                                            <div class="power-row active" data-power="0">
+                                                <span class="power-exp">10⁰</span>
+                                                <span class="power-desc">Planetary</span>
+                                                <small>Earth-Sun: 1.0 AU</small>
+                                            </div>
+                                            <div class="power-row" data-power="3">
+                                                <span class="power-exp">10³</span>
+                                                <span class="power-desc">Heliosphere</span>
+                                                <small>Voyager: 1.6×10³ AU</small>
+                                            </div>
+                                            <div class="power-row" data-power="6">
+                                                <span class="power-exp">10⁶</span>
+                                                <span class="power-desc">Stellar</span>
+                                                <small>Nearest stars: ~10⁶ AU</small>
+                                            </div>
+                                            <div class="power-row" data-power="9">
+                                                <span class="power-exp">10⁹</span>
+                                                <span class="power-desc">Galactic</span>
+                                                <small>Milky Way: 6.3×10⁹ AU</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

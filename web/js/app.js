@@ -64,7 +64,7 @@ class NBodyApp {
         this.fpsUpdateTime = 0;
         this.currentFPS = 60;
         
-        this.useWebWorkers = false
+        this.useWebWorkers = false;
         this.physicsWorker = null;
         this.workerBusy = false;
         this.initialEnergy = null;
