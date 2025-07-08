@@ -254,9 +254,18 @@ class NBodyApp {
             // Update scale reference with current simulation data
             const simulationData = {
                 bodies: this.bodies,
-                timeElapsed: this.physics.simulationTime || 0,
+                canvas: this.canvas,
+                zoom: this.renderer.camera.zoom,
+                camera: this.renderer.camera,
                 systemExtent: this.calculateSystemExtent(),
-                averageVelocity: this.calculateAverageVelocity()
+                centerOfMass: this.calculateCenterOfMass(),
+                maxVelocity: this.calculateMaxVelocity(),
+                physics: {
+                    gravitationalConstant: 4 * Math.PI * Math.PI, // Standard G in AU³/(M☉·yr²)
+                    timeStep: this.physics.timeStep,
+                    collisionRadius: 0.001, // Default collision radius in AU
+                    softeningLength: 0.01   // Default softening length in AU
+                }
             };
             this.ui.updateScaleReference(simulationData);
             
@@ -1432,6 +1441,37 @@ class NBodyApp {
         });
         
         return totalSpeed / this.bodies.length;
+    }
+
+    calculateCenterOfMass() {
+        if (this.bodies.length === 0) return { x: 0, y: 0 };
+        
+        let totalMass = 0;
+        let weightedX = 0;
+        let weightedY = 0;
+        
+        this.bodies.forEach(body => {
+            totalMass += body.mass;
+            weightedX += body.x * body.mass;
+            weightedY += body.y * body.mass;
+        });
+        
+        return {
+            x: totalMass > 0 ? weightedX / totalMass : 0,
+            y: totalMass > 0 ? weightedY / totalMass : 0
+        };
+    }
+    
+    calculateMaxVelocity() {
+        if (this.bodies.length === 0) return 0;
+        
+        let maxSpeed = 0;
+        this.bodies.forEach(body => {
+            const speed = Math.sqrt(body.vx * body.vx + body.vy * body.vy);
+            maxSpeed = Math.max(maxSpeed, speed);
+        });
+        
+        return maxSpeed;
     }
 
     validateAndCleanBodies() {

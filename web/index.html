@@ -434,12 +434,12 @@
                         <!-- Reference Tab -->
                         <div class="tab-panel" id="reference-tab">
                             <div class="tab-header compact">
-                                <h3><i class="fas fa-ruler-combined"></i> Scale Reference</h3>
-                                <p>Cosmic scale context for your simulation</p>
+                                <h3><i class="fas fa-ruler-combined"></i> Simulation Reference</h3>
+                                <p>Units and scale context for this simulation</p>
                             </div>
                             
                             <div class="tab-content">
-                                <!-- Compact Dashboard -->
+                                <!-- Simulation Stats -->
                                 <div class="compact-dashboard">
                                     <div class="stat-row">
                                         <div class="stat-item">
@@ -447,161 +447,145 @@
                                             <span class="stat-value" id="current-bodies-count">0</span>
                                         </div>
                                         <div class="stat-item">
-                                            <span class="stat-label">Size</span>
-                                            <span class="stat-value" id="simulation-extent">N/A</span>
+                                            <span class="stat-label">Canvas Size</span>
+                                            <span class="stat-value" id="canvas-dimensions">0×0</span>
                                         </div>
                                         <div class="stat-item">
-                                            <span class="stat-label">Time</span>
-                                            <span class="stat-value" id="time-elapsed">0.0 yr</span>
+                                            <span class="stat-label">Zoom</span>
+                                            <span class="stat-value" id="current-zoom">100%</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Compact Units -->
+                                <!-- Simulation Units -->
                                 <div class="compact-card">
                                     <div class="compact-header">
-                                        <i class="fas fa-atom"></i>
-                                        <span>Units</span>
+                                        <i class="fas fa-calculator"></i>
+                                        <span>Simulation Units</span>
                                         <span class="badge active">CURRENT</span>
                                     </div>
                                     <div class="units-compact">
                                         <div class="unit-row">
-                                            <span class="unit-type">Distance</span>
-                                            <span class="unit-value" id="distance-scale">1.00 AU</span>
+                                            <span class="unit-type">1 Distance Unit</span>
+                                            <span class="unit-value" id="distance-unit-ref">1.00 AU</span>
                                         </div>
                                         <div class="unit-row">
-                                            <span class="unit-type">Mass</span>
-                                            <span class="unit-value" id="mass-scale">1.00 M☉</span>
+                                            <span class="unit-type">1 Mass Unit</span>
+                                            <span class="unit-value" id="mass-unit-ref">1.00 M☉</span>
                                         </div>
                                         <div class="unit-row">
-                                            <span class="unit-type">Time</span>
-                                            <span class="unit-value" id="time-scale-ref">1.00 years</span>
+                                            <span class="unit-type">1 Time Unit</span>
+                                            <span class="unit-value" id="time-unit-ref">1.00 years</span>
                                         </div>
                                         <div class="unit-row">
-                                            <span class="unit-type">Velocity</span>
-                                            <span class="unit-value" id="velocity-scale">29.8 km/s</span>
+                                            <span class="unit-type">1 Velocity Unit</span>
+                                            <span class="unit-value" id="velocity-unit-ref">29.8 km/s</span>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Compact Solar System -->
+                                <!-- Canvas Scale -->
                                 <div class="compact-card">
                                     <div class="compact-header">
-                                        <i class="fas fa-sun"></i>
-                                        <span>Solar System</span>
-                                        <span class="badge local">LOCAL</span>
+                                        <i class="fas fa-expand-arrows-alt"></i>
+                                        <span>Canvas Scale</span>
+                                        <span class="badge local">VISUAL</span>
                                     </div>
-                                    <div class="solar-compact">
-                                        <div class="solar-grid">
-                                            <div class="planet-item mercury">
-                                                <div class="planet-dot"></div>
-                                                <span>Mercury<br><small>0.39 AU</small></span>
+                                    <div class="scale-compact">
+                                        <div class="scale-row">
+                                            <span class="scale-label">1 pixel represents</span>
+                                            <span class="scale-value" id="pixel-scale">0.001 AU</span>
+                                        </div>
+                                        <div class="scale-row">
+                                            <span class="scale-label">Visible area</span>
+                                            <span class="scale-value" id="visible-area">±10 AU</span>
+                                        </div>
+                                        <div class="scale-row">
+                                            <span class="scale-label">Grid spacing</span>
+                                            <span class="scale-value" id="grid-spacing">1.0 AU</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Simulation Bounds -->
+                                <div class="compact-card">
+                                    <div class="compact-header">
+                                        <i class="fas fa-border-all"></i>
+                                        <span>Simulation Bounds</span>
+                                        <span class="badge info">LIMITS</span>
+                                    </div>
+                                    <div class="bounds-compact">
+                                        <div class="bounds-row">
+                                            <span class="bounds-label">System extent</span>
+                                            <span class="bounds-value" id="system-extent">0.0 AU</span>
+                                        </div>
+                                        <div class="bounds-row">
+                                            <span class="bounds-label">Center of mass</span>
+                                            <span class="bounds-value" id="center-of-mass">(0.0, 0.0)</span>
+                                        </div>
+                                        <div class="bounds-row">
+                                            <span class="bounds-label">Max velocity</span>
+                                            <span class="bounds-value" id="max-velocity">0.0 AU/yr</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Expandable: Physics Constants -->
+                                <div class="expandable-panel compact">
+                                    <button class="expandable-header compact" aria-expanded="false">
+                                        <span><i class="fas fa-atom"></i> Physics Constants</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                    <div class="expandable-content" style="display:none;">
+                                        <div class="physics-compact">
+                                            <div class="physics-row">
+                                                <span class="physics-label">Gravitational constant (G)</span>
+                                                <span class="physics-value" id="gravitational-constant">4π²</span>
+                                                <small>AU³/(M☉·yr²)</small>
                                             </div>
-                                            <div class="planet-item venus">
-                                                <div class="planet-dot"></div>
-                                                <span>Venus<br><small>0.72 AU</small></span>
+                                            <div class="physics-row">
+                                                <span class="physics-label">Time step (dt)</span>
+                                                <span class="physics-value" id="time-step">0.001</span>
+                                                <small>years</small>
                                             </div>
-                                            <div class="planet-item earth">
-                                                <div class="planet-dot"></div>
-                                                <span>Earth<br><small>1.0 AU</small></span>
+                                            <div class="physics-row">
+                                                <span class="physics-label">Collision radius</span>
+                                                <span class="physics-value" id="collision-radius">0.001</span>
+                                                <small>AU</small>
                                             </div>
-                                            <div class="planet-item mars">
-                                                <div class="planet-dot"></div>
-                                                <span>Mars<br><small>1.52 AU</small></span>
-                                            </div>
-                                            <div class="planet-item jupiter">
-                                                <div class="planet-dot"></div>
-                                                <span>Jupiter<br><small>5.2 AU</small></span>
-                                            </div>
-                                            <div class="planet-item neptune">
-                                                <div class="planet-dot"></div>
-                                                <span>Neptune<br><small>30.1 AU</small></span>
+                                            <div class="physics-row">
+                                                <span class="physics-label">Softening length</span>
+                                                <span class="physics-value" id="softening-length">0.01</span>
+                                                <small>AU</small>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Expandable: Scale Journey -->
+                                <!-- Expandable: Coordinate System -->
                                 <div class="expandable-panel compact">
                                     <button class="expandable-header compact" aria-expanded="false">
-                                        <span><i class="fas fa-rocket"></i> Scale Journey</span>
+                                        <span><i class="fas fa-compass"></i> Coordinate System</span>
                                         <i class="fas fa-chevron-down"></i>
                                     </button>
                                     <div class="expandable-content" style="display:none;">
-                                        <div class="journey-compact">
-                                            <div class="journey-item local">
-                                                <div class="journey-icon"><i class="fas fa-home"></i></div>
-                                                <div class="journey-info">
-                                                    <strong>Local System</strong>
-                                                    <span class="journey-scale">1-100 AU</span>
-                                                    <small>Solar system neighborhood</small>
+                                        <div class="coordinates-compact">
+                                            <div class="coord-info">
+                                                <div class="coord-item">
+                                                    <i class="fas fa-arrow-right coord-arrow x-axis"></i>
+                                                    <span><strong>X-axis:</strong> Right is positive</span>
+                                                </div>
+                                                <div class="coord-item">
+                                                    <i class="fas fa-arrow-up coord-arrow y-axis"></i>
+                                                    <span><strong>Y-axis:</strong> Up is positive</span>
+                                                </div>
+                                                <div class="coord-item">
+                                                    <i class="fas fa-bullseye coord-arrow origin"></i>
+                                                    <span><strong>Origin:</strong> Center of canvas</span>
                                                 </div>
                                             </div>
-                                            <div class="journey-item stellar">
-                                                <div class="journey-icon"><i class="fas fa-star"></i></div>
-                                                <div class="journey-info">
-                                                    <strong>Stellar</strong>
-                                                    <span class="journey-scale">10³-10⁶ AU</span>
-                                                    <small>Nearby star systems</small>
-                                                </div>
-                                            </div>
-                                            <div class="journey-item galactic">
-                                                <div class="journey-icon"><i class="fas fa-circle-notch"></i></div>
-                                                <div class="journey-info">
-                                                    <strong>Galactic</strong>
-                                                    <span class="journey-scale">10⁶-10¹⁰ AU</span>
-                                                    <small>Milky Way galaxy</small>
-                                                </div>
-                                            </div>
-                                            <div class="journey-item universal">
-                                                <div class="journey-icon"><i class="fas fa-infinity"></i></div>
-                                                <div class="journey-info">
-                                                    <strong>Universal</strong>
-                                                    <span class="journey-scale">10¹⁰+ AU</span>
-                                                    <small>Intergalactic distances</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Expandable: Powers Reference -->
-                                <div class="expandable-panel compact">
-                                    <button class="expandable-header compact" aria-expanded="false">
-                                        <span><i class="fas fa-calculator"></i> Powers Guide</span>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </button>
-                                    <div class="expandable-content" style="display:none;">
-                                        <div class="powers-compact">
-                                            <div class="power-row" data-power="-6">
-                                                <span class="power-exp">10⁻⁶</span>
-                                                <span class="power-desc">Microscale</span>
-                                                <small>Earth diameter: 8.5×10⁻⁶ AU</small>
-                                            </div>
-                                            <div class="power-row" data-power="-3">
-                                                <span class="power-exp">10⁻³</span>
-                                                <span class="power-desc">Lunar</span>
-                                                <small>Earth-Moon: 2.6×10⁻³ AU</small>
-                                            </div>
-                                            <div class="power-row active" data-power="0">
-                                                <span class="power-exp">10⁰</span>
-                                                <span class="power-desc">Planetary</span>
-                                                <small>Earth-Sun: 1.0 AU</small>
-                                            </div>
-                                            <div class="power-row" data-power="3">
-                                                <span class="power-exp">10³</span>
-                                                <span class="power-desc">Heliosphere</span>
-                                                <small>Voyager: 1.6×10³ AU</small>
-                                            </div>
-                                            <div class="power-row" data-power="6">
-                                                <span class="power-exp">10⁶</span>
-                                                <span class="power-desc">Stellar</span>
-                                                <small>Nearest stars: ~10⁶ AU</small>
-                                            </div>
-                                            <div class="power-row" data-power="9">
-                                                <span class="power-exp">10⁹</span>
-                                                <span class="power-desc">Galactic</span>
-                                                <small>Milky Way: 6.3×10⁹ AU</small>
+                                            <div class="coord-note">
+                                                <small><i class="fas fa-info-circle"></i> Standard Cartesian coordinate system with origin at canvas center</small>
                                             </div>
                                         </div>
                                     </div>

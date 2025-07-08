@@ -1557,18 +1557,21 @@ class UIManager {
             return;
         }
         
-        // Update dashboard stats
-        this.updateScaleDashboard(simulationData);
+        // Update simulation stats
+        this.updateSimulationStats(simulationData);
         
-        // Update unit values if needed
-        this.updateScaleUnits(simulationData);
+        // Update canvas scale info
+        this.updateCanvasScale(simulationData);
         
-        // Update planetary animations
-        this.updatePlanetaryAnimations();
+        // Update simulation bounds
+        this.updateSimulationBounds(simulationData);
+        
+        // Update physics constants
+        this.updatePhysicsConstants(simulationData);
     }
     
-    updateScaleDashboard(simulationData) {
-        const { bodies = [], timeElapsed = 0, systemExtent = null } = simulationData;
+    updateSimulationStats(simulationData) {
+        const { bodies = [], canvas = null, zoom = 1.0 } = simulationData;
         
         // Update body count
         const bodyCountEl = document.getElementById('current-bodies-count');
@@ -1576,30 +1579,134 @@ class UIManager {
             bodyCountEl.textContent = bodies.length.toString();
         }
         
-        // Update system size
-        const systemExtentEl = document.getElementById('simulation-extent');
-        if (systemExtentEl && systemExtent) {
-            if (systemExtent < 1) {
-                systemExtentEl.textContent = `${(systemExtent * 1000).toFixed(1)} km`;
+        // Update canvas dimensions
+        const canvasDimensionsEl = document.getElementById('canvas-dimensions');
+        if (canvasDimensionsEl && canvas) {
+            canvasDimensionsEl.textContent = `${canvas.width}×${canvas.height}`;
+        }
+        
+        // Update zoom level
+        const currentZoomEl = document.getElementById('current-zoom');
+        if (currentZoomEl) {
+            currentZoomEl.textContent = `${(zoom * 100).toFixed(0)}%`;
+        }
+    }
+    
+    updateCanvasScale(simulationData) {
+        const { canvas = null, zoom = 1.0, camera = null } = simulationData;
+        
+        if (!canvas) return;
+        
+        // Calculate pixels per AU (assuming 1 AU = 100 pixels at 100% zoom)
+        const basePixelsPerAU = 100;
+        const currentPixelsPerAU = basePixelsPerAU * zoom;
+        const auPerPixel = 1.0 / currentPixelsPerAU;
+        
+        // Update pixel scale
+        const pixelScaleEl = document.getElementById('pixel-scale');
+        if (pixelScaleEl) {
+            if (auPerPixel < 0.001) {
+                pixelScaleEl.textContent = `${(auPerPixel * 1000000).toFixed(1)} km`;
+            } else if (auPerPixel < 1) {
+                pixelScaleEl.textContent = `${auPerPixel.toFixed(3)} AU`;
+            } else {
+                pixelScaleEl.textContent = `${auPerPixel.toFixed(2)} AU`;
+            }
+        }
+        
+        // Calculate visible area
+        const visibleWidth = canvas.width / currentPixelsPerAU;
+        const visibleHeight = canvas.height / currentPixelsPerAU;
+        const visibleRadius = Math.max(visibleWidth, visibleHeight) / 2;
+        
+        const visibleAreaEl = document.getElementById('visible-area');
+        if (visibleAreaEl) {
+            if (visibleRadius < 1) {
+                visibleAreaEl.textContent = `±${(visibleRadius * 1000).toFixed(0)} km`;
+            } else if (visibleRadius < 100) {
+                visibleAreaEl.textContent = `±${visibleRadius.toFixed(1)} AU`;
+            } else {
+                visibleAreaEl.textContent = `±${(visibleRadius / 63241).toFixed(2)} ly`;
+            }
+        }
+        
+        // Update grid spacing (typically 1 AU at base zoom)
+        const gridSpacingEl = document.getElementById('grid-spacing');
+        if (gridSpacingEl) {
+            const gridSpacing = 1.0 / zoom; // Grid spacing in AU
+            if (gridSpacing < 0.001) {
+                gridSpacingEl.textContent = `${(gridSpacing * 149597870.7).toFixed(0)} km`;
+            } else if (gridSpacing < 1) {
+                gridSpacingEl.textContent = `${gridSpacing.toFixed(3)} AU`;
+            } else {
+                gridSpacingEl.textContent = `${gridSpacing.toFixed(2)} AU`;
+            }
+        }
+    }
+    
+    updateSimulationBounds(simulationData) {
+        const { bodies = [], systemExtent = 0, centerOfMass = { x: 0, y: 0 }, maxVelocity = 0 } = simulationData;
+        
+        // Update system extent
+        const systemExtentEl = document.getElementById('system-extent');
+        if (systemExtentEl) {
+            if (systemExtent < 0.001) {
+                systemExtentEl.textContent = `${(systemExtent * 149597870.7).toFixed(0)} km`;
             } else if (systemExtent < 100) {
-                systemExtentEl.textContent = `${systemExtent.toFixed(2)} AU`;
+                systemExtentEl.textContent = `${systemExtent.toFixed(3)} AU`;
             } else {
                 systemExtentEl.textContent = `${(systemExtent / 63241).toFixed(2)} ly`;
             }
         }
         
-        // Update time elapsed
-        const timeElapsedEl = document.getElementById('time-elapsed');
-        if (timeElapsedEl) {
-            if (timeElapsed < 0.1) {
-                timeElapsedEl.textContent = `${(timeElapsed * 365.25).toFixed(1)} days`;
-            } else if (timeElapsed < 1000) {
-                timeElapsedEl.textContent = `${timeElapsed.toFixed(2)} yr`;
-            } else if (timeElapsed < 1000000) {
-                timeElapsedEl.textContent = `${(timeElapsed / 1000).toFixed(2)} kyr`;
+        // Update center of mass
+        const centerOfMassEl = document.getElementById('center-of-mass');
+        if (centerOfMassEl && centerOfMass) {
+            const x = Math.abs(centerOfMass.x) < 0.001 ? '0.0' : centerOfMass.x.toFixed(3);
+            const y = Math.abs(centerOfMass.y) < 0.001 ? '0.0' : centerOfMass.y.toFixed(3);
+            centerOfMassEl.textContent = `(${x}, ${y})`;
+        }
+        
+        // Update max velocity
+        const maxVelocityEl = document.getElementById('max-velocity');
+        if (maxVelocityEl) {
+            if (maxVelocity < 0.001) {
+                maxVelocityEl.textContent = `${(maxVelocity * 29.78).toFixed(2)} km/s`;
             } else {
-                timeElapsedEl.textContent = `${(timeElapsed / 1000000).toFixed(2)} Myr`;
+                maxVelocityEl.textContent = `${maxVelocity.toFixed(3)} AU/yr`;
             }
+        }
+    }
+    
+    updatePhysicsConstants(simulationData) {
+        const { physics = {} } = simulationData;
+        
+        // Update gravitational constant
+        const gConstantEl = document.getElementById('gravitational-constant');
+        if (gConstantEl) {
+            const G = physics.gravitationalConstant || (4 * Math.PI * Math.PI);
+            gConstantEl.textContent = G === (4 * Math.PI * Math.PI) ? '4π²' : G.toFixed(6);
+        }
+        
+        // Update time step
+        const timeStepEl = document.getElementById('time-step');
+        if (timeStepEl) {
+            const dt = physics.timeStep || 0.001;
+            timeStepEl.textContent = dt.toFixed(6);
+        }
+        
+        // Update collision radius
+        const collisionRadiusEl = document.getElementById('collision-radius');
+        if (collisionRadiusEl) {
+            const collisionRadius = physics.collisionRadius || 0.001;
+            collisionRadiusEl.textContent = collisionRadius.toFixed(6);
+        }
+        
+        // Update softening length
+        const softeningLengthEl = document.getElementById('softening-length');
+        if (softeningLengthEl) {
+            const softeningLength = physics.softeningLength || 0.01;
+            softeningLengthEl.textContent = softeningLength.toFixed(6);
         }
     }
     

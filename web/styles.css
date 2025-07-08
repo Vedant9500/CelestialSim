@@ -2248,476 +2248,154 @@ body {
     font-style: italic;
 }
 
-/* Improved Solar System Visualization */
-.solar-system-visual {
-    position: relative;
-    background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
-    border-radius: 15px;
-    padding: 1rem;
-    min-height: 280px;
-}
-
-.orbital-rings {
-    position: relative;
-    width: 100%;
-    height: 260px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.sun-icon {
-    font-size: 16px;
-    color: #ffd700;
-    text-shadow: 0 0 8px #ffd700;
-    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: sunPulse 2s ease-in-out infinite alternate;
-}
-
-@keyframes sunPulse {
-    0% { text-shadow: 0 0 8px #ffd700; }
-    100% { text-shadow: 0 0 12px #ffd700, 0 0 16px #ffd700; }
-}
-
-.orbit-ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    border: 1px solid rgba(100, 255, 218, 0.2);
-}
-
-.orbit-line {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 1px solid rgba(100, 255, 218, 0.15);
-    position: absolute;
-}
-
-/* Orbit Sizes - Proportional to actual distances */
-.mercury-ring { width: 40px; height: 40px; }
-.venus-ring { width: 60px; height: 60px; }
-.earth-ring { width: 80px; height: 80px; border-color: rgba(64, 224, 255, 0.4); }
-.mars-ring { width: 100px; height: 100px; }
-.jupiter-ring { width: 150px; height: 150px; }
-.saturn-ring { width: 180px; height: 180px; }
-.neptune-ring { width: 240px; height: 240px; }
-
-.planet-marker {
-    position: absolute;
-    top: -6px;
-    width: 12px;
-    height: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.planet-marker:hover {
-    transform: scale(1.3);
-}
-
-.planet-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    transition: all 0.3s ease;
-}
-
-.planet-label {
-    position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.65rem;
-    color: #ffffff;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 2px 4px;
-    border-radius: 3px;
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-.planet-label span {
-    display: block;
-    font-size: 0.6rem;
-    color: #aaaaaa;
-    text-align: center;
-}
-
-.planet-marker:hover .planet-label {
-    opacity: 1;
-}
-
-/* Planet Colors - Based on actual planet appearances */
-.mercury .planet-dot { background: #8c7853; }
-.venus .planet-dot { background: #ffc649; }
-.earth .planet-dot { background: #6b93d6; box-shadow: 0 0 4px #6b93d6; }
-.mars .planet-dot { background: #c1440e; }
-.jupiter .planet-dot { background: #d8ca9d; width: 10px; height: 10px; }
-.saturn .planet-dot { background: #fad5a5; width: 9px; height: 9px; }
-.neptune .planet-dot { background: #4b70dd; }
-
-/* Planet Positions on Orbits */
-.mercury-ring .planet-marker { left: calc(100% - 6px); }
-.venus-ring .planet-marker { left: calc(100% - 6px); }
-.earth-ring .planet-marker { left: calc(100% - 6px); }
-.mars-ring .planet-marker { left: calc(100% - 6px); }
-.jupiter-ring .planet-marker { left: calc(100% - 6px); }
-.saturn-ring .planet-marker { left: calc(100% - 6px); }
-.neptune-ring .planet-marker { left: calc(100% - 6px); }
-
-.orbit-legend {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(100, 255, 218, 0.2);
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: #aaaaaa;
-}
-
-.legend-color {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
-.legend-color.inner { background: #6b93d6; }
-.legend-color.outer { background: #d8ca9d; }
-
-/* Compact Tab Header */
-.tab-header.compact {
-    background: rgba(100,255,218,0.03);
-    padding: 0.8rem 1rem;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-    border: 1px solid rgba(100,255,218,0.1);
-}
-.tab-header.compact h3 {
-    font-size: 0.95rem;
-    margin-bottom: 0.3rem;
-}
-.tab-header.compact p {
-    font-size: 0.75rem;
-    opacity: 0.8;
-    margin: 0;
-}
-
-/* Compact Dashboard */
-.compact-dashboard {
-    margin-bottom: 1rem;
-}
-.stat-row {
-    display: flex;
-    gap: 0.8rem;
-    padding: 0.6rem 0.8rem;
-    background: rgba(255,255,255,0.02);
-    border-radius: 8px;
-    border: 1px solid rgba(100,255,218,0.1);
-}
-.stat-item {
-    flex: 1;
-    text-align: center;
-}
-.stat-item .stat-label {
-    display: block;
-    font-size: 0.65rem;
-    color: #aaaaaa;
-    margin-bottom: 0.3rem;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-.stat-item .stat-value {
-    font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #64ffda;
-}
-
-/* Compact Cards */
-.compact-card {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(100,255,218,0.1);
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    overflow: hidden;
-}
-.compact-header {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.7rem 0.9rem;
-    border-bottom: 1px solid rgba(100,255,218,0.1);
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #64ffda;
-}
-.compact-header i {
-    font-size: 0.75rem;
-}
-.badge {
-    margin-left: auto;
-    padding: 0.2rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-.badge.active {
+/* Additional Badge Types */
+.badge.info {
     background: linear-gradient(135deg, #64ffda, #4ecdc4);
     color: #000000;
 }
-.badge.local {
-    background: linear-gradient(135deg, #ffd43b, #ff922b);
-    color: #000000;
-}
 
-/* Compact Units */
-.units-compact {
+/* Scale Reference Styles */
+.scale-compact {
     padding: 0.7rem 0.9rem;
 }
-.unit-row {
+.scale-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.35rem 0;
     border-bottom: 1px solid rgba(100,255,218,0.05);
 }
-.unit-row:last-child {
+.scale-row:last-child {
     border-bottom: none;
 }
-.unit-type {
+.scale-label {
     font-size: 0.75rem;
     color: #aaaaaa;
     font-weight: 500;
 }
-.unit-value {
+.scale-value {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64ffda;
+}
+
+/* Bounds Reference Styles */
+.bounds-compact {
+    padding: 0.7rem 0.9rem;
+}
+.bounds-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid rgba(100,255,218,0.05);
+}
+.bounds-row:last-child {
+    border-bottom: none;
+}
+.bounds-label {
+    font-size: 0.75rem;
+    color: #aaaaaa;
+    font-weight: 500;
+}
+.bounds-value {
     font-family: 'Courier New', monospace;
     font-size: 0.8rem;
     font-weight: 600;
     color: #ffffff;
 }
 
-/* Compact Solar System */
-.solar-compact {
-    padding: 0.7rem 0.9rem;
-}
-.solar-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.6rem;
-}
-.planet-item {
+/* Physics Constants Styles */
+.physics-compact {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 0.5rem;
-    border-radius: 6px;
-    background: rgba(255,255,255,0.02);
-    transition: all 0.3s ease;
-    cursor: pointer;
+    gap: 0.4rem;
 }
-.planet-item:hover {
-    background: rgba(255,255,255,0.04);
-    transform: translateY(-1px);
-}
-.planet-item .planet-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    margin-bottom: 0.35rem;
-}
-.planet-item.mercury .planet-dot { background: #8c7853; }
-.planet-item.venus .planet-dot { background: #ffc649; }
-.planet-item.earth .planet-dot { background: #6b93d6; }
-.planet-item.mars .planet-dot { background: #c1440e; }
-.planet-item.jupiter .planet-dot { background: #d8ca9d; width: 9px; height: 9px; }
-.planet-item.neptune .planet-dot { background: #4b70dd; }
-.planet-item span {
-    font-size: 0.65rem;
-    color: #ffffff;
-    line-height: 1.2;
-}
-.planet-item small {
-    color: #64ffda;
-    font-weight: 600;
-}
-
-/* Expandable Panel (Accordion) Styles - Compact */
-.expandable-panel {
-    margin-bottom: 0.9rem;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(100,255,218,0.12);
-    overflow: hidden;
-}
-.expandable-panel.compact {
-    margin-bottom: 0.8rem;
-}
-.expandable-header {
-    width: 100%;
-    background: none;
-    border: none;
-    outline: none;
+.physics-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    font-size: 0.8rem;
+    gap: 0.6rem;
+    padding: 0.4rem 0.5rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+}
+.physics-label {
+    color: #ffffff;
+    font-size: 0.73rem;
+    font-weight: 500;
+    min-width: 120px;
+}
+.physics-value {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #64ffda;
-    padding: 0.7rem 0.9rem;
-    cursor: pointer;
-    transition: background 0.2s;
+    min-width: 60px;
 }
-.expandable-header.compact {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.78rem;
-}
-.expandable-header:hover, .expandable-header[aria-expanded="true"] {
-    background: rgba(100,255,218,0.04);
-}
-.expandable-header i.fas.fa-chevron-down {
-    font-size: 0.85em;
-    transition: transform 0.3s;
-}
-.expandable-header[aria-expanded="true"] i.fas.fa-chevron-down {
-    transform: rotate(180deg);
-}
-.expandable-content {
-    padding: 0 0.8rem 0.8rem 0.8rem;
-    animation: expandFadeIn 0.3s;
-}
-@keyframes expandFadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
+.physics-row small {
+    color: #aaaaaa;
+    font-size: 0.65rem;
+    margin-left: auto;
 }
 
-/* Compact Journey */
-.journey-compact {
+/* Coordinate System Styles */
+.coordinates-compact {
+    padding: 0.5rem;
+}
+.coord-info {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    margin-bottom: 0.8rem;
 }
-.journey-item {
+.coord-item {
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    padding: 0.5rem 0.6rem;
+    gap: 0.8rem;
+    padding: 0.4rem 0.6rem;
     background: rgba(255,255,255,0.02);
     border-radius: 6px;
-    border-left: 3px solid transparent;
-    transition: all 0.3s ease;
 }
-.journey-item.local { border-left-color: #ff6b6b; }
-.journey-item.stellar { border-left-color: #ffd43b; }
-.journey-item.galactic { border-left-color: #64ffda; }
-.journey-item.universal { border-left-color: #bb86fc; }
-.journey-item:hover {
-    background: rgba(255,255,255,0.04);
-}
-.journey-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 5px;
+.coord-arrow {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     flex-shrink: 0;
 }
-.journey-item.local .journey-icon {
+.coord-arrow.x-axis {
     background: linear-gradient(135deg, #ff6b6b, #fa5252);
     color: #ffffff;
 }
-.journey-item.stellar .journey-icon {
+.coord-arrow.y-axis {
+    background: linear-gradient(135deg, #4ecdc4, #64ffda);
+    color: #000000;
+}
+.coord-arrow.origin {
     background: linear-gradient(135deg, #ffd43b, #ff922b);
     color: #000000;
 }
-.journey-item.galactic .journey-icon {
-    background: linear-gradient(135deg, #64ffda, #4ecdc4);
-    color: #000000;
-}
-.journey-item.universal .journey-icon {
-    background: linear-gradient(135deg, #bb86fc, #9c27b0);
-    color: #ffffff;
-}
-.journey-info {
-    flex: 1;
-}
-.journey-info strong {
-    display: block;
-    color: #ffffff;
+.coord-item span {
     font-size: 0.73rem;
-    margin-bottom: 0.15rem;
+    color: #ffffff;
 }
-.journey-scale {
-    display: block;
-    font-family: 'Courier New', monospace;
-    color: #64ffda;
-    font-size: 0.68rem;
-    font-weight: 600;
-    margin-bottom: 0.15rem;
+.coord-note {
+    padding: 0.5rem;
+    background: rgba(100,255,218,0.05);
+    border-radius: 6px;
+    border-left: 3px solid #64ffda;
 }
-.journey-info small {
-    color: #aaaaaa;
-    font-size: 0.63rem;
-}
-
-/* Compact Powers */
-.powers-compact {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-}
-.power-row {
+.coord-note small {
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    padding: 0.45rem 0.6rem;
-    background: rgba(255,255,255,0.02);
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-.power-row:hover,
-.power-row.active {
-    background: rgba(100,255,218,0.04);
-    border: 1px solid rgba(100,255,218,0.18);
-}
-.power-exp {
-    font-family: 'Courier New', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #64ffda;
-    min-width: 38px;
-}
-.power-desc {
-    color: #ffffff;
-    font-size: 0.73rem;
-    font-weight: 600;
-    min-width: 65px;
-}
-.power-row small {
+    gap: 0.5rem;
     color: #aaaaaa;
-    font-size: 0.63rem;
-    flex: 1;
+    font-size: 0.65rem;
+}
+.coord-note i {
+    color: #64ffda;
 }
