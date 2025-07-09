@@ -329,34 +329,6 @@
                                 </div>
                             </div>
 
-                            <div class="panel-section">
-                                <h3><i class="fas fa-info-circle"></i> System Information</h3>
-                                <div class="info-display">
-                                    <div class="info-grid">
-                                        <div class="info-item">
-                                            <span class="info-label">Bodies:</span>
-                                            <span id="body-count">0</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Total Mass:</span>
-                                            <span id="total-mass">0</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Kinetic Energy:</span>
-                                            <span id="kinetic-energy">0</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Potential Energy:</span>
-                                            <span id="potential-energy">0</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Mouse Position:</span>
-                                            <span id="mouse-position">(0, 0)</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Selected Body Info -->
                             <div id="selected-body-panel" class="panel-section" style="display: none;">
                                 <h3><i class="fas fa-crosshairs"></i> Selected Body</h3>
@@ -439,22 +411,10 @@
                             </div>
                             
                             <div class="tab-content">
-                                <!-- Simulation Stats -->
-                                <div class="compact-dashboard">
-                                    <div class="stat-row">
-                                        <div class="stat-item">
-                                            <span class="stat-label">Bodies</span>
-                                            <span class="stat-value" id="current-bodies-count">0</span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Canvas Size</span>
-                                            <span class="stat-value" id="canvas-dimensions">0×0</span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Zoom</span>
-                                            <span class="stat-value" id="current-zoom">100%</span>
-                                        </div>
-                                    </div>
+                                <!-- Simple Body Counter -->
+                                <div class="simple-counter">
+                                    <span class="counter-label">Bodies in Simulation:</span>
+                                    <span class="counter-value" id="reference-body-count">0</span>
                                 </div>
 
                                 <!-- Simulation Units -->

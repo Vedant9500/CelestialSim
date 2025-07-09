@@ -1574,7 +1574,7 @@ class UIManager {
         const { bodies = [], canvas = null, zoom = 1.0 } = simulationData;
         
         // Update body count
-        const bodyCountEl = document.getElementById('current-bodies-count');
+        const bodyCountEl = document.getElementById('reference-body-count');
         if (bodyCountEl) {
             bodyCountEl.textContent = bodies.length.toString();
         }
