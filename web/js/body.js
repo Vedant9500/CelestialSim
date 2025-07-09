@@ -57,7 +57,7 @@ class Body {
         return ++Body.idCounter;
     }
 
-    // Calculate visual radius based on mass
+    // Calculate physics-based radius from mass (solid sphere model)
     calculateRadius() {
         // Ensure mass is a valid, positive number
         const safeMass = Math.max(0.1, this.mass || 0.1);
@@ -68,8 +68,15 @@ class Body {
             return RENDERING_CONSTANTS.MIN_BODY_RADIUS;
         }
         
-        const calculatedRadius = Math.sqrt(safeMass / RENDERING_CONSTANTS.BODY_RADIUS_SCALE) + 2;
-        return Math.max(RENDERING_CONSTANTS.MIN_BODY_RADIUS, calculatedRadius);
+        // Use physics-based radius calculation: assume constant density
+        // For a sphere: mass = (4/3) * π * r³ * density
+        // Therefore: r = ∛(3 * mass / (4 * π * density))
+        const density = PHYSICS_CONSTANTS.BODY_DENSITY || 1.0; // kg/unit³
+        const physicsRadius = Math.cbrt((3 * safeMass) / (4 * Math.PI * density));
+        
+        // Scale for visual representation and ensure minimum size
+        const visualRadius = physicsRadius * RENDERING_CONSTANTS.BODY_RADIUS_SCALE;
+        return Math.max(RENDERING_CONSTANTS.MIN_BODY_RADIUS, visualRadius);
     }
 
     // Update radius when mass changes

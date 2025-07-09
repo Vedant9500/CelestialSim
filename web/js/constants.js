@@ -28,6 +28,9 @@ const PHYSICS_CONSTANTS = {
     COLLISION_COOLDOWN_TIME: 0.25,  // Base cooldown time in seconds
     MAX_VELOCITY_LIMIT: 500,  // Maximum velocity to prevent numerical instability
     
+    // Body physics properties
+    BODY_DENSITY: 1.0,  // Default density for mass-to-radius calculations (kg/unit³)
+    
     // Time stepping
     FIXED_TIME_STEP: 1.0 / 60.0, // 60 FPS physics
     MAX_TIME_STEP: 1.0 / 30.0,
@@ -45,7 +48,7 @@ const PHYSICS_CONSTANTS = {
 const RENDERING_CONSTANTS = {
     // Body visualization
     MIN_BODY_RADIUS: 3,
-    BODY_RADIUS_SCALE: 5,
+    BODY_RADIUS_SCALE: 8,  // Increased scale for better visual representation of physics radius
     BODY_HITBOX_SCALE: 1.2,
     
     // Trail rendering

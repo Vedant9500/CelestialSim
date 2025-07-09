@@ -1,29 +1,37 @@
 # CelestialSim
 
-A modern, browser-based gravitational physics simulator featuring real-time N-body dynamics with an intuitive user interface. Experience accurate celestial mechanics through interactive simulations of planetary systems, stellar clusters, and complex gravitational interactions.
+A modern, browser-based gravitational physics simulator featuring real-time N-body dynamics with an intuitive user interface. Experience accurate celestial mechanics through interactive simulations of planetary systems, stellar clusters, and complex gravitational interactions with realistic collision physics.
 
 ## ✨ Features
 
 ### Core Simulation
 - **Real-time N-Body Physics**: High-precision gravitational calculations using Verlet integration
+- **Solid Body Collisions**: Physics-based elastic and inelastic collisions with mass-dependent radius
 - **Interactive Body Placement**: Click-to-place celestial bodies with customizable properties
 - **Orbit Mode**: Automatically calculate stable orbital velocities with live preview
 - **Drag & Drop**: Move bodies in real-time to explore different configurations
-- **Dynamic Scaling**: Bodies scale correctly with zoom for proper visual representation
+- **Dynamic Scaling**: Bodies scale correctly with zoom and mass for proper visual representation
+
+### Advanced Physics
+- **Collision Detection**: Continuous collision detection prevents fast bodies from tunneling
+- **Elastic Collisions**: Bodies bounce off each other with realistic momentum transfer *(Work in Progress)*
+- **Inelastic Collisions**: Bodies merge together with momentum conservation
+- **Spatial Optimization**: Efficient collision detection using spatial partitioning
+- **Physics-based Radius**: Body size calculated from mass and density using sphere model
 
 ### Advanced Controls
 - **Preset Scenarios**: Solar system, binary stars, chaotic three-body systems, and more
 - **Real-world Scale Reference**: Dynamic conversion between simulation units and astronomical scales
-- **Live Physics Tuning**: Adjust gravity strength, time scale, and simulation parameters on the fly
-- **Visual Customization**: Toggle trails, force vectors, coordinate grids, and energy visualization
+- **Live Physics Tuning**: Adjust gravity, time scale, collision parameters, and restitution
+- **Visual Customization**: Toggle trails, collision bounds, force vectors, coordinate grids
 - **Export/Import**: Save and load simulation configurations
 
-### Professional Interface
-- **Responsive Design**: Optimized for all screen sizes and browser zoom levels
-- **Modern UI**: Clean, dark theme with intuitive controls and real-time feedback
-- **Performance Monitoring**: Live FPS display and simulation statistics
-- **Keyboard Shortcuts**: Complete keyboard navigation for power users
-- **Help System**: Built-in documentation and control reference
+### Modern Interface
+- **Redesigned UI**: Clean, card-based design with unified visual theme
+- **Responsive Panels**: Compact, simulation-focused side panels
+- **Performance Monitoring**: Live FPS, energy tracking, and collision statistics
+- **Energy Conservation**: Real-time kinetic and potential energy visualization
+- **Debug Tools**: Collision boundary visualization and physics diagnostics
 
 ## 🚀 Getting Started
 
@@ -93,7 +101,9 @@ No installation required! The simulator runs entirely in your web browser.
 - **Verlet Integration**: Symplectic integrator preserving energy and stability
 - **Adaptive Time-stepping**: Automatic adjustment for numerical stability
 - **Softened Gravity**: Prevents computational singularities at close encounters
-- **Collision Handling**: Realistic merging with momentum conservation
+- **Elastic Collision Physics**: Impulse-based collision response with friction and restitution *(Work in Progress)*
+- **Continuous Collision Detection**: Prevents tunneling for fast-moving objects
+- **Spatial Partitioning**: Efficient O(n) collision detection using grid-based optimization
 
 ### Real-world Accuracy
 - **Astronomical Units**: 1 AU = 149.6 million km (Earth-Sun distance)
@@ -133,8 +143,27 @@ No installation required! The simulator runs entirely in your web browser.
 ## 🤝 Contributing
 
 This project welcomes contributions! Areas for enhancement include:
-- Additional preset scenarios
-- Advanced rendering effects
-- Performance optimizations
-- Educational content
-- Documentation improvements
+- Additional preset scenarios and educational content
+- Advanced rendering effects and visual improvements
+- Performance optimizations and GPU acceleration
+- Mobile device optimization
+- Documentation and tutorial improvements
+
+## 🆕 Recent Updates
+
+### Collision System Overhaul
+- **Solid Body Physics**: Bodies are now solid objects with mass-based radius
+- **Enhanced Collision Detection**: Continuous collision detection prevents tunneling
+- **Realistic Elastic Collisions**: Proper momentum transfer with friction and restitution *(Work in Progress)*
+- **Improved Separation Logic**: Prevents bodies from getting stuck together
+
+### UI/UX Modernization
+- **Redesigned Interface**: Clean, card-based layout with unified visual theme
+- **Compact Panels**: Simulation-focused design with better space utilization
+- **Energy Monitoring**: Real-time kinetic and potential energy tracking
+- **Enhanced Visual Feedback**: Better collision visualization and debug tools
+
+### Performance Improvements
+- **Spatial Optimization**: Efficient collision detection using grid partitioning
+- **Reduced Console Spam**: Cleaner debug output with optional verbose logging
+- **Better Memory Management**: Improved cleanup and resource handling

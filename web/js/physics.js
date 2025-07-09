@@ -168,6 +168,13 @@ class PhysicsEngine {
                 this.handleCollisions(bodies);
             }
             
+            // Update collision cooldowns for all bodies
+            bodies.forEach(body => {
+                if (body.updateCollisionCooldowns) {
+                    body.updateCollisionCooldowns(currentTimeStep);
+                }
+            });
+            
             // Subtract the timestep from accumulator
             this.timeAccumulator -= currentTimeStep;
             this.simulationTime += currentTimeStep;
@@ -341,212 +348,240 @@ class PhysicsEngine {
         });
     }
 
-    // Handle elastic collisions (bodies bounce off each other)
+    // Enhanced elastic collision system inspired by broccoli-project
     handleElasticCollisions(bodies) {
-        // Track collision pairs this frame to prevent double processing
+        // Use spatial partitioning for better collision detection performance
+        const spatialGrid = this.createSpatialGrid(bodies);
         const processedPairs = new Set();
         
-        for (let i = 0; i < bodies.length; i++) {
-            for (let j = i + 1; j < bodies.length; j++) {
-                const body1 = bodies[i];
-                const body2 = bodies[j];
-                
-                // Skip if this pair is already processed
-                const pairKey = `${i}-${j}`;
-                if (processedPairs.has(pairKey)) {
-                    continue;
-                }
-                
-                // Skip if either body is in cooldown with each other
-                if (body1.isInCollisionCooldownWith(body2)) {
-                    continue;
-                }
-                
-                // Calculate center-to-center distance
-                const dx = body2.position.x - body1.position.x;
-                const dy = body2.position.y - body1.position.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // Calculate collision distance (when surfaces touch)
-                const collisionDistance = body1.radius + body2.radius;
-                
-                // Enhanced collision detection - check for fast-moving objects
-                const relativeVelocity = body1.velocity.subtract(body2.velocity);
-                const relativeSpeed = relativeVelocity.magnitude();
-                
-                // Continuous collision detection for fast objects
-                let collisionTime = 0;
-                let willCollide = false;
-                
-                if (distance > collisionDistance && relativeSpeed > 0) {
-                    // Check if objects will collide this frame using swept spheres
-                    const relativePosition = body2.position.subtract(body1.position);
-                    const relativeVelDotPos = relativeVelocity.dot(relativePosition);
+        // Process collisions using spatial grid for efficiency
+        spatialGrid.forEach(cellBodies => {
+            if (cellBodies.length < 2) return;
+            
+            // Check all pairs within this spatial cell
+            for (let i = 0; i < cellBodies.length; i++) {
+                for (let j = i + 1; j < cellBodies.length; j++) {
+                    const body1 = cellBodies[i];
+                    const body2 = cellBodies[j];
                     
-                    if (relativeVelDotPos < 0) { // Objects approaching
-                        const discriminant = Math.pow(relativeVelDotPos, 2) - 
-                            relativeSpeed * relativeSpeed * (relativePosition.magnitudeSquared() - collisionDistance * collisionDistance);
-                        
-                        if (discriminant >= 0) {
-                            collisionTime = (-relativeVelDotPos - Math.sqrt(discriminant)) / (relativeSpeed * relativeSpeed);
-                            if (collisionTime >= 0 && collisionTime <= this.fixedTimeStep) {
-                                willCollide = true;
-                            }
-                        }
-                    }
-                }
-                
-                // Check if collision is occurring now or will occur this frame
-                if (distance <= collisionDistance || willCollide) {
+                    // Create unique pair identifier
+                    const id1 = bodies.indexOf(body1);
+                    const id2 = bodies.indexOf(body2);
+                    const pairKey = `${Math.min(id1, id2)}-${Math.max(id1, id2)}`;
+                    
+                    if (processedPairs.has(pairKey)) continue;
                     processedPairs.add(pairKey);
                     
-                    // For continuous collision, interpolate to collision point
-                    if (willCollide && collisionTime > 0) {
-                        // Move bodies to exact collision point
-                        body1.position.x -= body1.velocity.x * collisionTime;
-                        body1.position.y -= body1.velocity.y * collisionTime;
-                        body2.position.x -= body2.velocity.x * collisionTime;
-                        body2.position.y -= body2.velocity.y * collisionTime;
-                        
-                        // Recalculate distance and normal at collision point
-                        const dx_collision = body2.position.x - body1.position.x;
-                        const dy_collision = body2.position.y - body1.position.y;
-                        const distance_collision = Math.sqrt(dx_collision * dx_collision + dy_collision * dy_collision);
-                        
-                        // Move bodies forward by remaining time after collision
-                        const remainingTime = this.fixedTimeStep - collisionTime;
-                        body1.position.x += body1.velocity.x * remainingTime;
-                        body1.position.y += body1.velocity.y * remainingTime;
-                        body2.position.x += body2.velocity.x * remainingTime;
-                        body2.position.y += body2.velocity.y * remainingTime;
-                    } else {
-                        // Standard collision at current position - no additional processing needed
-                    }
-                    
-                    // Continue with collision resolution using the calculated normal
-                    // Re-calculate collision normal for consistency
-                    const current_dx = body2.position.x - body1.position.x;
-                    const current_dy = body2.position.y - body1.position.y;
-                    const current_distance = Math.sqrt(current_dx * current_dx + current_dy * current_dy);
-                    const final_nx = current_dx / Math.max(current_distance, 0.001);
-                    const final_ny = current_dy / Math.max(current_distance, 0.001);
-                    
-                    // Calculate relative velocity
-                    const dvx = body2.velocity.x - body1.velocity.x;
-                    const dvy = body2.velocity.y - body1.velocity.y;
-                    const dvn = dvx * final_nx + dvy * final_ny; // Relative velocity along normal
-                    
-                    // FIRST: Separate overlapping bodies with strong force
-                    const overlap = collisionDistance - current_distance;
-                    if (overlap > 0) {
-                        // Strong immediate separation to prevent sticking
-                        const separationMargin = Math.max(0.5, overlap * 0.1); // At least 0.5 units separation
-                        const totalSeparation = overlap + separationMargin;
-                        const totalMass = body1.mass + body2.mass;
-                        const sep1 = totalSeparation * body2.mass / totalMass;
-                        const sep2 = totalSeparation * body1.mass / totalMass;
-                        
-                        body1.position.x -= sep1 * final_nx;
-                        body1.position.y -= sep1 * final_ny;
-                        body2.position.x += sep2 * final_nx;
-                        body2.position.y += sep2 * final_ny;
-                        
-                        // Update lastPosition for Verlet consistency
-                        if (body1.lastPosition) {
-                            body1.lastPosition.x -= sep1 * final_nx;
-                            body1.lastPosition.y -= sep1 * final_ny;
-                        }
-                        if (body2.lastPosition) {
-                            body2.lastPosition.x += sep2 * final_nx;
-                            body2.lastPosition.y += sep2 * final_ny;
-                        }
-                    }
-                    
-                    // SECOND: Only resolve collision if objects are approaching with significant speed
-                    if (dvn < -0.1) { // Increased threshold to prevent micro-collisions
-                        
-                        // Energy and momentum validation (debug mode)
-                        const debugCollisions = false; // Set to true for debugging
-                        let energyBefore, momentumBefore;
-                        if (debugCollisions) {
-                            energyBefore = this.calculateKineticEnergySubset([body1, body2]);
-                            momentumBefore = this.calculateMomentumSubset([body1, body2]);
-                        }
-                        
-                        // Calculate total mass for physics calculations
-                        const totalMass = body1.mass + body2.mass;
-                        // Calculate collision impulse using correct physics formula
-                        // J = -(1 + e) * vrel_n / (1/m1 + 1/m2)
-                        const impulseStrength = -(1 + this.restitutionCoefficient) * dvn / (1/body1.mass + 1/body2.mass);
-                        
-                        // Apply impulse correctly (F*dt = m*dv, so dv = F*dt/m)
-                        body1.velocity.x -= impulseStrength * final_nx / body1.mass;
-                        body1.velocity.y -= impulseStrength * final_ny / body1.mass;
-                        body2.velocity.x += impulseStrength * final_nx / body2.mass;
-                        body2.velocity.y += impulseStrength * final_ny / body2.mass;
-                        
-                        // Add tangential friction for more realistic behavior
-                        const dvt_x = dvx - dvn * final_nx; // Tangential relative velocity
-                        const dvt_y = dvy - dvn * final_ny;
-                        const friction = PHYSICS_CONSTANTS.COLLISION_FRICTION;
-                        const frictionImpulse = friction * Math.abs(impulseStrength);
-                        const tangentLength = Math.sqrt(dvt_x * dvt_x + dvt_y * dvt_y);
-                        
-                        if (tangentLength > 0.001) {
-                            const tx = dvt_x / tangentLength;
-                            const ty = dvt_y / tangentLength;
-                            
-                            body1.velocity.x += frictionImpulse * tx * body2.mass / totalMass;
-                            body1.velocity.y += frictionImpulse * ty * body2.mass / totalMass;
-                            body2.velocity.x -= frictionImpulse * tx * body1.mass / totalMass;
-                            body2.velocity.y -= frictionImpulse * ty * body1.mass / totalMass;
-                        }
-                        
-                        // Set stronger collision cooldown to prevent immediate re-collision
-                        const relativeSpeed = Math.sqrt(dvx * dvx + dvy * dvy);
-                        const baseCooldown = PHYSICS_CONSTANTS.COLLISION_COOLDOWN_TIME;
-                        // Much longer cooldown for slow collisions to prevent sticking
-                        const adaptiveCooldown = Math.max(0.2, baseCooldown + relativeSpeed * 0.02);
-                        
-                        body1.setCollisionCooldownWith(body2, adaptiveCooldown);
-                        body2.setCollisionCooldownWith(body1, adaptiveCooldown);
-                        
-                        // Add small velocity bias to ensure separation
-                        const separationBias = 0.5; // Small velocity push apart
-                        body1.velocity.x -= separationBias * final_nx;
-                        body1.velocity.y -= separationBias * final_ny;
-                        body2.velocity.x += separationBias * final_nx;
-                        body2.velocity.y += separationBias * final_ny;
-                        
-                        // Apply slight velocity damping to prevent excessive bouncing
-                        const dampingFactor = 0.98;
-                        body1.velocity.x *= dampingFactor;
-                        body1.velocity.y *= dampingFactor;
-                        body2.velocity.x *= dampingFactor;
-                        body2.velocity.y *= dampingFactor;
-                        
-                        // Mark bodies as having collided this frame
-                        body1.hasCollidedThisFrame = true;
-                        body2.hasCollidedThisFrame = true;
-                        
-                        // Validate conservation laws (debug mode)
-                        if (debugCollisions) {
-                            const energyAfter = this.calculateKineticEnergySubset([body1, body2]);
-                            const momentumAfter = this.calculateMomentumSubset([body1, body2]);
-                            const energyLoss = energyBefore - energyAfter;
-                            const momentumError = momentumBefore.subtract(momentumAfter).magnitude();
-                            
-                            if (Math.abs(energyLoss) > 0.01 || momentumError > 0.01) {
-                                console.warn(`Collision conservation violation: Energy loss: ${energyLoss.toFixed(3)}, Momentum error: ${momentumError.toFixed(3)}`);
-                            }
-                        }
+                    // Enhanced collision detection with continuous collision detection
+                    if (this.detectAndResolveCollision(body1, body2)) {
+                        // Apply stronger collision cooldown to prevent jittering
+                        body1.setCollisionCooldownWith(body2, 10); // 10 frames cooldown
+                        body2.setCollisionCooldownWith(body1, 10);
                     }
                 }
             }
-        }
+        });
     }
 
-    // Handle inelastic collisions (bodies merge - original behavior)
+    // Create spatial grid for efficient collision detection (inspired by broccoli's spatial partitioning)
+    createSpatialGrid(bodies) {
+        if (bodies.length === 0) return new Map();
+        
+        // Find simulation bounds
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+        let maxRadius = 0;
+        
+        bodies.forEach(body => {
+            minX = Math.min(minX, body.position.x - body.radius);
+            maxX = Math.max(maxX, body.position.x + body.radius);
+            minY = Math.min(minY, body.position.y - body.radius);
+            maxY = Math.max(maxY, body.position.y + body.radius);
+            maxRadius = Math.max(maxRadius, body.radius);
+        });
+        
+        // Calculate optimal cell size (2x largest radius to handle overlaps)
+        const cellSize = Math.max(maxRadius * 4, 50);
+        const gridWidth = Math.ceil((maxX - minX) / cellSize);
+        const gridHeight = Math.ceil((maxY - minY) / cellSize);
+        
+        const spatialGrid = new Map();
+        
+        // Place bodies in grid cells
+        bodies.forEach(body => {
+            const cellX = Math.floor((body.position.x - minX) / cellSize);
+            const cellY = Math.floor((body.position.y - minY) / cellSize);
+            
+            // Add to multiple cells if body spans across cell boundaries
+            const startX = Math.max(0, Math.floor((body.position.x - body.radius - minX) / cellSize));
+            const endX = Math.min(gridWidth - 1, Math.floor((body.position.x + body.radius - minX) / cellSize));
+            const startY = Math.max(0, Math.floor((body.position.y - body.radius - minY) / cellSize));
+            const endY = Math.min(gridHeight - 1, Math.floor((body.position.y + body.radius - minY) / cellSize));
+            
+            for (let x = startX; x <= endX; x++) {
+                for (let y = startY; y <= endY; y++) {
+                    const cellKey = `${x},${y}`;
+                    if (!spatialGrid.has(cellKey)) {
+                        spatialGrid.set(cellKey, []);
+                    }
+                    spatialGrid.get(cellKey).push(body);
+                }
+            }
+        });
+        
+        return spatialGrid;
+    }
+
+    // Enhanced collision detection and resolution
+    detectAndResolveCollision(body1, body2) {
+        // Skip if bodies are in cooldown with each other
+        if (body1.isInCollisionCooldownWith && body1.isInCollisionCooldownWith(body2)) {
+            return false;
+        }
+        
+        // Calculate separation vector
+        const dx = body2.position.x - body1.position.x;
+        const dy = body2.position.y - body1.position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const collisionDistance = body1.radius + body2.radius;
+        
+        // Calculate relative velocity for continuous collision detection
+        const relativeVx = body2.velocity.x - body1.velocity.x;
+        const relativeVy = body2.velocity.y - body1.velocity.y;
+        const relativeSpeed = Math.sqrt(relativeVx * relativeVx + relativeVy * relativeVy);
+        
+        // Debug logging for collision detection (reduced spam)
+        // Uncomment for debugging: if (distance < collisionDistance * 1.2 && relativeSpeed > 5) { console.log(`Near collision: distance=${distance.toFixed(2)}, required=${collisionDistance.toFixed(2)}, speed=${relativeSpeed.toFixed(2)}`); }
+        
+        // Continuous collision detection for fast-moving objects
+        let willCollide = false;
+        let collisionTime = 0;
+        
+        if (distance > collisionDistance && relativeSpeed > 0.1) {
+            // Simple continuous collision detection: check if bodies will pass through each other this frame
+            // Calculate where each body will be next frame
+            const dt = this.fixedTimeStep;
+            const body1NextX = body1.position.x + body1.velocity.x * dt;
+            const body1NextY = body1.position.y + body1.velocity.y * dt;
+            const body2NextX = body2.position.x + body2.velocity.x * dt;
+            const body2NextY = body2.position.y + body2.velocity.y * dt;
+            
+            const nextDx = body2NextX - body1NextX;
+            const nextDy = body2NextY - body1NextY;
+            const nextDistance = Math.sqrt(nextDx * nextDx + nextDy * nextDy);
+            
+            // If they will be overlapping next frame, collision is imminent
+            if (nextDistance <= collisionDistance) {
+                willCollide = true;
+            }
+            
+            // Also check if they're on a collision course (dot product approach)
+            const relativeVelDotPos = (relativeVx * dx + relativeVy * dy);
+            if (relativeVelDotPos < 0) { // Objects approaching
+                // Calculate closest approach distance during this frame
+                const closestDistance = Math.sqrt(distance * distance - (relativeVelDotPos * relativeVelDotPos) / (relativeSpeed * relativeSpeed));
+                if (closestDistance <= collisionDistance) {
+                    willCollide = true;
+                }
+            }
+        }
+        
+        // Check for collision
+        if (distance <= collisionDistance || willCollide) {
+            this.resolveElasticCollision(body1, body2, dx, dy, distance, collisionDistance);
+            return true;
+        }
+        
+        return false;
+    }
+
+    // Advanced elastic collision resolution with proper physics
+    resolveElasticCollision(body1, body2, dx, dy, distance, collisionDistance) {
+        // Calculate collision normal
+        const normalX = distance > 0.001 ? dx / distance : 1;
+        const normalY = distance > 0.001 ? dy / distance : 0;
+        
+        // Handle penetration with MORE aggressive separation
+        const overlap = collisionDistance - distance;
+        if (overlap > 0 || distance < collisionDistance * 1.2) {
+            // More aggressive separation - ensure bodies are definitely apart
+            const separationFactor = 2.0; // Much larger separation to prevent re-collision
+            const minSeparation = collisionDistance * 0.1; // Minimum separation distance
+            const totalSeparation = Math.max(overlap * separationFactor, minSeparation);
+            const totalMass = body1.mass + body2.mass;
+            
+            // Mass-proportional separation (lighter objects move more)
+            const separation1 = totalSeparation * body2.mass / totalMass;
+            const separation2 = totalSeparation * body1.mass / totalMass;
+            
+            body1.position.x -= separation1 * normalX;
+            body1.position.y -= separation1 * normalY;
+            body2.position.x += separation2 * normalX;
+            body2.position.y += separation2 * normalY;
+            
+            // Update Verlet integration positions for consistency
+            if (body1.lastPosition) {
+                body1.lastPosition.x -= separation1 * normalX;
+                body1.lastPosition.y -= separation1 * normalY;
+            }
+            if (body2.lastPosition) {
+                body2.lastPosition.x += separation2 * normalX;
+                body2.lastPosition.y += separation2 * normalY;
+            }
+            
+            // Uncomment for debugging: console.log(`Separated bodies: overlap=${overlap.toFixed(2)}, separation=${totalSeparation.toFixed(2)}, new distance=${Math.sqrt((body2.position.x - body1.position.x)**2 + (body2.position.y - body1.position.y)**2).toFixed(2)}`);
+        }
+        
+        // Calculate relative velocity along collision normal
+        const relativeVx = body2.velocity.x - body1.velocity.x;
+        const relativeVy = body2.velocity.y - body1.velocity.y;
+        const relativeVelNormal = relativeVx * normalX + relativeVy * normalY;
+        
+        // Don't resolve if objects are separating
+        if (relativeVelNormal > 0) return;
+        
+        // Calculate collision impulse (inspired by broccoli's physics)
+        const e = this.restitutionCoefficient;
+        const impulseStrength = -(1 + e) * relativeVelNormal / (1/body1.mass + 1/body2.mass);
+        
+        // Apply impulse to velocities
+        const impulseX = impulseStrength * normalX;
+        const impulseY = impulseStrength * normalY;
+        
+        body1.velocity.x -= impulseX / body1.mass;
+        body1.velocity.y -= impulseY / body1.mass;
+        body2.velocity.x += impulseX / body2.mass;
+        body2.velocity.y += impulseY / body2.mass;
+        
+        // Add tangential friction for realistic behavior
+        const friction = PHYSICS_CONSTANTS.COLLISION_FRICTION || 0.1;
+        if (friction > 0) {
+            // Calculate tangential component of relative velocity
+            const tangentX = relativeVx - relativeVelNormal * normalX;
+            const tangentY = relativeVy - relativeVelNormal * normalY;
+            const tangentMagnitude = Math.sqrt(tangentX * tangentX + tangentY * tangentY);
+            
+            if (tangentMagnitude > 0.001) {
+                const frictionImpulse = Math.min(friction * Math.abs(impulseStrength), tangentMagnitude);
+                const frictionX = -frictionImpulse * tangentX / tangentMagnitude;
+                const frictionY = -frictionImpulse * tangentY / tangentMagnitude;
+                
+                body1.velocity.x += frictionX / body1.mass;
+                body1.velocity.y += frictionY / body1.mass;
+                body2.velocity.x -= frictionX / body2.mass;
+                body2.velocity.y -= frictionY / body2.mass;
+            }
+        }
+        
+        // Apply velocity damping to prevent unrealistic bouncing
+        const damping = 0.99;
+        body1.velocity.x *= damping;
+        body1.velocity.y *= damping;
+        body2.velocity.x *= damping;
+        body2.velocity.y *= damping;
+    }
+
+    // Handle inelastic collisions (bodies merge when they collide)
     handleInelasticCollisions(bodies) {
         const bodiesToRemove = new Set();
         const bodiesToAdd = [];

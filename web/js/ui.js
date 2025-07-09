@@ -168,7 +168,6 @@ class UIManager {
             debugBtn.addEventListener('click', () => {
                 // Toggle debug mode - placeholder for future implementation
                 debugBtn.classList.toggle('active');
-                console.log('Debug mode toggled');
             });
         }
         
@@ -176,7 +175,6 @@ class UIManager {
             performanceBtn.addEventListener('click', () => {
                 // Toggle performance mode - placeholder for future implementation
                 performanceBtn.classList.toggle('active');
-                console.log('Performance mode toggled');
             });
         }
     }
