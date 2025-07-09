@@ -2527,7 +2527,7 @@ body {
     background: linear-gradient(90deg, #feca57, #ff9ff3);
 }
 
-/* Checkbox Styles for Performance Tab */
+/* Checkbox Styles for Performance Tab - Fixed to work with existing structure */
 .setting-checkbox {
     display: flex;
     align-items: center;
@@ -2537,40 +2537,29 @@ body {
     font-size: 0.9rem;
 }
 
+/* Ensure the checkbox is properly hidden but still functional */
 .setting-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(100, 255, 218, 0.3);
-    border-radius: 4px;
-    background: transparent;
-    cursor: pointer;
-    position: relative;
-    appearance: none;
-    transition: all 0.3s ease;
-}
-
-.setting-checkbox input[type="checkbox"]:checked {
-    background: linear-gradient(135deg, #64ffda, #4facfe);
-    border-color: #64ffda;
-}
-
-.setting-checkbox input[type="checkbox"]:checked::after {
-    content: '✓';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #000000;
-    font-size: 12px;
-    font-weight: bold;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
 }
 
 .setting-checkbox .checkbox-text {
     user-select: none;
+    cursor: pointer;
 }
 
-.setting-checkbox:hover input[type="checkbox"] {
-    border-color: rgba(100, 255, 218, 0.5);
+/* Make sure the checkmark responds to the hidden input */
+.setting-checkbox input[type="checkbox"]:checked + .checkmark {
+    background: linear-gradient(135deg, #64ffda, #4ecdc4);
+    border-color: #64ffda;
+    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.4);
+}
+
+.setting-checkbox input[type="checkbox"]:checked + .checkmark:after {
+    display: block;
 }
 
 /* Select Dropdown Styles */
@@ -2594,7 +2583,7 @@ body {
 .setting-select:focus {
     outline: none;
     border-color: #64ffda;
-    box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
+    box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.3);
 }
 
 .setting-select option {
@@ -2636,4 +2625,103 @@ body {
 .vertical-tab-content {
     scrollbar-width: thin;
     scrollbar-color: rgba(100, 255, 218, 0.3) rgba(255, 255, 255, 0.05);
+}
+
+/* Tools Tab Complete Styling */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.tool-btn {
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.08) 0%, rgba(187, 134, 252, 0.05) 100%);
+    border: 1px solid rgba(100, 255, 218, 0.2);
+    border-radius: 12px;
+    padding: 1.2rem;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    min-height: 80px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.tool-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #64ffda, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tool-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(100, 255, 218, 0.15);
+    border-color: rgba(100, 255, 218, 0.4);
+    background: linear-gradient(135deg, rgba(100, 255, 218, 0.12) 0%, rgba(187, 134, 252, 0.08) 100%);
+}
+
+.tool-btn:hover::before {
+    opacity: 1;
+}
+
+.tool-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.2);
+}
+
+.tool-btn i {
+    font-size: 1.5rem;
+    color: #64ffda;
+    margin-bottom: 0.25rem;
+}
+
+.tool-btn span {
+    font-size: 0.85rem;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.tool-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.3);
+}
+
+/* Special styling for specific tool buttons */
+.tool-btn#save-config i {
+    color: #51cf66;
+}
+
+.tool-btn#load-config i {
+    color: #74c0fc;
+}
+
+.tool-btn#export-video i {
+    color: #ff8cc8;
+}
+
+.tool-btn#show-shortcuts i {
+    color: #ffd43b;
+}
+
+.tool-btn#debug-mode i {
+    color: #ff6b6b;
+}
+
+.tool-btn#performance-mode i {
+    color: #64ffda;
 }

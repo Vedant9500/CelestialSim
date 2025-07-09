@@ -445,16 +445,39 @@ class Renderer {
 
     drawZoomLevel() {
         const zoomText = `${(this.camera.zoom * 100).toFixed(0)}%`;
-        document.getElementById('zoom-level').textContent = zoomText;
+        const zoomElement = document.getElementById('zoom-level');
+        if (zoomElement) {
+            zoomElement.textContent = zoomText;
+        }
     }
 
     drawBodyCount(count) {
-        document.getElementById('body-count').textContent = count.toString();
+        // Try the new reference tab counter first, then fall back to old ones
+        const referenceCountEl = document.getElementById('reference-body-count');
+        const bodyCountEl = document.getElementById('body-count');
+        const bodyCountDisplayEl = document.getElementById('body-count-display');
+        
+        if (referenceCountEl) {
+            referenceCountEl.textContent = count.toString();
+        }
+        if (bodyCountEl) {
+            bodyCountEl.textContent = count.toString();
+        }
+        if (bodyCountDisplayEl) {
+            bodyCountDisplayEl.textContent = count.toString();
+        }
     }
 
     drawEnergyInfo(physicsEngine) {
-        document.getElementById('kinetic-energy').textContent = physicsEngine.totalKineticEnergy.toFixed(1);
-        document.getElementById('potential-energy').textContent = physicsEngine.totalPotentialEnergy.toFixed(1);
+        const kineticEl = document.getElementById('kinetic-energy');
+        const potentialEl = document.getElementById('potential-energy');
+        
+        if (kineticEl) {
+            kineticEl.textContent = physicsEngine.totalKineticEnergy.toFixed(1);
+        }
+        if (potentialEl) {
+            potentialEl.textContent = physicsEngine.totalPotentialEnergy.toFixed(1);
+        }
     }
 
     // Camera controls
