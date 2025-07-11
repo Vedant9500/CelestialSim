@@ -6,18 +6,10 @@ A modern, browser-based gravitational physics simulator featuring real-time N-bo
 
 ### Core Simulation
 - **Real-time N-Body Physics**: High-precision gravitational calculations using Verlet integration
-- **Solid Body Collisions**: Physics-based elastic and inelastic collisions with mass-dependent radius
 - **Interactive Body Placement**: Click-to-place celestial bodies with customizable properties
 - **Orbit Mode**: Automatically calculate stable orbital velocities with live preview
 - **Drag & Drop**: Move bodies in real-time to explore different configurations
-- **Dynamic Scaling**: Bodies scale correctly with zoom and mass for proper visual representation
 
-### Advanced Physics
-- **Collision Detection**: Continuous collision detection prevents fast bodies from tunneling
-- **Elastic Collisions**: Bodies bounce off each other with realistic momentum transfer *(Work in Progress)*
-- **Inelastic Collisions**: Bodies merge together with momentum conservation
-- **Spatial Optimization**: Efficient collision detection using spatial partitioning
-- **Physics-based Radius**: Body size calculated from mass and density using sphere model
 
 ### Advanced Controls
 - **Preset Scenarios**: Solar system, binary stars, chaotic three-body systems, and more
@@ -101,15 +93,7 @@ No installation required! The simulator runs entirely in your web browser.
 - **Verlet Integration**: Symplectic integrator preserving energy and stability
 - **Adaptive Time-stepping**: Automatic adjustment for numerical stability
 - **Softened Gravity**: Prevents computational singularities at close encounters
-- **Elastic Collision Physics**: Impulse-based collision response with friction and restitution *(Work in Progress)*
-- **Continuous Collision Detection**: Prevents tunneling for fast-moving objects
-- **Spatial Partitioning**: Efficient O(n) collision detection using grid-based optimization
 
-### Real-world Accuracy
-- **Astronomical Units**: 1 AU = 149.6 million km (Earth-Sun distance)
-- **Mass Scaling**: 1 unit = Earth mass (5.97 × 10²⁴ kg)
-- **Time Scaling**: 1 unit = 1 Earth year (365.25 days)
-- **Velocity Units**: 1 unit = 29.78 km/s (Earth's orbital speed)
 
 ## 🌐 Technical Requirements
 
@@ -148,22 +132,3 @@ This project welcomes contributions! Areas for enhancement include:
 - Performance optimizations and GPU acceleration
 - Mobile device optimization
 - Documentation and tutorial improvements
-
-## 🆕 Recent Updates
-
-### Collision System Overhaul
-- **Solid Body Physics**: Bodies are now solid objects with mass-based radius
-- **Enhanced Collision Detection**: Continuous collision detection prevents tunneling
-- **Realistic Elastic Collisions**: Proper momentum transfer with friction and restitution *(Work in Progress)*
-- **Improved Separation Logic**: Prevents bodies from getting stuck together
-
-### UI/UX Modernization
-- **Redesigned Interface**: Clean, card-based layout with unified visual theme
-- **Compact Panels**: Simulation-focused design with better space utilization
-- **Energy Monitoring**: Real-time kinetic and potential energy tracking
-- **Enhanced Visual Feedback**: Better collision visualization and debug tools
-
-### Performance Improvements
-- **Spatial Optimization**: Efficient collision detection using grid partitioning
-- **Reduced Console Spam**: Cleaner debug output with optional verbose logging
-- **Better Memory Management**: Improved cleanup and resource handling
