@@ -34,6 +34,7 @@ class PhysicsEngine {
         // Initialize advanced components
         this.integrator = new Integrator();
         this.barnesHut = null;
+        this.optimizedBarnesHut = new OptimizedBarnesHutForceCalculator();
         this.barnesHutTheta = PHYSICS_CONSTANTS.BARNES_HUT_THETA;
         
         // GPU Physics Engine
@@ -241,25 +242,29 @@ class PhysicsEngine {
         }
     }
 
-    // Barnes-Hut O(N log N) force calculation
+    // Enhanced Barnes-Hut O(N log N) force calculation with optimized memory layout
     calculateForcesBarnesHut(bodies) {
+        const startTime = performance.now();
+        
         // Reset forces
         bodies.forEach(body => {
             body.resetForce();
             body.potentialEnergy = 0;
         });
         
-        // Build quadtree
-        const bounds = this.calculateBounds(bodies);
-        this.barnesHut = new QuadTree(bounds, 1);
+        // Use optimized Barnes-Hut calculator
+        this.optimizedBarnesHut.setTheta(this.barnesHutTheta);
+        const forces = this.optimizedBarnesHut.calculateForces(bodies, this.gravitationalConstant, this.softeningParameter);
         
-        // Insert all bodies
-        bodies.forEach(body => this.barnesHut.insert(body));
+        // Apply calculated forces
+        for (let i = 0; i < bodies.length; i++) {
+            bodies[i].force.x += forces[i].x;
+            bodies[i].force.y += forces[i].y;
+        }
         
-        // Calculate forces for each body
-        bodies.forEach(body => {
-            this.barnesHut.calculateForce(body, this.gravitationalConstant, this.softeningParameter, this.barnesHutTheta);
-        });
+        // Track performance statistics
+        this.forceCalculationTime = performance.now() - startTime;
+        this.barnesHutStats = this.optimizedBarnesHut.getStats();
     }
     
     // Calculate bounding box for all bodies

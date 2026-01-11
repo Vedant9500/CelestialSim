@@ -35,7 +35,10 @@ const perfMonitor = new PerformanceMonitor();
 class NBodyApp {
     constructor() {
         this.canvas = document.getElementById('simulation-canvas');
-        this.renderer = new Renderer(this.canvas);
+        
+        // Initialize hybrid renderer (WebGL with Canvas 2D fallback)
+        this.renderer = new HybridRenderer(this.canvas);
+        
         this.physics = new PhysicsEngine();
         this.ui = new UIManager();
         
@@ -105,6 +108,9 @@ class NBodyApp {
         
         // Initialize GPU status in UI
         this.updateGPUStatus();
+        
+        // Apply initial rendering settings
+        this.ui.applyRenderingSettings(this.renderer);
         
         setTimeout(() => {
             this.ui.hideLoading();
@@ -178,6 +184,7 @@ class NBodyApp {
         this.ui.onFileLoad = (file) => this.onFileLoad(file);
         this.ui.onKeyDown = (event) => this.onKeyDown(event);
         this.ui.onPerformanceSettingChange = (setting, value) => this.onPerformanceSettingChange(setting, value);
+        this.ui.onRenderingSettingChange = (setting, value) => this.onRenderingSettingChange(setting, value);
         this.ui.onCollisionTypeChange = (type) => this.onCollisionTypeChange(type);
         this.ui.onRestitutionChange = (value) => this.onRestitutionChange(value);
     }
@@ -198,10 +205,8 @@ class NBodyApp {
         this.canvas.style.width = rect.width + 'px';
         this.canvas.style.height = rect.height + 'px';
         
-        // Update renderer with actual canvas size
-        this.renderer.width = this.canvas.width;
-        this.renderer.height = this.canvas.height;
-        this.renderer.devicePixelRatio = devicePixelRatio;
+        // Update renderer with new dimensions
+        this.renderer.updateDimensions(this.canvas.width, this.canvas.height, devicePixelRatio);
         this.renderer.setupCanvas();
     }
 
@@ -224,7 +229,15 @@ class NBodyApp {
     // This update method is replaced by the enhanced version below with Web Worker support
 
     render() {
-        this.renderer.render(this.bodies, this.physics, this.selectedBody);
+        const renderStats = this.renderer.render(this.bodies, this.physics, this.selectedBody);
+        
+        // Update rendering performance display
+        if (renderStats) {
+            this.ui.updateRenderingPerformanceDisplay(renderStats);
+        }
+        
+        // Update body count display
+        this.ui.updateBodyCount(this.bodies.length);
     }
 
     updatePerformanceMetrics(currentTime) {
@@ -1080,6 +1093,24 @@ class NBodyApp {
                 break;
             case 'adaptive-timestep':
                 this.physics.setConfiguration({ adaptiveTimeStep: value });
+                break;
+        }
+    }
+    
+    // Rendering settings handler
+    onRenderingSettingChange(setting, value) {
+        switch (setting) {
+            case 'rendering-mode':
+                this.renderer.setRenderingMode(value);
+                break;
+            case 'performance-mode':
+                this.renderer.setPerformanceMode(value);
+                break;
+            case 'frustum-culling':
+                this.renderer.setFrustumCulling(value);
+                break;
+            case 'level-of-detail':
+                this.renderer.setLODEnabled(value);
                 break;
         }
     }

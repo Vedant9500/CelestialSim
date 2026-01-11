@@ -2562,166 +2562,100 @@ body {
     display: block;
 }
 
-/* Select Dropdown Styles */
-.setting-select {
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.08) 0%, rgba(187, 134, 252, 0.05) 100%);
-    border: 1px solid rgba(100, 255, 218, 0.2);
-    border-radius: 8px;
-    padding: 0.5rem 0.75rem;
-    color: #ffffff;
-    font-size: 0.9rem;
-    min-width: 120px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.setting-select:hover {
-    border-color: rgba(100, 255, 218, 0.4);
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.12) 0%, rgba(187, 134, 252, 0.08) 100%);
-}
-
-.setting-select:focus {
-    outline: none;
-    border-color: #64ffda;
-    box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.3);
-}
-
-.setting-select option {
-    background: #1a1a2e;
-    color: #ffffff;
-    padding: 0.5rem;
-}
-
-/* Custom Scrollbar Styling - Make Them Less Intrusive */
-.tab-panel::-webkit-scrollbar,
-.tab-content::-webkit-scrollbar,
-.vertical-tab-content::-webkit-scrollbar {
-    width: 6px;
-}
-
-.tab-panel::-webkit-scrollbar-track,
-.tab-content::-webkit-scrollbar-track,
-.vertical-tab-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 3px;
-}
-
-.tab-panel::-webkit-scrollbar-thumb,
-.tab-content::-webkit-scrollbar-thumb,
-.vertical-tab-content::-webkit-scrollbar-thumb {
-    background: rgba(100, 255, 218, 0.3);
-    border-radius: 3px;
-}
-
-.tab-panel::-webkit-scrollbar-thumb:hover,
-.tab-content::-webkit-scrollbar-thumb:hover,
-.vertical-tab-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 255, 218, 0.5);
-}
-
-/* Firefox scrollbar styling */
-.tab-panel,
-.tab-content,
-.vertical-tab-content {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(100, 255, 218, 0.3) rgba(255, 255, 255, 0.05);
-}
-
-/* Tools Tab Complete Styling */
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1rem;
+/* Performance Status Display */
+.performance-status {
     margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(100, 255, 218, 0.2);
 }
 
-.tool-btn {
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.08) 0%, rgba(187, 134, 252, 0.05) 100%);
-    border: 1px solid rgba(100, 255, 218, 0.2);
-    border-radius: 12px;
-    padding: 1.2rem;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.performance-status .status-item {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 0.5rem;
     font-size: 0.9rem;
-    font-weight: 500;
-    text-align: center;
-    min-height: 80px;
-    position: relative;
-    overflow: hidden;
-    text-decoration: none;
 }
 
-.tool-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #64ffda, transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+.performance-status .status-item:last-child {
+    margin-bottom: 0;
 }
 
-.tool-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(100, 255, 218, 0.15);
-    border-color: rgba(100, 255, 218, 0.4);
-    background: linear-gradient(135deg, rgba(100, 255, 218, 0.12) 0%, rgba(187, 134, 252, 0.08) 100%);
-}
-
-.tool-btn:hover::before {
-    opacity: 1;
-}
-
-.tool-btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 20px rgba(100, 255, 218, 0.2);
-}
-
-.tool-btn i {
-    font-size: 1.5rem;
+.performance-status .status-item i {
     color: #64ffda;
-    margin-bottom: 0.25rem;
+    width: 16px;
+    text-align: center;
 }
 
-.tool-btn span {
-    font-size: 0.85rem;
+.performance-status .status-label {
+    color: #a0a0a0;
+    min-width: 120px;
+}
+
+.performance-status .status-value {
     color: #ffffff;
     font-weight: 500;
+    font-family: 'Courier New', monospace;
 }
 
-.tool-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.3);
+/* Body Count Status (for bodies tab) */
+.body-count-status {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(100, 255, 218, 0.2);
 }
 
-/* Special styling for specific tool buttons */
-.tool-btn#save-config i {
-    color: #51cf66;
+.body-count-status .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+    justify-content: center;
 }
 
-.tool-btn#load-config i {
-    color: #74c0fc;
-}
-
-.tool-btn#export-video i {
-    color: #ff8cc8;
-}
-
-.tool-btn#show-shortcuts i {
-    color: #ffd43b;
-}
-
-.tool-btn#debug-mode i {
-    color: #ff6b6b;
-}
-
-.tool-btn#performance-mode i {
+.body-count-status .status-item i {
     color: #64ffda;
+    font-size: 1.2rem;
+}
+
+.body-count-status .count-value {
+    color: #64ffda;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+.body-count-status .count-label {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+}
+
+/* Rendering Mode Indicator */
+.rendering-mode-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rendering-mode-indicator.webgl {
+    background: rgba(100, 255, 218, 0.2);
+    color: #64ffda;
+}
+
+.rendering-mode-indicator.canvas2d {
+    background: rgba(255, 156, 0, 0.2);
+    color: #ff9c00;
+}
+
+.rendering-mode-indicator.auto {
+    background: rgba(187, 134, 252, 0.2);
+    color: #bb86fc;
 }

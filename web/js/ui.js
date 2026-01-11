@@ -473,6 +473,43 @@ class UIManager {
                 this.onPerformanceSettingChange('gpu-acceleration', e.target.checked);
             });
         }
+        
+        // Rendering performance controls
+        this.initializeRenderingControls();
+    }
+    
+    initializeRenderingControls() {
+        // Rendering mode dropdown
+        const renderingMode = document.getElementById('rendering-mode');
+        if (renderingMode) {
+            renderingMode.addEventListener('change', (e) => {
+                this.onRenderingSettingChange('rendering-mode', e.target.value);
+            });
+        }
+        
+        // Performance mode dropdown
+        const performanceMode = document.getElementById('performance-mode');
+        if (performanceMode) {
+            performanceMode.addEventListener('change', (e) => {
+                this.onRenderingSettingChange('performance-mode', e.target.value);
+            });
+        }
+        
+        // Frustum culling checkbox
+        const frustumCulling = document.getElementById('frustum-culling');
+        if (frustumCulling) {
+            frustumCulling.addEventListener('change', (e) => {
+                this.onRenderingSettingChange('frustum-culling', e.target.checked);
+            });
+        }
+        
+        // Level of detail checkbox
+        const levelOfDetail = document.getElementById('level-of-detail');
+        if (levelOfDetail) {
+            levelOfDetail.addEventListener('change', (e) => {
+                this.onRenderingSettingChange('level-of-detail', e.target.checked);
+            });
+        }
     }
 
     // Panel toggle methods
@@ -845,6 +882,10 @@ class UIManager {
     // Event handler for performance settings
     onPerformanceSettingChange(setting, value) {
         // Performance setting changed - override in main app
+    }
+    
+    onRenderingSettingChange(setting, value) {
+        // Rendering setting changed - override in main app
     }
 
     // Event handlers (to be overridden by the main application)
@@ -1533,295 +1574,89 @@ class UIManager {
         }
     }
 
-    // Clear cached elements (useful when DOM structure changes)
-    clearElementCache() {
-        this.cachedElements.clear();
+    // Rendering performance display methods
+    updateRenderingPerformanceDisplay(stats) {
+        // Update active renderer display
+        const activeRenderer = document.getElementById('active-renderer');
+        if (activeRenderer && stats.activeMode) {
+            activeRenderer.textContent = stats.activeMode.toUpperCase();
+            activeRenderer.className = `status-value rendering-mode-indicator ${stats.activeMode}`;
+        }
+        
+        // Update bodies rendered count
+        const bodiesRendered = document.getElementById('bodies-rendered');
+        if (bodiesRendered) {
+            const rendered = stats.bodiesRendered || 0;
+            const culled = stats.bodiesCulled || 0;
+            const total = rendered + culled;
+            bodiesRendered.textContent = total > 0 ? `${rendered}/${total}` : '0';
+        }
+        
+        // Update render time
+        const renderTime = document.getElementById('render-time');
+        if (renderTime && stats.renderTime !== undefined) {
+            renderTime.textContent = `${stats.renderTime.toFixed(2)}ms`;
+        }
+        
+        // Update FPS in header
+        const fpsDisplay = document.getElementById('fps-display');
+        if (fpsDisplay && stats.fps !== undefined) {
+            fpsDisplay.textContent = `${Math.round(stats.fps)} FPS`;
+        }
+    }
+    
+    updateBodyCount(count) {
+        const bodyCountDisplay = document.getElementById('body-count-display');
+        if (bodyCountDisplay) {
+            bodyCountDisplay.textContent = count;
+        }
+    }
+    
+    updateScaleReference(zoom) {
+        // Update scale reference display based on current zoom level
+        // This is a placeholder method for scale reference functionality
+        // The actual scale reference doesn't need dynamic updates currently
+    }
+    
+    // Apply rendering settings to the renderer
+    applyRenderingSettings(renderer) {
+        const renderingMode = document.getElementById('rendering-mode');
+        const performanceMode = document.getElementById('performance-mode');
+        const frustumCulling = document.getElementById('frustum-culling');
+        const levelOfDetail = document.getElementById('level-of-detail');
+        
+        if (renderingMode && renderer.setRenderingMode) {
+            renderer.setRenderingMode(renderingMode.value);
+        }
+        
+        if (performanceMode && renderer.setPerformanceMode) {
+            renderer.setPerformanceMode(performanceMode.value);
+        }
+        
+        if (frustumCulling && renderer.setFrustumCulling) {
+            renderer.setFrustumCulling(frustumCulling.checked);
+        }
+        
+        if (levelOfDetail && renderer.setLODEnabled) {
+            renderer.setLODEnabled(levelOfDetail.checked);
+        }
     }
 
-    // Utility method to get cached DOM elements
-    getElement(id) {
-        if (!this.cachedElements.has(id)) {
-            const element = document.getElementById(id);
-            if (element) {
-                this.cachedElements.set(id, element);
-            }
-        }
-        return this.cachedElements.get(id) || null;
-    }
-
-    updateScaleReference(simulationData) {
-        // Validate input
-        if (!simulationData || typeof simulationData !== 'object') {
-            return;
-        }
-        
-        // Update simulation stats
-        this.updateSimulationStats(simulationData);
-        
-        // Update canvas scale info
-        this.updateCanvasScale(simulationData);
-        
-        // Update simulation bounds
-        this.updateSimulationBounds(simulationData);
-        
-        // Update physics constants
-        this.updatePhysicsConstants(simulationData);
-    }
-    
-    updateSimulationStats(simulationData) {
-        const { bodies = [], canvas = null, zoom = 1.0 } = simulationData;
-        
-        // Update body count
-        const bodyCountEl = document.getElementById('reference-body-count');
-        if (bodyCountEl) {
-            bodyCountEl.textContent = bodies.length.toString();
-        }
-        
-        // Update canvas dimensions
-        const canvasDimensionsEl = document.getElementById('canvas-dimensions');
-        if (canvasDimensionsEl && canvas) {
-            canvasDimensionsEl.textContent = `${canvas.width}×${canvas.height}`;
-        }
-        
-        // Update zoom level
-        const currentZoomEl = document.getElementById('current-zoom');
-        if (currentZoomEl) {
-            currentZoomEl.textContent = `${(zoom * 100).toFixed(0)}%`;
-        }
-    }
-    
-    updateCanvasScale(simulationData) {
-        const { canvas = null, zoom = 1.0, camera = null } = simulationData;
-        
-        if (!canvas) return;
-        
-        // Calculate pixels per AU (assuming 1 AU = 100 pixels at 100% zoom)
-        const basePixelsPerAU = 100;
-        const currentPixelsPerAU = basePixelsPerAU * zoom;
-        const auPerPixel = 1.0 / currentPixelsPerAU;
-        
-        // Update pixel scale
-        const pixelScaleEl = document.getElementById('pixel-scale');
-        if (pixelScaleEl) {
-            if (auPerPixel < 0.001) {
-                pixelScaleEl.textContent = `${(auPerPixel * 1000000).toFixed(1)} km`;
-            } else if (auPerPixel < 1) {
-                pixelScaleEl.textContent = `${auPerPixel.toFixed(3)} AU`;
-            } else {
-                pixelScaleEl.textContent = `${auPerPixel.toFixed(2)} AU`;
-            }
-        }
-        
-        // Calculate visible area
-        const visibleWidth = canvas.width / currentPixelsPerAU;
-        const visibleHeight = canvas.height / currentPixelsPerAU;
-        const visibleRadius = Math.max(visibleWidth, visibleHeight) / 2;
-        
-        const visibleAreaEl = document.getElementById('visible-area');
-        if (visibleAreaEl) {
-            if (visibleRadius < 1) {
-                visibleAreaEl.textContent = `±${(visibleRadius * 1000).toFixed(0)} km`;
-            } else if (visibleRadius < 100) {
-                visibleAreaEl.textContent = `±${visibleRadius.toFixed(1)} AU`;
-            } else {
-                visibleAreaEl.textContent = `±${(visibleRadius / 63241).toFixed(2)} ly`;
-            }
-        }
-        
-        // Update grid spacing (typically 1 AU at base zoom)
-        const gridSpacingEl = document.getElementById('grid-spacing');
-        if (gridSpacingEl) {
-            const gridSpacing = 1.0 / zoom; // Grid spacing in AU
-            if (gridSpacing < 0.001) {
-                gridSpacingEl.textContent = `${(gridSpacing * 149597870.7).toFixed(0)} km`;
-            } else if (gridSpacing < 1) {
-                gridSpacingEl.textContent = `${gridSpacing.toFixed(3)} AU`;
-            } else {
-                gridSpacingEl.textContent = `${gridSpacing.toFixed(2)} AU`;
-            }
-        }
-    }
-    
-    updateSimulationBounds(simulationData) {
-        const { bodies = [], systemExtent = 0, centerOfMass = { x: 0, y: 0 }, maxVelocity = 0 } = simulationData;
-        
-        // Update system extent
-        const systemExtentEl = document.getElementById('system-extent');
-        if (systemExtentEl) {
-            if (systemExtent < 0.001) {
-                systemExtentEl.textContent = `${(systemExtent * 149597870.7).toFixed(0)} km`;
-            } else if (systemExtent < 100) {
-                systemExtentEl.textContent = `${systemExtent.toFixed(3)} AU`;
-            } else {
-                systemExtentEl.textContent = `${(systemExtent / 63241).toFixed(2)} ly`;
-            }
-        }
-        
-        // Update center of mass
-        const centerOfMassEl = document.getElementById('center-of-mass');
-        if (centerOfMassEl && centerOfMass) {
-            const x = Math.abs(centerOfMass.x) < 0.001 ? '0.0' : centerOfMass.x.toFixed(3);
-            const y = Math.abs(centerOfMass.y) < 0.001 ? '0.0' : centerOfMass.y.toFixed(3);
-            centerOfMassEl.textContent = `(${x}, ${y})`;
-        }
-        
-        // Update max velocity
-        const maxVelocityEl = document.getElementById('max-velocity');
-        if (maxVelocityEl) {
-            if (maxVelocity < 0.001) {
-                maxVelocityEl.textContent = `${(maxVelocity * 29.78).toFixed(2)} km/s`;
-            } else {
-                maxVelocityEl.textContent = `${maxVelocity.toFixed(3)} AU/yr`;
-            }
-        }
-    }
-    
-    updatePhysicsConstants(simulationData) {
-        const { physics = {} } = simulationData;
-        
-        // Update gravitational constant
-        const gConstantEl = document.getElementById('gravitational-constant');
-        if (gConstantEl) {
-            const G = physics.gravitationalConstant || (4 * Math.PI * Math.PI);
-            gConstantEl.textContent = G === (4 * Math.PI * Math.PI) ? '4π²' : G.toFixed(6);
-        }
-        
-        // Update time step
-        const timeStepEl = document.getElementById('time-step');
-        if (timeStepEl) {
-            const dt = physics.timeStep || 0.001;
-            timeStepEl.textContent = dt.toFixed(6);
-        }
-        
-        // Update collision radius
-        const collisionRadiusEl = document.getElementById('collision-radius');
-        if (collisionRadiusEl) {
-            const collisionRadius = physics.collisionRadius || 0.001;
-            collisionRadiusEl.textContent = collisionRadius.toFixed(6);
-        }
-        
-        // Update softening length
-        const softeningLengthEl = document.getElementById('softening-length');
-        if (softeningLengthEl) {
-            const softeningLength = physics.softeningLength || 0.01;
-            softeningLengthEl.textContent = softeningLength.toFixed(6);
-        }
-    }
-    
-    updateScaleUnits(simulationData) {
-        // Update velocity scale based on typical velocities in the system
-        const velocityScaleEl = document.getElementById('velocity-scale');
-        if (velocityScaleEl && simulationData.bodies && simulationData.bodies.length > 0) {
-            // Calculate average velocity
-            let totalVelocity = 0;
-            let count = 0;
-            
-            simulationData.bodies.forEach(body => {
-                if (body.vx !== undefined && body.vy !== undefined) {
-                    const speed = Math.sqrt(body.vx * body.vx + body.vy * body.vy);
-                    totalVelocity += speed;
-                    count++;
-                }
-            });
-            
-            if (count > 0) {
-                const avgVelocity = totalVelocity / count;
-                // Convert to km/s (assuming 1 unit = 29.8 km/s, Earth's orbital speed)
-                const kmPerS = avgVelocity * 29.8;
-                
-                if (kmPerS < 1) {
-                    velocityScaleEl.textContent = `${(kmPerS * 1000).toFixed(0)} m/s`;
-                } else if (kmPerS < 300000) {
-                    velocityScaleEl.textContent = `${kmPerS.toFixed(1)} km/s`;
-                } else {
-                    velocityScaleEl.textContent = `${(kmPerS / 299792458).toFixed(3)}c`;
-                }
-            }
-        }
-    }
-    
-    updatePlanetaryAnimations() {
-        // Add sparkle effects to unit bars
-        const unitBars = document.querySelectorAll('.unit-bar .bar-spark');
-        unitBars.forEach((spark, index) => {
-            // Stagger the animation start times
-            spark.style.animationDelay = `${index * 0.5}s`;
-        });
-        
-        // Update power scale highlighting based on current system scale
-        const powerScales = document.querySelectorAll('.power-scale');
-        powerScales.forEach(scale => {
-            scale.classList.remove('active');
-        });
-        
-        // Highlight the most relevant power scale (can be enhanced based on actual system size)
-        const defaultPowerScale = document.querySelector('.power-scale[data-power="0"]');
-        if (defaultPowerScale) {
-            defaultPowerScale.classList.add('active');
-        }
-    }
-    
-    // Initialize Scale Reference interactive features
     initializeScaleReference() {
-        // Add hover effects for planets
-        const planets = document.querySelectorAll('.planet');
-        planets.forEach(planet => {
-            planet.addEventListener('click', (e) => {
-                this.showPlanetDetails(e.target.closest('.planet'));
-            });
-        });
-        
-        // Add click handlers for power scales
-        const powerScales = document.querySelectorAll('.power-scale');
-        powerScales.forEach(scale => {
-            scale.addEventListener('click', () => {
-                powerScales.forEach(s => s.classList.remove('active'));
-                scale.classList.add('active');
-                this.onPowerScaleSelect(scale.dataset.power);
-            });
-        });
-        
-        // Add journey step interactions
-        const journeySteps = document.querySelectorAll('.journey-step');
-        journeySteps.forEach(step => {
-            step.addEventListener('click', () => {
-                this.showScaleJourneyDetails(step);
-            });
-        });
-    }
-    
-    showPlanetDetails(planetElement) {
-        if (!planetElement) return;
-        
-        const distance = planetElement.dataset.distance;
-        const planetName = planetElement.querySelector('.planet-tooltip')?.textContent.split('\n')[0];
-        
-        if (planetName && distance) {
-            console.log(`Planet ${planetName} selected - Distance: ${distance} AU`);
-            // Could show detailed information in a modal or tooltip
-        }
-    }
-    
-    onPowerScaleSelect(power) {
-        console.log(`Power scale selected: 10^${power}`);
-        // Could update the simulation view or provide scale context
-    }
-    
-    showScaleJourneyDetails(stepElement) {
-        const stepType = stepElement.classList.contains('local') ? 'local' :
-                        stepElement.classList.contains('stellar') ? 'stellar' :
-                        stepElement.classList.contains('galactic') ? 'galactic' : 'universal';
-        
-        console.log(`Scale journey step selected: ${stepType}`);
-        // Could show detailed information about this scale range
+        // Scale reference initialization
+        // This method handles the scale reference tab functionality
+        // For now, it's a placeholder - the scale reference tab doesn't have dynamic controls
+        // but we need this method to prevent the error
     }
 
     initializeExpandablePanels() {
+        // Initialize expandable panels (like energy and performance tabs)
         const panels = document.querySelectorAll('.expandable-panel');
         panels.forEach(panel => {
             const header = panel.querySelector('.expandable-header');
             const content = panel.querySelector('.expandable-content');
             if (!header || !content) return;
+            
             header.addEventListener('click', () => {
                 const expanded = header.getAttribute('aria-expanded') === 'true';
                 header.setAttribute('aria-expanded', !expanded);

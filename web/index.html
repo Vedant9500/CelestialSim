@@ -328,6 +328,63 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="panel-section">
+                                <h3><i class="fas fa-microchip"></i> Rendering Performance</h3>
+                                
+                                <div class="setting-group">
+                                    <label for="rendering-mode">Rendering Mode:</label>
+                                    <select id="rendering-mode" class="setting-select"
+                                            data-tooltip="Auto: Automatically switches between WebGL and Canvas 2D based on performance. WebGL: Uses GPU acceleration for better performance with many bodies. Canvas 2D: Software rendering with good compatibility.">
+                                        <option value="auto">Auto (Recommended)</option>
+                                        <option value="webgl">WebGL (GPU)</option>
+                                        <option value="canvas2d">Canvas 2D (CPU)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="setting-group">
+                                    <label for="performance-mode">Performance Mode:</label>
+                                    <select id="performance-mode" class="setting-select"
+                                            data-tooltip="Performance: Prioritizes smooth framerate over visual quality. Balanced: Good compromise between performance and quality. Quality: Maximum visual quality, may be slower with many bodies.">
+                                        <option value="performance">Performance</option>
+                                        <option value="balanced">Balanced</option>
+                                        <option value="quality">Quality</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label"
+                                           data-tooltip="Skip rendering bodies that are outside the visible area to improve performance. Recommended for simulations with many bodies.">
+                                        <input type="checkbox" id="frustum-culling" checked>
+                                        <span class="checkmark"></span>
+                                        Frustum Culling
+                                    </label>
+                                    <label class="checkbox-label"
+                                           data-tooltip="Render distant bodies with less detail to improve performance. Bodies closer to the camera get full detail.">
+                                        <input type="checkbox" id="level-of-detail" checked>
+                                        <span class="checkmark"></span>
+                                        Level of Detail (LOD)
+                                    </label>
+                                </div>
+                                
+                                <div class="performance-status">
+                                    <div class="status-item">
+                                        <i class="fas fa-desktop"></i>
+                                        <span class="status-label">Active Renderer:</span>
+                                        <span id="active-renderer" class="status-value">Loading...</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <i class="fas fa-eye"></i>
+                                        <span class="status-label">Bodies Rendered:</span>
+                                        <span id="bodies-rendered" class="status-value">0</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span class="status-label">Render Time:</span>
+                                        <span id="render-time" class="status-value">0.0ms</span>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- Selected Body Info -->
                             <div id="selected-body-panel" class="panel-section" style="display: none;">
@@ -1063,11 +1120,14 @@
     <script src="js/body.js?v=2.0"></script>
     <script src="js/integrator.js?v=2.0"></script>
     <script src="js/barnes-hut.js?v=2.0"></script>
+    <script src="js/optimized-barnes-hut.js?v=1.0"></script>
     <script src="js/gpu-physics.js?v=3.0"></script>
     <script src="js/physics.js?v=3.0"></script>
+    <script src="js/webgl-renderer.js?v=1.2"></script>
+    <script src="js/hybrid-renderer.js?v=1.3"></script>
     <script src="js/renderer.js?v=2.0"></script>
-    <script src="js/ui.js?v=3.2"></script>
+    <script src="js/ui.js?v=3.5"></script>
     <script src="js/presets.js?v=2.0"></script>
-    <script src="js/app.js?v=3.0"></script>
+    <script src="js/app.js?v=3.2"></script>
 </body>
 </html>

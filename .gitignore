@@ -430,3 +430,50 @@ venv.bak/
 # OS specific
 .DS_Store
 Thumbs.db
+
+# C++ Reference Implementation (keep for reference but don't commit)
+src/
+include/
+*.cpp
+*.h
+*.hpp
+*.c
+*.glsl
+
+# CMake build files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Additional C++ build artifacts
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+
+# OpenGL/Graphics specific
+*.frag
+*.vert
+*.geom
+*.tesc
+*.tese
+*.comp
+
+# Documentation and roadmap files (optional - keep these for now)
+OPTIMIZATION_ROADMAP.md
+
+# C++/OpenGL N-body simulation build artifacts
+cpp-version/build/
+cpp-version/vcpkg_installed/
+cpp-version/*.exe
+cpp-version/*.dll
+cpp-version/*.lib
+cpp-version/*.pdb
+cpp-version/.vs/
+cpp-version/CMakeCache.txt
+cpp-version/CMakeFiles/
+cpp-version/cmake_install.cmake
+cpp-version/compile_commands.json
