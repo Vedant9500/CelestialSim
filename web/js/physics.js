@@ -379,9 +379,10 @@ class PhysicsEngine {
                     
                     // Enhanced collision detection with continuous collision detection
                     if (this.detectAndResolveCollision(body1, body2)) {
-                        // Apply stronger collision cooldown to prevent jittering
-                        body1.setCollisionCooldownWith(body2, 10); // 10 frames cooldown
-                        body2.setCollisionCooldownWith(body1, 10);
+                        // Apply collision cooldown to prevent jittering (time in seconds)
+                        const cooldownTime = PHYSICS_CONSTANTS.COLLISION_COOLDOWN_TIME || 0.25;
+                        body1.setCollisionCooldownWith(body2, cooldownTime);
+                        body2.setCollisionCooldownWith(body1, cooldownTime);
                     }
                 }
             }
@@ -568,22 +569,24 @@ class PhysicsEngine {
             
             if (tangentMagnitude > 0.001) {
                 const frictionImpulse = Math.min(friction * Math.abs(impulseStrength), tangentMagnitude);
-                const frictionX = -frictionImpulse * tangentX / tangentMagnitude;
-                const frictionY = -frictionImpulse * tangentY / tangentMagnitude;
+                // Friction opposes relative tangential motion
+                // tangent is (body2 - body1), so to reduce relative motion:
+                // body1 gets pushed in +tangent direction, body2 in -tangent direction
+                const frictionX = frictionImpulse * tangentX / tangentMagnitude;
+                const frictionY = frictionImpulse * tangentY / tangentMagnitude;
                 
-                body1.velocity.x += frictionX / body1.mass;
-                body1.velocity.y += frictionY / body1.mass;
-                body2.velocity.x -= frictionX / body2.mass;
-                body2.velocity.y -= frictionY / body2.mass;
+                // Apply friction impulse (divide by mass for velocity change)
+                const friction1 = 1 / (body1.mass + body2.mass) * body2.mass;
+                const friction2 = 1 / (body1.mass + body2.mass) * body1.mass;
+                body1.velocity.x += frictionX * friction1;
+                body1.velocity.y += frictionY * friction1;
+                body2.velocity.x -= frictionX * friction2;
+                body2.velocity.y -= frictionY * friction2;
             }
         }
         
-        // Apply velocity damping to prevent unrealistic bouncing
-        const damping = 0.99;
-        body1.velocity.x *= damping;
-        body1.velocity.y *= damping;
-        body2.velocity.x *= damping;
-        body2.velocity.y *= damping;
+        // Note: Energy loss is controlled by restitution coefficient
+        // Additional damping removed to allow proper elastic behavior
     }
 
     // Handle inelastic collisions (bodies merge when they collide)
@@ -786,10 +789,14 @@ class PhysicsEngine {
             kineticEnergy += 0.5 * body.mass * body.velocity.magnitudeSquared();
         });
 
-        // Calculate potential energy
+        // Calculate potential energy (using softening for consistency with force calculation)
         for (let i = 0; i < bodies.length; i++) {
             for (let j = i + 1; j < bodies.length; j++) {
-                const distance = bodies[i].position.distance(bodies[j].position);
+                const dx = bodies[i].position.x - bodies[j].position.x;
+                const dy = bodies[i].position.y - bodies[j].position.y;
+                const distanceSquared = dx * dx + dy * dy;
+                const softenedDistanceSquared = distanceSquared + this.softeningParameter * this.softeningParameter;
+                const distance = Math.sqrt(softenedDistanceSquared);
                 potentialEnergy -= this.gravitationalConstant * bodies[i].mass * bodies[j].mass / distance;
             }
         }

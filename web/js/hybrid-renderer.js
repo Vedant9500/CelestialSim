@@ -9,7 +9,7 @@
 class HybridRenderer {
     constructor(canvas) {
         this.canvas = canvas;
-        this.renderingMode = 'auto'; // 'auto', 'webgl', 'canvas2d'
+        this.renderingMode = 'canvas2d'; // Force canvas2d mode - WebGL has rendering issues
         this.currentRenderer = null;
         this.performanceMode = 'balanced'; // 'performance', 'balanced', 'quality'
         
@@ -210,16 +210,6 @@ class HybridRenderer {
     }
 
     // Camera controls
-    panCamera(deltaX, deltaY) {
-        const camera = this.camera;
-        camera.x += deltaX / camera.zoom;
-        camera.y += deltaY / camera.zoom;
-        
-        if (this.currentRenderer && this.currentRenderer.panCamera) {
-            this.currentRenderer.panCamera(deltaX, deltaY);
-        }
-    }
-
     zoomCamera(factor, centerX = null, centerY = null) {
         const camera = this.camera;
         const oldZoom = camera.zoom;
@@ -315,6 +305,56 @@ class HybridRenderer {
     setLongTermPreview(show) {
         if (this.currentRenderer && this.currentRenderer.setLongTermPreview) {
             this.currentRenderer.setLongTermPreview(show);
+        }
+    }
+
+    setOrbitPreview(show, previewData = null) {
+        if (this.currentRenderer && this.currentRenderer.setOrbitPreview) {
+            this.currentRenderer.setOrbitPreview(show, previewData);
+        }
+    }
+
+    fitAllBodies(bodies) {
+        if (this.currentRenderer && this.currentRenderer.fitAllBodies) {
+            this.currentRenderer.fitAllBodies(bodies);
+        }
+    }
+
+    setShowForces(show) {
+        if (this.currentRenderer && this.currentRenderer.setShowForces) {
+            this.currentRenderer.setShowForces(show);
+        }
+    }
+
+    setShowCollisionBounds(show) {
+        if (this.currentRenderer && this.currentRenderer.setShowCollisionBounds) {
+            this.currentRenderer.setShowCollisionBounds(show);
+        }
+    }
+
+    calculateOrbitPreview(body, bodies, physics) {
+        if (this.currentRenderer && this.currentRenderer.calculateOrbitPreview) {
+            return this.currentRenderer.calculateOrbitPreview(body, bodies, physics);
+        }
+        return { points: [] };
+    }
+
+    calculateLongTermOrbitPreview(body, bodies, physics) {
+        if (this.currentRenderer && this.currentRenderer.calculateLongTermOrbitPreview) {
+            return this.currentRenderer.calculateLongTermOrbitPreview(body, bodies, physics);
+        }
+        return { points: [] };
+    }
+
+    setPredictionDepth(depth) {
+        if (this.currentRenderer && this.currentRenderer.setPredictionDepth) {
+            this.currentRenderer.setPredictionDepth(depth);
+        }
+    }
+
+    debugCoordinates() {
+        if (this.currentRenderer && this.currentRenderer.debugCoordinates) {
+            this.currentRenderer.debugCoordinates();
         }
     }
 
@@ -442,7 +482,7 @@ class OptimizedCanvas2DRenderer {
             y: 0,
             zoom: 1.0,
             targetZoom: 1.0,
-            smoothing: 0.1
+            smoothing: 0.15
         };
         
         // Visual settings
@@ -450,6 +490,10 @@ class OptimizedCanvas2DRenderer {
         this.showGrid = true;
         this.showForces = false;
         this.showInfo = true;
+        this.showOrbitPreview = false;
+        this.showLongTermPreview = false;
+        this.showCollisionBounds = false;
+        this.orbitPreviewPoints = [];
         
         // Performance optimizations
         this.enableCulling = true;
@@ -765,12 +809,6 @@ class OptimizedCanvas2DRenderer {
         this.showGrid = show;
     }
 
-    // Camera controls
-    panCamera(deltaX, deltaY) {
-        this.camera.x += deltaX / this.camera.zoom;
-        this.camera.y += deltaY / this.camera.zoom;
-    }
-
     zoomCamera(factor, centerX = null, centerY = null) {
         const oldZoom = this.camera.zoom;
         this.camera.targetZoom = Math.max(0.1, Math.min(10.0, this.camera.targetZoom * factor));
@@ -838,8 +876,75 @@ class OptimizedCanvas2DRenderer {
         this.showOrbitPreview = show;
     }
 
+    setOrbitPreview(show, previewData = null) {
+        this.showOrbitPreview = show;
+        if (previewData) {
+            this.orbitPreviewPoints = previewData.points || [];
+        } else {
+            this.orbitPreviewPoints = [];
+        }
+    }
+
     setLongTermPreview(show) {
         this.showLongTermPreview = show;
+    }
+
+    fitAllBodies(bodies) {
+        if (!bodies || bodies.length === 0) return;
+        
+        let minX = bodies[0].position.x;
+        let maxX = bodies[0].position.x;
+        let minY = bodies[0].position.y;
+        let maxY = bodies[0].position.y;
+        
+        bodies.forEach(body => {
+            minX = Math.min(minX, body.position.x - body.radius);
+            maxX = Math.max(maxX, body.position.x + body.radius);
+            minY = Math.min(minY, body.position.y - body.radius);
+            maxY = Math.max(maxY, body.position.y + body.radius);
+        });
+        
+        // Center the camera
+        this.camera.x = (minX + maxX) / 2;
+        this.camera.y = (minY + maxY) / 2;
+        
+        // Calculate zoom to fit all bodies with padding
+        const width = maxX - minX;
+        const height = maxY - minY;
+        const padding = 1.2;
+        const zoomX = this.width / (width * padding);
+        const zoomY = this.height / (height * padding);
+        this.camera.zoom = Math.min(zoomX, zoomY, 2.0);
+        this.camera.targetZoom = this.camera.zoom;
+    }
+
+    setShowForces(show) {
+        this.showForces = show;
+    }
+
+    setShowCollisionBounds(show) {
+        this.showCollisionBounds = show;
+    }
+
+    calculateOrbitPreview(body, bodies, physics) {
+        // Simplified orbit preview - returns empty for Canvas2D renderer
+        // Full implementation is in the main renderer.js
+        return { points: [] };
+    }
+
+    calculateLongTermOrbitPreview(body, bodies, physics) {
+        // Simplified long-term preview - returns empty for Canvas2D renderer
+        return { points: [] };
+    }
+
+    setPredictionDepth(depth) {
+        // Placeholder for prediction depth setting
+        this.predictionDepth = depth;
+    }
+
+    debugCoordinates() {
+        console.log('Camera:', this.camera);
+        console.log('Canvas dimensions:', this.width, 'x', this.height);
     }
 
     getStats() {

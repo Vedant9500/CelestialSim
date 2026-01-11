@@ -175,11 +175,13 @@ class Body {
             // Update lastPosition BEFORE changing position
             const tempPosition = this.position.clone();
             this.position = newPosition;
-            this.lastPosition = tempPosition;
             
-            // Calculate velocity from position difference (for display/energy calc)
-            // v = (x(t) - x(t-dt)) / dt
-            this.velocity = this.position.subtract(this.lastPosition).divide(deltaTime);
+            // Calculate velocity using central difference for better accuracy
+            // v(t) ≈ (x(t+dt) - x(t-dt)) / (2*dt)
+            // Here: newPosition = x(t+dt), lastPosition = x(t-dt)
+            this.velocity = this.position.subtract(this.lastPosition).divide(2 * deltaTime);
+            
+            this.lastPosition = tempPosition;
         }
 
         // Calculate kinetic energy
@@ -302,31 +304,22 @@ class Body {
     // Set selection state
     setSelected(selected) {
         this.selected = selected;
-        this.targetGlow = selected ? 1.0 : 0.0;
+        // Glow effect disabled
+        this.targetGlow = 0;
     }
 
     // Set hover state
     setHovered(hovered) {
         this.hovered = hovered;
-        // Slight glow effect when hovered (but less than selected)
-        if (!this.selected) {
-            this.targetGlow = hovered ? 0.3 : 0.0;
-        }
+        // Glow effect disabled
+        this.targetGlow = 0;
     }
 
     // Set drag state
     setBeingDragged(beingDragged) {
         this.beingDragged = beingDragged;
-        // Enhanced glow when being dragged
-        if (beingDragged) {
-            this.targetGlow = 1.5;
-        } else if (this.selected) {
-            this.targetGlow = 1.0;
-        } else if (this.hovered) {
-            this.targetGlow = 0.3;
-        } else {
-            this.targetGlow = 0.0;
-        }
+        // Glow effect disabled
+        this.targetGlow = 0;
     }
 
     // Get display information

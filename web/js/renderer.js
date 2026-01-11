@@ -28,7 +28,7 @@ class Renderer {
         this.particleEffects = true;
         
         // Visual effects
-        this.glowEffect = true;
+        this.glowEffect = false;
         this.antiAliasing = true;
         
         // Orbit preview

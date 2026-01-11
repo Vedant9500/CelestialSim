@@ -759,6 +759,75 @@ class WebGLRenderer {
         this.showLongTermPreview = show;
     }
 
+    setOrbitPreview(show, previewData = null) {
+        this.showOrbitPreview = show;
+        if (previewData) {
+            this.orbitPreviewPoints = previewData.points || [];
+        } else {
+            this.orbitPreviewPoints = [];
+        }
+    }
+
+    setShowGrid(show) {
+        this.showGrid = show;
+    }
+
+    setShowForces(show) {
+        this.showForces = show;
+    }
+
+    setShowCollisionBounds(show) {
+        this.showCollisionBounds = show;
+    }
+
+    fitAllBodies(bodies) {
+        if (!bodies || bodies.length === 0) return;
+        
+        let minX = bodies[0].position.x;
+        let maxX = bodies[0].position.x;
+        let minY = bodies[0].position.y;
+        let maxY = bodies[0].position.y;
+        
+        bodies.forEach(body => {
+            minX = Math.min(minX, body.position.x - body.radius);
+            maxX = Math.max(maxX, body.position.x + body.radius);
+            minY = Math.min(minY, body.position.y - body.radius);
+            maxY = Math.max(maxY, body.position.y + body.radius);
+        });
+        
+        // Center the camera
+        this.camera.x = (minX + maxX) / 2;
+        this.camera.y = (minY + maxY) / 2;
+        
+        // Calculate zoom to fit all bodies with padding
+        const width = maxX - minX;
+        const height = maxY - minY;
+        const padding = 1.2;
+        const zoomX = this.width / (width * padding);
+        const zoomY = this.height / (height * padding);
+        this.camera.zoom = Math.min(zoomX, zoomY, 2.0);
+        this.camera.targetZoom = this.camera.zoom;
+    }
+
+    calculateOrbitPreview(body, bodies, physics) {
+        // Simplified - returns empty for WebGL renderer
+        return { points: [] };
+    }
+
+    calculateLongTermOrbitPreview(body, bodies, physics) {
+        // Simplified - returns empty for WebGL renderer
+        return { points: [] };
+    }
+
+    setPredictionDepth(depth) {
+        this.predictionDepth = depth;
+    }
+
+    debugCoordinates() {
+        console.log('WebGL Camera:', this.camera);
+        console.log('Canvas dimensions:', this.width, 'x', this.height);
+    }
+
     setupCanvas() {
         // WebGL setup is handled in initializeGL
         // This is here for compatibility with the canvas renderer

@@ -236,9 +236,31 @@ class OptimizedQuadTree {
             const nodeSizeSquared = nodeSize * nodeSize;
             
             // Apply Barnes-Hut criteria or if it's a leaf node
-            if (!node.divided || nodeSizeSquared < theta * distanceSquared) {
-                // Calculate force contribution
-                if (distanceSquared > 0) {
+            if (!node.divided || nodeSizeSquared < theta * theta * distanceSquared) {
+                // For leaf nodes with bodies, calculate directly to avoid self-interaction
+                if (!node.divided && node.bodyCount > 0) {
+                    for (let i = 0; i < node.bodyCount; i++) {
+                        const bx = node.positions[i * 2];
+                        const by = node.positions[i * 2 + 1];
+                        const bMass = node.masses[i];
+                        
+                        const bdx = bx - body.position.x;
+                        const bdy = by - body.position.y;
+                        const bDistanceSquared = bdx * bdx + bdy * bdy;
+                        
+                        // Skip self-interaction (same position means it's the same body)
+                        if (bDistanceSquared < 1e-10) continue;
+                        
+                        const effectiveDistanceSquared = bDistanceSquared + softeningParameter * softeningParameter;
+                        const invDistance = 1.0 / Math.sqrt(effectiveDistanceSquared);
+                        const invDistanceCubed = invDistance * invDistance * invDistance;
+                        const forceStrength = gravitationalConstant * bMass * invDistanceCubed;
+                        
+                        force.x += bdx * forceStrength;
+                        force.y += bdy * forceStrength;
+                    }
+                } else if (distanceSquared > 0) {
+                    // Internal node treated as single body
                     const effectiveDistanceSquared = distanceSquared + softeningParameter * softeningParameter;
                     const invDistance = 1.0 / Math.sqrt(effectiveDistanceSquared);
                     const invDistanceCubed = invDistance * invDistance * invDistance;

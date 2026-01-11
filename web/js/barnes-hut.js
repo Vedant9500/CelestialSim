@@ -157,18 +157,44 @@ class QuadTree {
         const dy = this.centerOfMass.y - body.position.y;
         const distanceSquared = dx * dx + dy * dy;
         const distance = Math.sqrt(distanceSquared);
-        
-        // Avoid self-interaction
-        if (distance === 0) {
-            return;
-        }
 
         // Calculate the ratio s/d where s is the width of the region
         const s = Math.max(this.bounds.width, this.bounds.height);
-        const ratio = s / distance;
+        const ratio = distance > 0 ? s / distance : Infinity;
 
         // If the node is sufficiently far away (s/d < θ), treat as single body
         if (ratio < theta || !this.divided) {
+            // For leaf nodes, we need to handle bodies individually to avoid self-interaction
+            if (!this.divided && this.bodies.length > 0) {
+                // Direct calculation for each body in this leaf node
+                for (const otherBody of this.bodies) {
+                    // Skip self-interaction
+                    if (otherBody === body || otherBody.id === body.id) {
+                        continue;
+                    }
+                    
+                    const odx = otherBody.position.x - body.position.x;
+                    const ody = otherBody.position.y - body.position.y;
+                    const odistanceSquared = odx * odx + ody * ody;
+                    
+                    // Skip if at same position
+                    if (odistanceSquared === 0) continue;
+                    
+                    const softenedDistanceSquared = odistanceSquared + softeningParameter * softeningParameter;
+                    const softenedDistance = Math.sqrt(softenedDistanceSquared);
+                    const forceMagnitude = gravitationalConstant * body.mass * otherBody.mass / softenedDistanceSquared;
+                    
+                    const force = new Vector2D(odx * forceMagnitude / softenedDistance, ody * forceMagnitude / softenedDistance);
+                    body.applyForce(force);
+                }
+                return;
+            }
+            
+            // For internal nodes treated as single body, check if distance is non-zero
+            if (distance === 0) {
+                return;
+            }
+            
             // Apply softening parameter (consistent with direct calculation)
             const softenedDistanceSquared = distanceSquared + softeningParameter * softeningParameter;
             const softenedDistance = Math.sqrt(softenedDistanceSquared);
