@@ -150,23 +150,21 @@ class HybridRenderer {
     }
 
     // Zoom control methods
-    zoomIn(factor = 1.2) {
+    zoomIn(centerX = null, centerY = null, factor = 1.12) {
         if (this.currentRenderer && this.currentRenderer.zoomIn) {
-            this.currentRenderer.zoomIn(factor);
+            this.currentRenderer.zoomIn(centerX, centerY, factor);
         } else {
             // Fallback implementation
-            const camera = this.camera;
-            camera.targetZoom = Math.min(camera.targetZoom * factor, 10.0);
+            this.zoomCamera(factor, centerX, centerY);
         }
     }
 
-    zoomOut(factor = 1.2) {
+    zoomOut(centerX = null, centerY = null, factor = 1.12) {
         if (this.currentRenderer && this.currentRenderer.zoomOut) {
-            this.currentRenderer.zoomOut(factor);
+            this.currentRenderer.zoomOut(centerX, centerY, factor);
         } else {
             // Fallback implementation
-            const camera = this.camera;
-            camera.targetZoom = Math.max(camera.targetZoom / factor, 0.1);
+            this.zoomCamera(1 / factor, centerX, centerY);
         }
     }
 
@@ -787,12 +785,30 @@ class OptimizedCanvas2DRenderer {
     }
 
     // Zoom control methods
-    zoomIn(factor = 1.2) {
+    zoomIn(centerX = null, centerY = null, factor = 1.12) {
+        const oldZoom = this.camera.zoom;
         this.camera.targetZoom = Math.min(this.camera.targetZoom * factor, 10.0);
+        
+        // Zoom towards the center point if provided
+        if (centerX !== null && centerY !== null) {
+            const worldPos = this.screenToWorld(centerX, centerY);
+            const zoomRatio = this.camera.targetZoom / oldZoom;
+            this.camera.x = worldPos.x - (worldPos.x - this.camera.x) / zoomRatio;
+            this.camera.y = worldPos.y - (worldPos.y - this.camera.y) / zoomRatio;
+        }
     }
 
-    zoomOut(factor = 1.2) {
+    zoomOut(centerX = null, centerY = null, factor = 1.12) {
+        const oldZoom = this.camera.zoom;
         this.camera.targetZoom = Math.max(this.camera.targetZoom / factor, 0.1);
+        
+        // Zoom towards the center point if provided
+        if (centerX !== null && centerY !== null) {
+            const worldPos = this.screenToWorld(centerX, centerY);
+            const zoomRatio = this.camera.targetZoom / oldZoom;
+            this.camera.x = worldPos.x - (worldPos.x - this.camera.x) / zoomRatio;
+            this.camera.y = worldPos.y - (worldPos.y - this.camera.y) / zoomRatio;
+        }
     }
 
     // Camera panning methods

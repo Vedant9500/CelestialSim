@@ -677,12 +677,30 @@ class WebGLRenderer {
         this.camera.targetZoom = Math.max(0.1, Math.min(10.0, zoom));
     }
 
-    zoomIn(factor = 1.2) {
+    zoomIn(centerX = null, centerY = null, factor = 1.12) {
+        const oldZoom = this.camera.zoom;
         this.camera.targetZoom = Math.max(0.1, Math.min(10.0, this.camera.targetZoom * factor));
+        
+        // Zoom towards the center point if provided
+        if (centerX !== null && centerY !== null) {
+            const worldPos = this.screenToWorld(centerX, centerY);
+            const zoomRatio = this.camera.targetZoom / oldZoom;
+            this.camera.x = worldPos.x - (worldPos.x - this.camera.x) / zoomRatio;
+            this.camera.y = worldPos.y - (worldPos.y - this.camera.y) / zoomRatio;
+        }
     }
 
-    zoomOut(factor = 1.2) {
+    zoomOut(centerX = null, centerY = null, factor = 1.12) {
+        const oldZoom = this.camera.zoom;
         this.camera.targetZoom = Math.max(0.1, Math.min(10.0, this.camera.targetZoom / factor));
+        
+        // Zoom towards the center point if provided
+        if (centerX !== null && centerY !== null) {
+            const worldPos = this.screenToWorld(centerX, centerY);
+            const zoomRatio = this.camera.targetZoom / oldZoom;
+            this.camera.x = worldPos.x - (worldPos.x - this.camera.x) / zoomRatio;
+            this.camera.y = worldPos.y - (worldPos.y - this.camera.y) / zoomRatio;
+        }
     }
 
     panCamera(deltaX, deltaY) {
